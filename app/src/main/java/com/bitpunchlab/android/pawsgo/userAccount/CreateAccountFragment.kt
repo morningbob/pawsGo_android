@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bitpunchlab.android.pawsgo.R
 import com.bitpunchlab.android.pawsgo.databinding.FragmentCreateAccountBinding
@@ -30,12 +31,23 @@ class CreateAccountFragment : Fragment() {
         _binding = FragmentCreateAccountBinding.inflate(inflater, container, false)
         firebaseClient = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
             .get(FirebaseClientViewModel::class.java)
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.firebaseClient = firebaseClient
 
         binding.buttonSend.setOnClickListener {
-            //val name = binding.edittextCreateName.text.toString()
-            //val email = binding.e
-            //firebaseClient.createUserOfAuth()
+            firebaseClient.createUserOfAuth()
         }
+
+        firebaseClient.readyRegisterLiveData.observe(viewLifecycleOwner, Observer { value ->
+            value?.let {
+                if (value) {
+                    // display send button
+                    binding.buttonSend.visibility = View.VISIBLE
+                } else {
+                    binding.buttonSend.visibility = View.INVISIBLE
+                }
+            }
+        })
 
         return binding.root
     }

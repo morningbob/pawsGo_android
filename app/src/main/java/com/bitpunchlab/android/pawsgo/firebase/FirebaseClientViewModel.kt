@@ -5,6 +5,8 @@ import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.*
+import com.bitpunchlab.android.pawsgo.LoginState
+import com.bitpunchlab.android.pawsgo.LoginStatus
 import com.google.firebase.auth.FirebaseAuth
 import java.util.regex.Pattern
 
@@ -13,28 +15,38 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     var auth : FirebaseAuth = FirebaseAuth.getInstance()
 
     private var _userName = MutableLiveData<String>()
-    private val userName get() = _userName
+    val userName get() = _userName
 
     private var _userEmail = MutableLiveData<String>()
-    private val userEmail get() = _userEmail
+    val userEmail get() = _userEmail
 
     private var _userPassword = MutableLiveData<String>()
-    private val userPassword get() = _userPassword
+    val userPassword get() = _userPassword
 
     private var _userConfirmPassword = MutableLiveData<String>()
-    private val userConfirmPassword get() = _userConfirmPassword
+    val userConfirmPassword get() = _userConfirmPassword
 
     private var _nameError = MutableLiveData<String>()
-    private val nameError get() = _nameError
+    val nameError get() = _nameError
 
     private var _emailError = MutableLiveData<String>()
-    private val emailError get() = _emailError
+    val emailError get() = _emailError
 
     private var _passwordError = MutableLiveData<String>()
-    private val passwordError get() = _passwordError
+    val passwordError get() = _passwordError
 
     private var _confirmPasswordError= MutableLiveData<String>()
-    private val confirmPasswordError get() = _confirmPasswordError
+    val confirmPasswordError get() = _confirmPasswordError
+
+    private var fieldsValidArray = ArrayList<Int>()
+
+    private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
+        if (auth.currentUser != null) {
+            LoginState.state.value = LoginStatus.LOGGED_IN
+        } else {
+            LoginState.state.value = LoginStatus.LOGGED_OUT
+        }
+    }
 
     private val nameValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userName) { name ->
@@ -144,86 +156,77 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         return password == confirmPassword
     }
 
-    var totalValidity = MediatorLiveData<ArrayList<Int>>()
-    
+    private fun sumFieldsValue() : Boolean {
+        return fieldsValidArray.sum() == 4
+    }
     var readyRegisterLiveData = MediatorLiveData<Boolean>()
-    var shouldRegisterLiveDate = MediatorLiveData<Boolean>()
+    var readyLoginLiveData = MediatorLiveData<Boolean>()
 
     init {
+        // this live data stores 5 values,
+        // it represents the validity of all the fields of the registration form
+        // if the corresponding field is valid, the value in this array, the particular position
+        // will be 1, otherwise, it will be 0
+        // that makes checking validities of all fields more efficient,
+        // by just summing up all 4 fields to see if it is 4, then it is ready
+        fieldsValidArray = arrayListOf(0,0,0,0)
+        auth.addAuthStateListener(authStateListener)
 
-        totalValidity.addSource(userName) { name ->
-            if (name.isNullOrEmpty()) {
-                nameError.value = "Name must not be empty."
-                //value = false
-            } else {
-                //value = true
-                nameError.value = ""
-            }
-        }
-        totalValidity.addSource(userEmail) { email ->
-            if (!email.isNullOrEmpty()) {
-                if (!isEmailValid(email)) {
-                    emailError.value = "Please enter a valid email."
-                    //value = false
-                } else {
-                    //value = true
-                    emailError.value = ""
-                }
-            } else {
-                //value = false
-            }
-            //Log.i("email valid? ", value.toString())
-
-        }
-
-        shouldRegisterLiveDate
-
+        // this live data observes all the validities of the fields' live data
+        // it set the fieldsValidArray's value according to the validity.
+        // whenever the sum of the fieldsValidArray is 4, this data returns true
+        // else false
         readyRegisterLiveData.addSource(nameValid) { valid ->
             readyRegisterLiveData.value = if (valid) {
-                //allValid.value?.set(0, 1)
+                fieldsValidArray[0] = 1
                 // check other fields validity
-                //checkIfAllValid()
-                true
+                sumFieldsValue()
             } else {
-                //allValid.value?.set(0, 0)
+                fieldsValidArray[0] = 0
                 false
             }
         }
         readyRegisterLiveData.addSource(emailValid) { valid ->
             if (valid) {
-                allValid.value?.set(1, 1)
+                fieldsValidArray[1] = 1
                 // check other fields validity
-                readyRegisterLiveData.value = checkIfAllValid()
+                sumFieldsValue()
             } else {
-                allValid.value?.set(1, 0)
-                readyRegisterLiveData.value = false
+                fieldsValidArray[1] = 0
+                false
             }
         }
 
         readyRegisterLiveData.addSource(passwordValid) { valid ->
             if (valid) {
-                allValid.value?.set(3, 1)
+                fieldsValidArray[2] = 1
                 // check other fields validity
-                readyRegisterLiveData.value = checkIfAllValid()
+                sumFieldsValue()
             } else {
-                allValid.value?.set(3, 0)
-                readyRegisterLiveData.value = false
+                fieldsValidArray[2] = 0
+                false
             }
         }
         readyRegisterLiveData.addSource(confirmPasswordValid) { valid ->
             if (valid) {
-                allValid.value?.set(4, 1)
+                fieldsValidArray[3] = 1
                 // check other fields validity
-                readyRegisterLiveData.value = checkIfAllValid()
+                sumFieldsValue()
             } else {
-                allValid.value?.set(4, 0)
-                readyRegisterLiveData.value = false
+                fieldsValidArray[3] = 0
+                sumFieldsValue()
             }
         }
+        readyLoginLiveData.addSource(emailValid) { valid ->
+            valid && passwordValid.value!!
+        }
+        readyLoginLiveData.addSource(passwordValid) { valid ->
+            valid && emailValid.value!!
+        }
     }
-    fun createUserOfAuth(email: String, password: String) {
+    fun createUserOfAuth() {
         auth
-            .createUserWithEmailAndPassword(email, password)
+            .createUserWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.i("firebase auth", "create user success.")
@@ -233,9 +236,9 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             }
     }
 
-    fun loginUserOfAuth(email: String, password: String) {
+    fun loginUserOfAuth() {
         auth
-            .signInWithEmailAndPassword(email, password)
+            .signInWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.i("firebase auth, sign in", "success")
@@ -243,6 +246,10 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                     Log.i("firebase auth, sign in", "failed ${task.exception?.message}")
                 }
             }
+    }
+
+    fun logoutUser() {
+        auth.signOut()
     }
 }
 

@@ -76,6 +76,7 @@
                 android:layout_marginRight="@dimen/error_left_right_margin"
                 android:textSize="@dimen/error_text_size"
                 android:text="@={firebaseClient.emailError}"
+                android:textColor="@color/error_red"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edittext_login_email"
                 tools:layout_editor_absoluteY="385dp" />
@@ -84,7 +85,7 @@
                 android:id="@+id/textview_login_password"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:text="@string/password"
                 android:textSize="@dimen/content_text_size"
@@ -112,6 +113,7 @@
                 android:layout_marginRight="@dimen/error_left_right_margin"
                 android:textSize="@dimen/error_text_size"
                 android:text="@={firebaseClient.passwordError}"
+                android:textColor="@color/error_red"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edittext_login_password" />
 
@@ -119,7 +121,7 @@
                 android:id="@+id/button_send"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/send"
@@ -133,7 +135,7 @@
                 android:id="@+id/button_create_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/create_account"

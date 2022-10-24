@@ -19,4 +19,7 @@
     <string name="create_account">Create Account</string>
     <string name="confirm_password">Confirm Password:</string>
     <string name="logout">Logout</string>
+    <string name="authentication_service_alert">Authentication Service</string>
+    <string name="authentication_service_alert_desc">There is error in the authentication service.  Please try again later.</string>
+    <string name="ok">OK</string>
 </resources>

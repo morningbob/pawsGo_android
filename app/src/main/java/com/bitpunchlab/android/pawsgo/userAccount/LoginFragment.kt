@@ -1,6 +1,7 @@
 package com.bitpunchlab.android.pawsgo.userAccount
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +9,8 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.bitpunchlab.android.pawsgo.LoginState
+import com.bitpunchlab.android.pawsgo.AppState
+import com.bitpunchlab.android.pawsgo.LoginInfo
 import com.bitpunchlab.android.pawsgo.LoginStatus
 import com.bitpunchlab.android.pawsgo.R
 import com.bitpunchlab.android.pawsgo.databinding.FragmentLoginBinding
@@ -44,16 +46,17 @@ class LoginFragment : Fragment() {
         firebaseClient.readyLoginLiveData.observe(viewLifecycleOwner, Observer { value ->
             value?.let {
                 if (value) {
-                    //findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
+                    Log.i("login fragment", "ready login true")
                     binding.buttonSend.visibility = View.VISIBLE
                 } else {
+                    Log.i("login fragment", "ready login false")
                     binding.buttonSend.visibility = View.INVISIBLE
                 }
             }
         })
 
-        LoginState.state.observe(viewLifecycleOwner, Observer { state ->
-            if (state == LoginStatus.LOGGED_IN) {
+        LoginInfo.state.observe(viewLifecycleOwner, Observer { state ->
+            if (state == AppState.LOGGED_IN) {
                 findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
             }
         })

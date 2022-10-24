@@ -1,8 +1,11 @@
 package com.bitpunchlab.android.pawsgo
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -21,16 +24,35 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        setHasOptionsMenu(true)
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         firebaseClient = ViewModelProvider(requireActivity(),
             FirebaseClientViewModelFactory(requireActivity()))
             .get(FirebaseClientViewModel::class.java)
         binding.firebaseClient = firebaseClient
 
-        LoginState.state.observe(viewLifecycleOwner, Observer { state ->
+        requireActivity().addMenuProvider(object: MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_main, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.logout -> {
+                        firebaseClient.logoutUser()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+        LoginInfo.state.observe(viewLifecycleOwner, Observer { state ->
             if (state == LoginStatus.LOGGED_OUT) {
                 findNavController().popBackStack()
+            } else {
+                Log.i("login state", "still logged in")
             }
         })
 
@@ -46,20 +68,5 @@ class MainFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_main, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.logout -> {
-                firebaseClient.logoutUser()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }

@@ -5,14 +5,22 @@ import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.*
-import com.bitpunchlab.android.pawsgo.LoginState
-import com.bitpunchlab.android.pawsgo.LoginStatus
+import com.bitpunchlab.android.pawsgo.AppState
+import com.bitpunchlab.android.pawsgo.LoginInfo
+import com.bitpunchlab.android.pawsgo.`models-firebase`.UserFirebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.regex.Pattern
 
 class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     var auth : FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore = Firebase.firestore
 
     private var _userName = MutableLiveData<String>()
     val userName get() = _userName
@@ -40,11 +48,15 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     private var fieldsValidArray = ArrayList<Int>()
 
+    private var coroutineScope = CoroutineScope(Dispatchers.IO)
+
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser != null) {
-            LoginState.state.value = LoginStatus.LOGGED_IN
+            LoginInfo.state.value = AppState.LOGGED_IN
+            Log.i("auth", "changed state to login")
         } else {
-            LoginState.state.value = LoginStatus.LOGGED_OUT
+            LoginInfo.state.value = AppState.LOGGED_OUT
+            Log.i("auth", "changed state to logout")
         }
     }
 
@@ -60,7 +72,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         }
     }
 
-    val emailValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+    private val emailValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(userEmail) { email ->
             if (!email.isNullOrEmpty()) {
                 if (!isEmailValid(email)) {
@@ -172,6 +184,28 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         fieldsValidArray = arrayListOf(0,0,0,0)
         auth.addAuthStateListener(authStateListener)
 
+        LoginInfo.state.observe(activity as LifecycleOwner, Observer { appState ->
+            when (appState) {
+                AppState.READY_CREATE_USER_AUTH -> {
+                    coroutineScope.launch {
+                        if (createUserOfAuth()) {
+                            LoginInfo.state.postValue(AppState.READY_CREATE_USER_FIREBASE)
+                        } else {
+                            LoginInfo.state.postValue(AppState.ERROR_CREATE_USER_AUTH)
+                        }
+                    }
+                }
+                AppState.READY_CREATE_USER_FIREBASE -> {
+                    val user = createUserFirebase(
+                        id = auth.currentUser!!.uid,
+                        name = userName.value!!,
+                        email = userEmail.value!!)
+                    saveUserFirebase(user)
+                }
+                else -> 0
+            }
+        })
+
         // this live data observes all the validities of the fields' live data
         // it set the fieldsValidArray's value according to the validity.
         // whenever the sum of the fieldsValidArray is 4, this data returns true
@@ -218,22 +252,47 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             }
         }
         readyLoginLiveData.addSource(emailValid) { valid ->
-            valid && passwordValid.value!!
+            readyLoginLiveData.value = (valid && passwordValid.value != null && passwordValid.value!!)
+
         }
         readyLoginLiveData.addSource(passwordValid) { valid ->
-            valid && emailValid.value!!
+            readyLoginLiveData.value = (valid && emailValid.value != null && emailValid.value!!)
+
         }
+
     }
-    fun createUserOfAuth() {
-        auth
-            .createUserWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.i("firebase auth", "create user success.")
-                } else {
-                    Log.i("firebase auth", "create user failure: ${task.exception?.message}")
-                }
+
+    private fun createUserFirebase(id: String, name: String, email: String, lost: List<String> = emptyList(),
+                                   dogs: List<String> = emptyList()) : UserFirebase {
+        return UserFirebase(id = id, name = name, email = email, lostDogs = lost, dogs = dogs)
+    }
+
+    private fun saveUserFirebase(user: UserFirebase) {
+        firestore
+            .collection("users")
+            .document(user.userID)
+            .set(user)
+            .addOnSuccessListener { docRef ->
+                Log.i("firestore", "save new user, success")
             }
+            .addOnFailureListener { e ->
+                Log.i("firestore", "save user failed: ${e.message}")
+            }
+    }
+
+    private suspend fun createUserOfAuth() : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            auth
+                .createUserWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.i("firebase auth", "create user success.")
+                        cancellableContinuation.resume(true){}
+                    } else {
+                        Log.i("firebase auth", "create user failure: ${task.exception?.message}")
+                        cancellableContinuation.resume(false){}
+                    }
+                }
     }
 
     fun loginUserOfAuth() {
@@ -249,6 +308,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     }
 
     fun logoutUser() {
+        Log.i("logout", "logging out")
         auth.signOut()
     }
 }

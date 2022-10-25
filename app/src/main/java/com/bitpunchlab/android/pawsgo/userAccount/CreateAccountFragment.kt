@@ -41,6 +41,7 @@ class CreateAccountFragment : Fragment() {
         binding.firebaseClient = firebaseClient
 
         binding.buttonSend.setOnClickListener {
+            firebaseClient.isCreatingUserAccount = true
             LoginInfo.state.value = AppState.READY_CREATE_USER_AUTH
         }
 

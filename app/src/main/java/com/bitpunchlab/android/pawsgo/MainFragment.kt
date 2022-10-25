@@ -49,7 +49,7 @@ class MainFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         LoginInfo.state.observe(viewLifecycleOwner, Observer { state ->
-            if (state == LoginStatus.LOGGED_OUT) {
+            if (state == AppState.LOGGED_OUT) {
                 findNavController().popBackStack()
             } else {
                 Log.i("login state", "still logged in")

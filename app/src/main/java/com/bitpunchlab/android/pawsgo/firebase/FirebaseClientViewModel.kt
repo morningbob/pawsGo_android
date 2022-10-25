@@ -50,6 +50,8 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
 
+    var isCreatingUserAccount = false
+
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser != null) {
             LoginInfo.state.value = AppState.LOGGED_IN
@@ -196,11 +198,24 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                     }
                 }
                 AppState.READY_CREATE_USER_FIREBASE -> {
+                    Log.i("ready create user firebase", "user id from auth ${auth.currentUser!!.uid}")
                     val user = createUserFirebase(
                         id = auth.currentUser!!.uid,
                         name = userName.value!!,
                         email = userEmail.value!!)
-                    saveUserFirebase(user)
+                    coroutineScope.launch {
+                        if (saveUserFirebase(user)) {
+                            LoginInfo.state.value = AppState.SUCCESS_CREATED_USER_ACCOUNT
+                        } else {
+                            LoginInfo.state.value = AppState.ERROR_CREATE_USER_ACCOUNT
+                        }
+
+                    }
+                }
+                AppState.LOGGED_IN -> {
+                    if (isCreatingUserAccount) {
+                        LoginInfo.state.value = AppState.READY_CREATE_USER_FIREBASE
+                    }
                 }
                 else -> 0
             }
@@ -211,23 +226,23 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         // whenever the sum of the fieldsValidArray is 4, this data returns true
         // else false
         readyRegisterLiveData.addSource(nameValid) { valid ->
-            readyRegisterLiveData.value = if (valid) {
+            if (valid) {
                 fieldsValidArray[0] = 1
                 // check other fields validity
-                sumFieldsValue()
+                readyRegisterLiveData.value = sumFieldsValue()
             } else {
                 fieldsValidArray[0] = 0
-                false
+                readyRegisterLiveData.value = false
             }
         }
         readyRegisterLiveData.addSource(emailValid) { valid ->
             if (valid) {
                 fieldsValidArray[1] = 1
                 // check other fields validity
-                sumFieldsValue()
+                readyRegisterLiveData.value = sumFieldsValue()
             } else {
                 fieldsValidArray[1] = 0
-                false
+                readyRegisterLiveData.value = false
             }
         }
 
@@ -235,20 +250,20 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             if (valid) {
                 fieldsValidArray[2] = 1
                 // check other fields validity
-                sumFieldsValue()
+                readyRegisterLiveData.value = sumFieldsValue()
             } else {
                 fieldsValidArray[2] = 0
-                false
+                readyRegisterLiveData.value = false
             }
         }
         readyRegisterLiveData.addSource(confirmPasswordValid) { valid ->
             if (valid) {
                 fieldsValidArray[3] = 1
                 // check other fields validity
-                sumFieldsValue()
+                readyRegisterLiveData.value = sumFieldsValue()
             } else {
                 fieldsValidArray[3] = 0
-                sumFieldsValue()
+                readyRegisterLiveData.value = false
             }
         }
         readyLoginLiveData.addSource(emailValid) { valid ->
@@ -267,17 +282,18 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         return UserFirebase(id = id, name = name, email = email, lostDogs = lost, dogs = dogs)
     }
 
-    private fun saveUserFirebase(user: UserFirebase) {
-        firestore
-            .collection("users")
-            .document(user.userID)
-            .set(user)
-            .addOnSuccessListener { docRef ->
-                Log.i("firestore", "save new user, success")
-            }
-            .addOnFailureListener { e ->
-                Log.i("firestore", "save user failed: ${e.message}")
-            }
+    private suspend fun saveUserFirebase(user: UserFirebase) =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            firestore
+                .collection("users")
+                .document(user.userID)
+                .set(user)
+                .addOnSuccessListener { docRef ->
+                    Log.i("firestore", "save new user, success")
+                }
+                .addOnFailureListener { e ->
+                    Log.i("firestore", "save user failed: ${e.message}")
+                }
     }
 
     private suspend fun createUserOfAuth() : Boolean =

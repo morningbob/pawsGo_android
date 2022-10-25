@@ -14,5 +14,9 @@ class UserFirebase {
     constructor()
 
     constructor(id: String, name: String, email: String,
-                lostDogs: List<String>, dogs: List<String>)
+                lostDogs: List<String>, dogs: List<String>) : this() {
+                    userID = id
+                    userName = name
+                    userEmail = email
+                }
 }

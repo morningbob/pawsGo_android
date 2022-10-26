@@ -7,7 +7,7 @@ import android.util.Patterns
 import androidx.lifecycle.*
 import com.bitpunchlab.android.pawsgo.AppState
 import com.bitpunchlab.android.pawsgo.LoginInfo
-import com.bitpunchlab.android.pawsgo.`models-firebase`.UserFirebase
+import com.bitpunchlab.android.pawsgo.modelsFirebase.UserFirebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -197,6 +197,9 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                         }
                     }
                 }
+                AppState.ERROR_CREATE_USER_AUTH -> {
+                    resetAllFields()
+                }
                 AppState.READY_CREATE_USER_FIREBASE -> {
                     Log.i("ready create user firebase", "user id from auth ${auth.currentUser!!.uid}")
                     val user = createUserFirebase(
@@ -205,12 +208,18 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                         email = userEmail.value!!)
                     coroutineScope.launch {
                         if (saveUserFirebase(user)) {
-                            LoginInfo.state.value = AppState.SUCCESS_CREATED_USER_ACCOUNT
+                            LoginInfo.state.postValue(AppState.SUCCESS_CREATED_USER_ACCOUNT)
                         } else {
-                            LoginInfo.state.value = AppState.ERROR_CREATE_USER_ACCOUNT
+                            LoginInfo.state.postValue(AppState.ERROR_CREATE_USER_ACCOUNT)
                         }
 
                     }
+                }
+                AppState.ERROR_CREATE_USER_ACCOUNT -> {
+                    resetAllFields()
+                }
+                AppState.SUCCESS_CREATED_USER_ACCOUNT -> {
+                    resetAllFields()
                 }
                 AppState.LOGGED_IN -> {
                     if (isCreatingUserAccount) {
@@ -290,10 +299,16 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 .set(user)
                 .addOnSuccessListener { docRef ->
                     Log.i("firestore", "save new user, success")
+                    cancellableContinuation.resume(true){}
                 }
                 .addOnFailureListener { e ->
                     Log.i("firestore", "save user failed: ${e.message}")
+                    cancellableContinuation.resume(false){}
                 }
+    }
+
+    private fun saveUserRoom() {
+
     }
 
     private suspend fun createUserOfAuth() : Boolean =
@@ -311,21 +326,37 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 }
     }
 
-    fun loginUserOfAuth() {
-        auth
-            .signInWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.i("firebase auth, sign in", "success")
-                } else {
-                    Log.i("firebase auth, sign in", "failed ${task.exception?.message}")
+    suspend fun loginUserOfAuth() : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            auth
+                .signInWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.i("firebase auth, sign in", "success")
+                        cancellableContinuation.resume(true){}
+                    } else {
+                        Log.i("firebase auth, sign in", "failed ${task.exception?.message}")
+                        cancellableContinuation.resume(false){}
+                    }
                 }
-            }
+
     }
 
     fun logoutUser() {
         Log.i("logout", "logging out")
         auth.signOut()
+    }
+
+    fun resetAllFields() {
+        userName.value = ""
+        userEmail.value = ""
+        userPassword.value = ""
+        userConfirmPassword.value = ""
+        nameError.value = ""
+        emailError.value = ""
+        passwordError.value = ""
+        confirmPasswordError.value = ""
+        isCreatingUserAccount = false
     }
 }
 

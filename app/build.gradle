@@ -3,12 +3,13 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'com.google.gms.google-services'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
-
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
 }
 
 android {
     namespace 'com.bitpunchlab.android.pawsgo'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.bitpunchlab.android.pawsgo"
@@ -60,4 +61,8 @@ dependencies {
 
     // Firestore
     implementation 'com.google.firebase:firebase-firestore-ktx'
+
+    // room database
+    implementation 'androidx.room:room-runtime:2.5.0-alpha03'
+    kapt 'androidx.room:room-compiler:2.5.0-alpha03'
 }

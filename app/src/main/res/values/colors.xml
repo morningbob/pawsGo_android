@@ -10,5 +10,6 @@
     <color name="green_background">#bce8c1</color>
     <color name="button_brown">#573e01</color>
     <color name="brown_deep">#2e2102</color>
+    <color name="lighter_brown">#9c7305</color>
     <color name="error_red">#b54402</color>
 </resources>

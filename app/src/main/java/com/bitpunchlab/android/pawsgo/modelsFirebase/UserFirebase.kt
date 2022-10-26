@@ -1,4 +1,4 @@
-package com.bitpunchlab.android.pawsgo.`models-firebase`
+package com.bitpunchlab.android.pawsgo.modelsFirebase
 
 import java.util.*
 

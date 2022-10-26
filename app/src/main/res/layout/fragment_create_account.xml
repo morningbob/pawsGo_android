@@ -126,6 +126,7 @@
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:text="@string/password"
                 android:textSize="@dimen/content_text_size"
+
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_email_error" />
 
@@ -138,6 +139,7 @@
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
                 android:text="@={firebaseClient.userPassword}"
+                android:inputType="textPassword"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_create_password"/>
@@ -174,6 +176,7 @@
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
                 android:text="@={firebaseClient.userConfirmPassword}"
+                android:inputType="textPassword"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_confirm_password"/>

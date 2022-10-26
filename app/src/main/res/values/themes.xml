@@ -12,11 +12,19 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+
     </style>
 
     <style name="Theme.PawsGo.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="materialCalendarTheme">@style/ThemeOverlay.App.DateTimePicker</item>
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.App.DateTimePicker</item>
+    </style>
+
+    <style name="ThemeOverlay.App.DateTimePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/lighter_brown</item>
+        <item name="colorOnPrimary">@color/brown_deep</item>
     </style>
 
     <style name="Theme.PawsGo.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

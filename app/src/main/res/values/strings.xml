@@ -22,4 +22,12 @@
     <string name="authentication_service_alert">Authentication Service</string>
     <string name="authentication_service_alert_desc">There is error in the authentication service.  Please try again later.</string>
     <string name="ok">OK</string>
+    <string name="create_error_alert">Create User Account</string>
+    <string name="create_error_alert_desc">There is an error in the server.  The account was not created.  Please try again later.</string>
+    <string name="dog_name">Dog Name:</string>
+    <string name="dog_breed">Dog Breed:</string>
+    <string name="dog_gender">Dog Gender:</string>
+    <string name="upload_picture">Upload Picture</string>
+    <string name="the_place_last_seen">The place last seen:</string>
+    <string name="choose_a_date">Choose a date</string>
 </resources>

@@ -61,14 +61,18 @@ class CreateAccountFragment : Fragment() {
                 AppState.ERROR_CREATE_USER_AUTH -> {
                     authErrorAlert()
                 }
+                AppState.SUCCESS_CREATED_USER_ACCOUNT -> {
+                    createSuccessAlert()
+                }
+                AppState.ERROR_CREATE_USER_ACCOUNT -> {
+                    createErrorAlert()
+                }
                 AppState.LOGGED_IN -> {
                     findNavController().navigate(R.id.action_createAccountFragment_to_MainFragment)
                 }
                 else -> 0
             }
         })
-
-
 
         return binding.root
     }
@@ -84,6 +88,34 @@ class CreateAccountFragment : Fragment() {
         with(authAlert) {
             setTitle(getString(R.string.authentication_service_alert))
             setMessage(getString(R.string.authentication_service_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    // do nothing
+                })
+            show()
+        }
+    }
+
+    private fun createErrorAlert() {
+        val createAlert = AlertDialog.Builder(context)
+
+        with(createAlert) {
+            setTitle(getString(R.string.create_error_alert))
+            setMessage(getString(R.string.create_error_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    // do nothing
+                })
+            show()
+        }
+    }
+
+    private fun createSuccessAlert() {
+        val successAlert = AlertDialog.Builder(context)
+
+        with(successAlert) {
+            setTitle("Create User Account")
+            setMessage("Your account was successfully created.")
             setPositiveButton(getString(R.string.ok),
                 DialogInterface.OnClickListener { dialog, button ->
                     // do nothing

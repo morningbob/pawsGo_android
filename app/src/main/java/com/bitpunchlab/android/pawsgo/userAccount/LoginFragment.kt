@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -16,6 +17,9 @@ import com.bitpunchlab.android.pawsgo.R
 import com.bitpunchlab.android.pawsgo.databinding.FragmentLoginBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class LoginFragment : Fragment() {
@@ -23,6 +27,7 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private lateinit var firebaseClient : FirebaseClientViewModel
+    private var coroutineScope = CoroutineScope(Dispatchers.IO)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,7 +41,9 @@ class LoginFragment : Fragment() {
         binding.firebaseClient = firebaseClient
 
         binding.buttonSend.setOnClickListener {
-            firebaseClient.loginUserOfAuth()
+            coroutineScope.launch {
+                firebaseClient.loginUserOfAuth()
+            }
         }
 
         binding.buttonCreateAccount.setOnClickListener {

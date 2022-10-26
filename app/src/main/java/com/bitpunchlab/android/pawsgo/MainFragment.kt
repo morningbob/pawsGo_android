@@ -24,7 +24,7 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        setHasOptionsMenu(true)
+        //setHasOptionsMenu(true)
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         firebaseClient = ViewModelProvider(requireActivity(),
             FirebaseClientViewModelFactory(requireActivity()))
@@ -38,6 +38,11 @@ class MainFragment : Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
+                    R.id.reportLostDog -> {
+                        // navigate to the lost dog form
+                        findNavController().navigate(R.id.action_MainFragment_to_reportLostDogFragment)
+                        true
+                    }
                     R.id.logout -> {
                         firebaseClient.logoutUser()
                         true

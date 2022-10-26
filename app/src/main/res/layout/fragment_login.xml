@@ -101,6 +101,7 @@
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
                 android:text="@={firebaseClient.userPassword}"
+                android:inputType="textPassword"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_login_password"/>

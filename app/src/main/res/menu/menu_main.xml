@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.bitpunchlab.android.pawsgo.MainActivity">
+
+    <item
+        android:id="@+id/reportLostDog"
+        android:orderInCategory="100"
+        android:title="I lost a dog"
+        app:showAsAction="never" />
     <item
         android:id="@+id/logout"
         android:orderInCategory="100"

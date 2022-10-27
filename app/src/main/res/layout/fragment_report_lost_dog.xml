@@ -136,7 +136,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
-                android:text="Select date"
+                android:text="@string/select_date"
                 android:textSize="@dimen/button_text_size"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -149,11 +149,11 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
-                android:text="Select Time"
+                android:text="@string/select_time"
                 android:textSize="@dimen/button_text_size"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textview_date_lost" />
+                app:layout_constraintTop_toBottomOf="@id/button_choose_date" />
 
 
             <TextView
@@ -165,7 +165,7 @@
                 android:text="@string/the_place_last_seen"
                 android:textSize="@dimen/content_text_size"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/button_choose_date" />
+                app:layout_constraintTop_toBottomOf="@id/button_choose_time" />
 
             <EditText
                 android:id="@+id/edittext_place_lost"
@@ -184,6 +184,8 @@
                 android:id="@+id/button_upload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/button_left_right_margin"
+                android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/upload_picture"
                 android:textSize="@dimen/button_text_size"
                 app:layout_constraintEnd_toEndOf="parent"

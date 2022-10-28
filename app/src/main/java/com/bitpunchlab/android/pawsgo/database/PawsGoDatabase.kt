@@ -5,10 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.UserRoom
 import kotlinx.coroutines.InternalCoroutinesApi
 
-@Database(entities = [UserRoom::class], version = 1, exportSchema = false)
+@Database(entities = [UserRoom::class, DogRoom::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class PawsGoDatabase : RoomDatabase() {
     abstract val pawsDAO: PawsDAO

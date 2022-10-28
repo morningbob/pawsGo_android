@@ -30,4 +30,15 @@
     <string name="cancel">Cancel</string>
     <string name="select_date">Select date</string>
     <string name="select_time">Select Time</string>
+    <string name="dog_age">Dog Age:</string>
+    <string name="missing_data_alert">Invalid Fields</string>
+    <string name="missing_data_alert_desc">Please make sure you entered dog name, date of lost and place of lost</string>
+
+    <string-array name="gender_array">
+        <item>Choose</item>
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
+
 </resources>

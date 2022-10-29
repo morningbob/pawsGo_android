@@ -7,16 +7,16 @@ import android.util.Patterns
 import androidx.lifecycle.*
 import com.bitpunchlab.android.pawsgo.AppState
 import com.bitpunchlab.android.pawsgo.LoginInfo
+import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.modelsFirebase.UserFirebase
+import com.bitpunchlab.android.pawsgo.modelsRoom.UserRoom
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
 import java.util.regex.Pattern
 
+@OptIn(InternalCoroutinesApi::class)
 class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     var auth : FirebaseAuth = FirebaseAuth.getInstance()
@@ -52,12 +52,27 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     var isCreatingUserAccount = false
 
+    private var localDatabase : PawsGoDatabase
+
+    var _appState = MutableLiveData<AppState>(AppState.LOGGED_OUT)
+    val appState get() = _appState
+    //lateinit var currentUserRoomLiveData : LiveData<UserRoom>
+    var _currentUserRoom = MediatorLiveData<UserRoom?>()
+    val currentUserRoom get() = _currentUserRoom
+
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser != null) {
-            LoginInfo.state.value = AppState.LOGGED_IN
+            //LoginInfo.state.value = AppState.LOGGED_IN
+            _appState.value = AppState.LOGGED_IN
             Log.i("auth", "changed state to login")
+            // as soon as we got the auth current user, we use its uid to retrieve the
+            // user room in local database
+            coroutineScope.launch {
+                retrieveLocalUser()
+            }
         } else {
-            LoginInfo.state.value = AppState.LOGGED_OUT
+            //LoginInfo.state.value = AppState.LOGGED_OUT
+            _appState.value = AppState.LOGGED_OUT
             Log.i("auth", "changed state to logout")
         }
     }
@@ -176,6 +191,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     var readyRegisterLiveData = MediatorLiveData<Boolean>()
     var readyLoginLiveData = MediatorLiveData<Boolean>()
 
+
     init {
         // this live data stores 5 values,
         // it represents the validity of all the fields of the registration form
@@ -185,15 +201,16 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         // by just summing up all 4 fields to see if it is 4, then it is ready
         fieldsValidArray = arrayListOf(0,0,0,0)
         auth.addAuthStateListener(authStateListener)
+        localDatabase = PawsGoDatabase.getInstance(activity)
 
-        LoginInfo.state.observe(activity as LifecycleOwner, Observer { appState ->
-            when (appState) {
+        appState.observe(activity as LifecycleOwner, Observer { state ->
+            when (state) {
                 AppState.READY_CREATE_USER_AUTH -> {
                     coroutineScope.launch {
                         if (createUserOfAuth()) {
-                            LoginInfo.state.postValue(AppState.READY_CREATE_USER_FIREBASE)
+                            _appState.postValue(AppState.READY_CREATE_USER_FIREBASE)
                         } else {
-                            LoginInfo.state.postValue(AppState.ERROR_CREATE_USER_AUTH)
+                            _appState.postValue(AppState.ERROR_CREATE_USER_AUTH)
                         }
                     }
                 }
@@ -208,9 +225,14 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                         email = userEmail.value!!)
                     coroutineScope.launch {
                         if (saveUserFirebase(user)) {
-                            LoginInfo.state.postValue(AppState.SUCCESS_CREATED_USER_ACCOUNT)
+                            // we also create the user room and save it here
+                            val userRoom = convertUserFirebaseToUserRoom(user)
+                            saveUserRoom(userRoom)
+                            // we also update LoginInfo , the current user
+                            //LoginInfo.user = userRoom
+                            _appState.postValue(AppState.SUCCESS_CREATED_USER_ACCOUNT)
                         } else {
-                            LoginInfo.state.postValue(AppState.ERROR_CREATE_USER_ACCOUNT)
+                            _appState.postValue(AppState.ERROR_CREATE_USER_ACCOUNT)
                         }
 
                     }
@@ -222,13 +244,18 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                     resetAllFields()
                 }
                 AppState.LOGGED_IN -> {
+                    //retrieveUserRoom()
                     if (isCreatingUserAccount) {
-                        LoginInfo.state.value = AppState.READY_CREATE_USER_FIREBASE
+                        _appState.value = AppState.READY_CREATE_USER_FIREBASE
                     }
                 }
                 else -> 0
             }
         })
+
+
+
+        //loginState.observe(activity as LifecycleOwner, Observer { state -> })
 
         // this live data observes all the validities of the fields' live data
         // it set the fieldsValidArray's value according to the validity.
@@ -307,8 +334,19 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 }
     }
 
-    private fun saveUserRoom() {
+    private fun convertUserFirebaseToUserRoom(userFirebase: UserFirebase) : UserRoom {
+        return UserRoom(userID = userFirebase.userID, userName = userFirebase.userName,
+            userEmail = userFirebase.userEmail, dateCreated = userFirebase.dateCreated)
+    }
 
+    private fun saveUserRoom(user: UserRoom) {
+        coroutineScope.launch {
+            localDatabase.pawsDAO.insertUser(user)
+        }
+    }
+
+    private fun retrieveUserRoom() : LiveData<UserRoom> {
+        return localDatabase.pawsDAO.getUser(auth.currentUser!!.uid)
     }
 
     private suspend fun createUserOfAuth() : Boolean =
@@ -357,6 +395,16 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         passwordError.value = ""
         confirmPasswordError.value = ""
         isCreatingUserAccount = false
+    }
+
+    private fun retrieveLocalUser() {
+        // this mediator live data is used to solve the problem of live data from the database
+        // not observable.  I add the mediator, so the mediator live data is observable from
+        // the other fragments.
+        currentUserRoom.addSource(retrieveUserRoom()) { user ->
+            currentUserRoom.postValue(user)
+            Log.i("mediator live data current user", "is updated user")
+        }
     }
 }
 

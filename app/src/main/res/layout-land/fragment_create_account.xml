@@ -22,38 +22,49 @@
             tools:context=".userAccount.CreateAccountFragment"
             >
 
-            <ImageView
-                android:id="@+id/art_create_account"
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
-                android:layout_marginTop="@dimen/icon_margin_top"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/collar"
-                tools:srcCompat="@drawable/collar" />
-
-            <TextView
-                android:id="@+id/textview_create_account_title"
+            <LinearLayout
+                android:id="@+id/title_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:text="@string/create_account"
-                android:textSize="@dimen/title_text_size"
+                android:layout_marginTop="@dimen/icon_margin_top"
+                android:orientation="horizontal"
+                android:gravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/art_create_account" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/art_create_account"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/collar"
+                    tools:srcCompat="@drawable/collar" />
+
+                <TextView
+                    android:id="@+id/textview_create_account_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="@string/create_account"
+                    android:textSize="@dimen/title_text_size"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/art_create_account" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textview_create_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="15dp"
                 android:text="@string/name"
                 android:textSize="@dimen/content_text_size"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textview_create_account_title" />
+                app:layout_constraintTop_toBottomOf="@id/title_layout" />
 
             <EditText
                 android:id="@+id/edittext_create_name"
@@ -197,7 +208,7 @@
                 android:id="@+id/button_send"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/send"

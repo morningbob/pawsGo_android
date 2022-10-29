@@ -62,7 +62,7 @@ class LoginFragment : Fragment() {
             }
         })
 
-        LoginInfo.state.observe(viewLifecycleOwner, Observer { state ->
+        firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
             if (state == AppState.LOGGED_IN) {
                 findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
             }

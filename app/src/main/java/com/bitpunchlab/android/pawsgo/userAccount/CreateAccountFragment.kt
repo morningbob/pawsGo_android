@@ -42,7 +42,7 @@ class CreateAccountFragment : Fragment() {
 
         binding.buttonSend.setOnClickListener {
             firebaseClient.isCreatingUserAccount = true
-            LoginInfo.state.value = AppState.READY_CREATE_USER_AUTH
+            firebaseClient.appState.value = AppState.READY_CREATE_USER_AUTH
         }
 
         firebaseClient.readyRegisterLiveData.observe(viewLifecycleOwner, Observer { value ->
@@ -55,7 +55,7 @@ class CreateAccountFragment : Fragment() {
                 }
             }
         })
-
+/*
         LoginInfo.state.observe(viewLifecycleOwner, Observer { appState ->
             when (appState) {
                 AppState.ERROR_CREATE_USER_AUTH -> {
@@ -69,6 +69,24 @@ class CreateAccountFragment : Fragment() {
                 }
                 AppState.LOGGED_IN -> {
                     findNavController().navigate(R.id.action_createAccountFragment_to_MainFragment)
+                }
+                else -> 0
+            }
+        })
+*/
+        firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
+            when (state) {
+                AppState.LOGGED_IN -> {
+                    findNavController().navigate(R.id.action_createAccountFragment_to_MainFragment)
+                }
+                AppState.ERROR_CREATE_USER_AUTH -> {
+                    authErrorAlert()
+                }
+                AppState.SUCCESS_CREATED_USER_ACCOUNT -> {
+                    //createSuccessAlert()
+                }
+                AppState.ERROR_CREATE_USER_ACCOUNT -> {
+                    createErrorAlert()
                 }
                 else -> 0
             }

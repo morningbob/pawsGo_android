@@ -33,6 +33,10 @@
     <string name="dog_age">Dog Age:</string>
     <string name="missing_data_alert">Invalid Fields</string>
     <string name="missing_data_alert_desc">Please make sure you entered dog name, date of lost and place of lost</string>
+    <string name="report_lost_dog">Report Lost Dog</string>
+    <string name="home">Home</string>
+    <string name="login_page">Login Page</string>
+    <string name="lost_report_intro">Please fill in the form for your lost dog. We\'ll store the data in the database. If anyone found the dog, we\'ll send an email to you. If the other users want to search for lost dogs, the dog\'s data will be listed to the users.</string>
 
     <string-array name="gender_array">
         <item>Choose</item>

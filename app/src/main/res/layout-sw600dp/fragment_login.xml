@@ -18,6 +18,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="50dp"
             android:background="@color/green_background"
             tools:context=".userAccount.LoginFragment"
             >
@@ -40,6 +41,8 @@
                 android:layout_marginTop="30dp"
                 android:text="@string/login"
                 android:textSize="@dimen/title_text_size"
+                android:textColor="@color/black"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/art_login" />
@@ -52,6 +55,7 @@
                 android:layout_marginTop="30dp"
                 android:text="@string/email"
                 android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_login_title" />
 
@@ -89,6 +93,7 @@
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:text="@string/password"
                 android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_email_error" />
 

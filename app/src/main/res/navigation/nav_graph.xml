@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/LoginFragment"
         android:name="com.bitpunchlab.android.pawsgo.userAccount.LoginFragment"
-        android:label="Login Page"
+        android:label="@string/login_page"
         tools:layout="@layout/fragment_login">
 
         <action
@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/MainFragment"
         android:name="com.bitpunchlab.android.pawsgo.MainFragment"
-        android:label="Home"
+        android:label="@string/home"
         tools:layout="@layout/fragment_main">
 
         <action
@@ -37,10 +37,12 @@
         android:label="@string/create_account" >
         <action
             android:id="@+id/action_createAccountFragment_to_MainFragment"
-            app:destination="@id/MainFragment" />
+            app:destination="@id/MainFragment"
+            app:popUpTo="@id/createAccountFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/reportLostDogFragment"
         android:name="com.bitpunchlab.android.pawsgo.reportLostDog.ReportLostDogFragment"
-        android:label="Report Lost Dog" />
+        android:label="@string/report_lost_dog" />
 </navigation>

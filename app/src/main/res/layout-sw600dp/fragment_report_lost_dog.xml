@@ -17,7 +17,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="50dp"
             tools:context=".reportLostDog.ReportLostDogFragment"
             android:background="@color/green_background">
 
@@ -39,7 +40,7 @@
                 android:layout_marginTop="30dp"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:layout_marginRight="@dimen/content_left_right_margin"
-                android:text="Please fill in the form for your lost dog.  We'll store the data in the database.  If anyone found the dog, we'll send an email to you.  If the other users want to search for lost dogs, the dog's data will be listed to the users."
+                android:text="@string/lost_report_intro"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -53,6 +54,7 @@
                 android:layout_marginTop="30dp"
                 android:text="@string/dog_name"
                 android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_intro" />
 
@@ -77,6 +79,7 @@
                 android:layout_marginTop="30dp"
                 android:text="@string/dog_breed"
                 android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edittext_dog_name" />
 
@@ -101,6 +104,7 @@
                 android:layout_marginTop="30dp"
                 android:text="@string/dog_gender"
                 android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
 
                 app:layout_constraintTop_toBottomOf="@id/edittext_dog_breed" />
@@ -125,6 +129,7 @@
                 android:layout_marginTop="30dp"
                 android:text="@string/dog_age"
                 android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/gender_spinner" />
 
@@ -149,6 +154,7 @@
                 android:text="When did it happen?"
                 android:textSize="@dimen/content_text_size"
                 android:textAlignment="center"
+                android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edittext_dog_age" />
@@ -161,6 +167,7 @@
                 android:textSize="@dimen/content_text_size"
                 android:textAlignment="center"
                 android:visibility="gone"
+                android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_date_lost" />
@@ -187,6 +194,7 @@
                 android:visibility="gone"
                 android:textSize="@dimen/content_text_size"
                 android:textAlignment="center"
+                android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/button_choose_date" />
@@ -214,6 +222,7 @@
                 android:layout_marginTop="30dp"
                 android:text="@string/the_place_last_seen"
                 android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/button_choose_time" />
 

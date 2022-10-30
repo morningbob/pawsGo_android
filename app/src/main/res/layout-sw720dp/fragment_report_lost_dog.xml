@@ -18,7 +18,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="50dp"
+            android:paddingBottom="70dp"
             tools:context=".reportLostDog.ReportLostDogFragment"
             android:background="@color/green_background">
 
@@ -37,11 +37,11 @@
                 android:id="@+id/textview_intro"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="60dp"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:text="@string/lost_report_intro"
-                android:textSize="20sp"
+                android:textSize="25sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/art_report" />
@@ -55,7 +55,6 @@
                 android:text="@string/dog_name"
                 android:textSize="@dimen/content_text_size"
                 android:textColor="@color/black"
-                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_intro" />
 
@@ -166,8 +165,8 @@
                 android:layout_marginTop="30dp"
                 android:textSize="@dimen/content_text_size"
                 android:textAlignment="center"
-                android:visibility="gone"
                 android:textColor="@color/black"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_date_lost" />
@@ -253,7 +252,7 @@
                 android:id="@+id/button_upload"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/upload_picture"

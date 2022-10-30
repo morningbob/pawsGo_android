@@ -24,6 +24,7 @@ import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.firebase.database.collection.LLRBNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -45,7 +46,6 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var allPermissionGranted = MutableLiveData<Boolean>(true)
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var localDatabase : PawsGoDatabase
-    //private var genderSpinner: Spinner? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,18 +78,28 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
         binding.buttonSend.setOnClickListener {
+            var processedAge : Int? = null
+            if (binding.edittextDogAge.text != null && binding.edittextDogAge.text.toString() == "") {
+                try {
+                    processedAge = binding.edittextDogAge.text.toString().toInt()
+                } catch (e: java.lang.NumberFormatException) {
+                    Log.i("processing dog age", "error converting to number")
+                }
+            }
+
             if (verifyDogData(binding.edittextDogName.text.toString(),
                 lostDate,
                 binding.edittextPlaceLost.text.toString())) {
-                val dogRoom = createDog(name = binding.edittextDogName.text.toString(),
+                val dogRoom = createDogRoom(name = binding.edittextDogName.text.toString(),
                 breed = binding.edittextDogBreed.text.toString(),
                 gender = gender,
-                age = binding.edittextDogAge.text.toString().toInt(),
+                age = processedAge,
                     date = lostDate!!,
                     hour = lostHour,
                     minute = lostMinute,
                     place = binding.edittextPlaceLost.text.toString())
-                saveDogLocalDatabase(dogRoom)
+                //saveDogLocalDatabase(dogRoom)
+                firebaseClient.handleNewLostDog(dogRoom)
             } else {
                 invalidDogDataAlert()
             }
@@ -234,14 +244,34 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun verifyDogData(name: String?, date: String?, place: String?) : Boolean {
-        return name != null && name != "" &&
-                date != null && date != "" &&
-                place != null && date != ""
+        var nameValidity = true
+        var dateValidity = true
+        var placeValidity = true
+        if (!(name != null && name != "")) {
+            nameValidity = false
+            binding.textviewDogName.setTextColor(resources.getColor(R.color.error_red))
+        } else {
+            binding.textviewDogName.setTextColor(resources.getColor(R.color.black))
+        }
+        if (!(date != null && date != "")) {
+            binding.textviewDateLost.setTextColor(resources.getColor(R.color.error_red))
+            dateValidity = false
+        } else {
+            binding.textviewDateLost.setTextColor(resources.getColor(R.color.black))
+        }
+        if (!(place != null && place != "")) {
+            binding.textviewPlaceLost.setTextColor(resources.getColor(R.color.error_red))
+            placeValidity = false
+        } else {
+            binding.textviewPlaceLost.setTextColor(resources.getColor(R.color.black))
+        }
+        return nameValidity && dateValidity && placeValidity
     }
 
-    private fun createDog(name: String, breed: String?, gender: Boolean?, age: Int?, date: String,
+    private fun createDogRoom(name: String, breed: String?, gender: Boolean?, age: Int?, date: String,
                         hour: Int?, minute: Int?, place: String): DogRoom {
-        return DogRoom(dogName = name, dogBreed = breed, dogGender = gender, dogAge = age, isLost = true,
+        return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name, dogBreed = breed,
+            dogGender = gender, dogAge = age, isLost = true,
             dateLastSeen = date, placeLastSeen = place, ownerID = "", ownerEmail = "")
     }
 
@@ -250,6 +280,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             localDatabase.pawsDAO.insertDog(dog)
         }
     }
+
+
 
     private fun permissionsRequiredAlert() {
         val permissionAlert = AlertDialog.Builder(context)
@@ -286,6 +318,5 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             show()
         }
     }
-
 
 }

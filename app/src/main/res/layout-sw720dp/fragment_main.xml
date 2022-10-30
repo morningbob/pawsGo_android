@@ -21,7 +21,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="30dp"
+            android:paddingBottom="70dp"
             tools:context=".MainFragment"
             android:background="@color/green_background">
 
@@ -40,9 +40,9 @@
                 android:id="@+id/textview_greeting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="60dp"
                 android:text="@{`Hello ` + (user.userName != null ? user.userName : ``)}"
-                android:textSize="@dimen/content_text_size"
+                android:textSize="@dimen/title_text_size"
                 android:textColor="@color/black"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -54,6 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/previous"
+                android:textSize="@dimen/button_text_size"
                 android:padding="@dimen/button_padding"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

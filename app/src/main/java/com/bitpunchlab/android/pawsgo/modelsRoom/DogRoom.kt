@@ -9,14 +9,14 @@ import java.util.*
 @Entity(tableName = "dog_table")
 @Parcelize
 data class DogRoom (
-    @PrimaryKey(autoGenerate = true)
-    var dogID : Long = 0L,
+    @PrimaryKey()
+    var dogID : String = "",
     var dogName: String? = null,
     var dogBreed: String? = null,
     var dogGender: Boolean? = null,
     var dogAge: Int? = null,
-    var placeLastSeen: String? = null,
-    var dateLastSeen: String? = null,
+    var placeLastSeen: String = "",
+    var dateLastSeen: String = "",
     var hour: Int? = null,
     var minute: Int? = null,
     var ownerID: String,

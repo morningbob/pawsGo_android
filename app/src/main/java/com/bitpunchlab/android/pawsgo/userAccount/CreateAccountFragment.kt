@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -42,7 +43,7 @@ class CreateAccountFragment : Fragment() {
 
         binding.buttonSend.setOnClickListener {
             firebaseClient.isCreatingUserAccount = true
-            firebaseClient.appState.value = AppState.READY_CREATE_USER_AUTH
+            firebaseClient._appState.value = AppState.READY_CREATE_USER_AUTH
         }
 
         firebaseClient.readyRegisterLiveData.observe(viewLifecycleOwner, Observer { value ->
@@ -77,6 +78,7 @@ class CreateAccountFragment : Fragment() {
         firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
                 AppState.LOGGED_IN -> {
+                    Log.i("create account", "login state detected")
                     findNavController().navigate(R.id.action_createAccountFragment_to_MainFragment)
                 }
                 AppState.ERROR_CREATE_USER_AUTH -> {

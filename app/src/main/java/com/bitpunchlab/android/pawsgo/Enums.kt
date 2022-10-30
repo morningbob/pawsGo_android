@@ -13,6 +13,7 @@ enum class CreateUserAccountStatus {
 }
 
 enum class AppState {
+    NORMAL,
     LOGGED_IN,
     LOGGED_OUT,
     READY_CREATE_USER_AUTH,

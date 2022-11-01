@@ -37,6 +37,7 @@ class MainFragment : Fragment() {
             FirebaseClientViewModelFactory(requireActivity()))
             .get(FirebaseClientViewModel::class.java)
         binding.firebaseClient = firebaseClient
+
         //binding.user = firebaseClient.currentUserRoom.value
         //Log.i("Main Fragment user: ", LoginInfo.user.value!!.userName)
         localDatabase = PawsGoDatabase.getInstance(requireContext())
@@ -63,7 +64,7 @@ class MainFragment : Fragment() {
 
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-        firebaseClient.currentUserRoom.observe(viewLifecycleOwner, Observer { user ->
+        firebaseClient.currentUserRoomLiveData.observe(viewLifecycleOwner, Observer { user ->
             binding.user = user
         })
 

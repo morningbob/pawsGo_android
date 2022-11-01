@@ -13,7 +13,7 @@ data class UserRoom(
     var userID: String,
     var userName: String,
     var userEmail: String,
-    //var lostDogs: List<String>,
-    //var dogs: List<String>,
+    var lostDogs: List<DogRoom>,
+    var dogs: List<DogRoom>,
     var dateCreated: Date?
 ) : Parcelable

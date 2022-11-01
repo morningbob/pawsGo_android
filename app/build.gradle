@@ -62,7 +62,13 @@ dependencies {
     // Firestore
     implementation 'com.google.firebase:firebase-firestore-ktx'
 
+    // cloud storage
+    implementation 'com.google.firebase:firebase-storage-ktx'
+
     // room database
     implementation 'androidx.room:room-runtime:2.5.0-alpha03'
     kapt 'androidx.room:room-compiler:2.5.0-alpha03'
+
+    // serialization
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
 }

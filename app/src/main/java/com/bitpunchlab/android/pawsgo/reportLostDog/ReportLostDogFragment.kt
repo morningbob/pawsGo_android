@@ -103,7 +103,9 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     minute = lostMinute,
                     place = binding.edittextPlaceLost.text.toString())
                 //saveDogLocalDatabase(dogRoom)
-                firebaseClient.handleNewLostDog(dogRoom)
+                coroutineScope.launch {
+                    firebaseClient.handleNewLostDog(dogRoom)
+                }
                 // check if imageview is empty
                 // if it is not, save the image to cloud storage
                 if (binding.previewUpload.drawable != null) {

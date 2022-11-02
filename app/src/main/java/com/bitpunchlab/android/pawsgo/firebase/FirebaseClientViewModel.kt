@@ -18,6 +18,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
+import java.time.chrono.ThaiBuddhistChronology
 import java.util.regex.Pattern
 
 @OptIn(InternalCoroutinesApi::class)
@@ -224,18 +225,16 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
         // we observe the currentUserRoom here, we need to observe it, so we can read the value
         // I use another variable to store this user object.
-        currentUserRoom.observe(activity as LifecycleOwner, Observer { user ->
-            user?.let {
-                currentUserRoom.value = user
-            }
-        })
+
 
         currentUserRoomLiveData.observe(activity as LifecycleOwner, Observer { user ->
-            user?.let {
+            if (user != null) {
                 Log.i("user live data", "got back user")
                 Log.i("user live data", "userEmail: ${user.userEmail}")
                 currentUserID = user.userID
                 currentUserEmail = user.userEmail
+            } else {
+                Log.i("current user live data observed", "got back null")
             }
         })
 
@@ -265,9 +264,8 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                         if (saveUserFirebase(user)) {
                             // we also create the user room and save it here
                             val userRoom = convertUserFirebaseToUserRoom(user)
+                            Log.i("creating and saving the user room", "userID: ${userRoom.userID}")
                             saveUserRoom(userRoom)
-                            // we also update LoginInfo , the current user
-                            //LoginInfo.user = userRoom
                             _appState.postValue(AppState.SUCCESS_CREATED_USER_ACCOUNT)
                         } else {
                             _appState.postValue(AppState.ERROR_CREATE_USER_ACCOUNT)
@@ -411,7 +409,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     }
 
     private fun convertDogMapToDogList(dogHashmap: HashMap<String, DogFirebase>) : List<DogRoom> {
-        val list : MutableList<DogRoom> = emptyList<DogRoom>() as MutableList<DogRoom>
+        val list = ArrayList<DogRoom>()
         for ((key, value) in dogHashmap) {
             list.add(convertDogFirebaseToDogRoom(value))
         }
@@ -421,7 +419,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     private fun convertDogListToDogMap(dogList: List<DogRoom>) {
 
     }
-    /*
+
     private fun convertDogRoomToDogFirebase(dogRoom: DogRoom): DogFirebase {
         return DogFirebase(id = dogRoom.dogID, name = dogRoom.dogName, gender = dogRoom.dogGender,
             breed = dogRoom.dogBreed, age = dogRoom.dogAge, date = dogRoom.dateLastSeen,
@@ -429,7 +427,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             userID = dogRoom.ownerID, userEmail = dogRoom.ownerEmail, lost = dogRoom.isLost,
             found = dogRoom.isFound)
     }
-    */
+
     private fun convertDogFirebaseToDogRoom(dogFirebase: DogFirebase): DogRoom {
         return DogRoom(dogID = dogFirebase.dogID, dogName = dogFirebase.dogName,
             dogBreed = dogFirebase.dogBreed, dogGender = dogFirebase.dogGender,
@@ -488,17 +486,26 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         isCreatingUserAccount = false
     }
 
-    fun handleNewLostDog(dogRoom: DogRoom) {
-        val dogFirebase = convertDogRoomToDogFirebase(dogRoom)
-        if (dogFirebase != null) {
-            coroutineScope.launch {
-                saveDogFirebase(dogFirebase)
+    suspend fun handleNewLostDog(dogRoom: DogRoom) : Boolean = //{
+        // refactor the convert method!!
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+        if (currentUserRoomLiveData.value != null) {
+            val dogFirebase = convertDogRoomToDogFirebase(dogRoom)
+            if (dogFirebase != null) {
+                coroutineScope.launch {
+                    saveDogFirebase(dogFirebase)
+                    cancellableContinuation.resume(updateUserLostDogFirebase(dogFirebase)) {}
+                }
+            } else {
+                Log.i("firebaseClient", "current user id and email is null")
+                cancellableContinuation.resume(false) {}
             }
-        } else {
-            Log.i("firebaseClient", "current user id and email is null")
+        }  else {
+            Log.i("handle lost dog report", "couldn't find current user")
+            cancellableContinuation.resume(false) {}
         }
     }
-
+/*
     private fun convertDogRoomToDogFirebase(dogRoom: DogRoom): DogFirebase? {
         if (currentUserID != "" && currentUserEmail != "") {
             return DogFirebase(
@@ -512,6 +519,8 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             return null
             }
     }
+
+ */
 
     private suspend fun saveDogFirebase(dog: DogFirebase) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
@@ -549,17 +558,29 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     // here we retrieve the most updated
     // user firebase from Firestore, and immediately add the lost dog
     // info in it and send it to Firestore.
-    private suspend fun updateUserLostDogFirebase(user: UserFirebase, dog: DogFirebase) : Boolean {
-            //retrieveUserFirebase()!!.lostDogs
-            val user = retrieveUserFirebase()
-            if (user != null) {
-                user.lostDogs.put(dog.dogID, dog)
-
-            } else {
-                Log.i("update lost dog in user object", "can't find the user in firebase")
+    private suspend fun updateUserLostDogFirebase(dog: DogFirebase) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            coroutineScope.launch {
+                val userDeferred = coroutineScope.async {
+                    retrieveUserFirebase()
+                }
+                var user = userDeferred.await()
+                if (user != null) {
+                    user.lostDogs.put(dog.dogID, dog)
+                    // save user here
+                    if (saveUserFirebase(user)) {
+                        Log.i("update user object for lost dog", "success")
+                        cancellableContinuation.resume(true) {}
+                    } else {
+                        Log.i("update user object for lost dog", "failed, maybe server error")
+                        cancellableContinuation.resume(false) {}
+                    }
+                } else {
+                    Log.i("update lost dog in user object", "can't find the user in firebase")
+                    cancellableContinuation.resume(false){}
+                }
             }
-        return false
-    }
+        }
 }
 
 class FirebaseClientViewModelFactory(private val activity: Activity)

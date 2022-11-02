@@ -5,6 +5,8 @@ plugins {
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
+    id "org.jetbrains.kotlin.plugin.serialization"
+    //id 'plugin-serialization'
 }
 
 android {
@@ -70,5 +72,5 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.5.0-alpha03'
 
     // serialization
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1'
 }

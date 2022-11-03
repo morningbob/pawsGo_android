@@ -38,4 +38,14 @@ class Converters {
     fun fromJSONToDogRoom(dogJSON: String) : List<DogRoom> {
         return Json.decodeFromString<List<DogRoom>>(dogJSON)
     }
+
+    @TypeConverter
+    fun fromListToJSON(imageList: List<String>) : String {
+        return Json.encodeToString(imageList)
+    }
+
+    @TypeConverter
+    fun fromJSONToList(imageJSON: String) : List<String> {
+        return Json.decodeFromString(imageJSON)
+    }
 }

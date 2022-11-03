@@ -13,30 +13,18 @@ import java.util.*
 @kotlinx.serialization.Serializable
 data class DogRoom (
     @PrimaryKey
-    //@SerialName("dogID")
     var dogID : String = "",
-    //@SerialName("dogName")
     var dogName: String? = null,
-    //@SerialName("dogBreed")
     var dogBreed: String? = null,
-    //@SerialName("dogGender")
     var dogGender: Boolean? = null,
-    //@SerialName("dogAge")
     var dogAge: Int? = null,
-    //@SerialName("placeLastSeen")
     var placeLastSeen: String = "",
-    //@SerialName("dateLastSeen")
     var dateLastSeen: String = "",
-    //@SerialName("hour")
     var hour: Int? = null,
-    //@SerialName("minute")
     var minute: Int? = null,
-    //@SerialName("ownerID")
     var ownerID: String,
-    //@SerialName("ownerEmail")
     var ownerEmail: String,
-    //@SerialName("isLost")
     var isLost : Boolean? = null,
-    //@SerialName("isFound")
-    var isFound : Boolean? = null
+    var isFound : Boolean? = null,
+    var dogImages : List<String>? = emptyList()
     ) : Parcelable

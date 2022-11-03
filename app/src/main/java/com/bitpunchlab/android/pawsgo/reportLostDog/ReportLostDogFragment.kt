@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -23,6 +24,7 @@ import com.bitpunchlab.android.pawsgo.databinding.FragmentReportLostDogBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
+import com.google.android.gms.tasks.Task
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -49,6 +51,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var allPermissionGranted = MutableLiveData<Boolean>(true)
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var localDatabase : PawsGoDatabase
+    private var imageUri : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,20 +106,18 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     minute = lostMinute,
                     place = binding.edittextPlaceLost.text.toString())
                 //saveDogLocalDatabase(dogRoom)
-                coroutineScope.launch {
-                    firebaseClient.handleNewLostDog(dogRoom)
-                }
+
                 // check if imageview is empty
                 // if it is not, save the image to cloud storage
+                var dataByteArray : ByteArray? = null
                 if (binding.previewUpload.drawable != null) {
                     Log.i("check image", "image is not null")
                     val imageBitmap = getBitmapFromView(binding.previewUpload)
-                    val dataByteArray = convertImageToBytes(imageBitmap)
-                    coroutineScope.launch {
-                        firebaseClient.uploadImageFirebase(dataByteArray, dogRoom.dogID)
-                    }
+                    dataByteArray = convertImageToBytes(imageBitmap)
                 }
-
+                coroutineScope.launch {
+                    firebaseClient.handleNewLostDog(dogRoom, dataByteArray)
+                }
             } else {
                 invalidDogDataAlert()
             }
@@ -289,7 +290,9 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                         hour: Int?, minute: Int?, place: String): DogRoom {
         return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name, dogBreed = breed,
             dogGender = gender, dogAge = age, isLost = true,
-            dateLastSeen = date, placeLastSeen = place, ownerID = "", ownerEmail = "")
+            dateLastSeen = date, hour = hour, minute = minute,
+            placeLastSeen = place, ownerID = firebaseClient.currentUserID,
+            ownerEmail = firebaseClient.currentUserEmail)
     }
 
     private fun saveDogLocalDatabase(dog: DogRoom) {

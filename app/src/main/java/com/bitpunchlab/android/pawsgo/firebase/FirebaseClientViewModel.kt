@@ -91,6 +91,10 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             // as soon as we got the auth current user, we use its uid to retrieve the
             // user room in local database
             userIDLiveData.postValue(auth.currentUser!!.uid)
+            // we also need to retrieve the user firebase from Firestore
+            // to get the most updated user profile,
+            // we will save it to local room database too
+
         } else {
             _appState.postValue(AppState.LOGGED_OUT)
             Log.i("auth", "changed state to logout")
@@ -222,10 +226,6 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         fieldsValidArray = arrayListOf(0,0,0,0)
         auth.addAuthStateListener(authStateListener)
         localDatabase = PawsGoDatabase.getInstance(activity)
-
-        // we observe the currentUserRoom here, we need to observe it, so we can read the value
-        // I use another variable to store this user object.
-
 
         currentUserRoomLiveData.observe(activity as LifecycleOwner, Observer { user ->
             if (user != null) {
@@ -392,8 +392,6 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                     if (!document.exists()) {
                         Log.i("retrieve user", "can't find the user")
                         cancellableContinuation.resume(null) {}
-                        // post an error state here
-                        //createAccountAppState.postValue(CreateAccountAppState.GET_USER_OBJECT_FAILURE)
                     } else {
                         Log.i("retrieve user", "found the user")
                         val user = document.toObject(UserFirebase::class.java)!!
@@ -484,43 +482,56 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         passwordError.value = ""
         confirmPasswordError.value = ""
         isCreatingUserAccount = false
+        currentUserID = ""
+        currentUserEmail = ""
     }
 
-    suspend fun handleNewLostDog(dogRoom: DogRoom) : Boolean = //{
+    suspend fun handleNewLostDog(dogRoom: DogRoom, data: ByteArray? = null) : Boolean = //{
         // refactor the convert method!!
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
-        if (currentUserRoomLiveData.value != null) {
+        if (currentUserID != null && currentUserID != "") {
+            // first we upload the dog image
+            // we do this first because we need the url string that comes back when we save
+            // the image in the storage.
             val dogFirebase = convertDogRoomToDogFirebase(dogRoom)
-            if (dogFirebase != null) {
+            var imageUrl : String? = null
+            if (data != null) {
                 coroutineScope.launch {
-                    saveDogFirebase(dogFirebase)
-                    cancellableContinuation.resume(updateUserLostDogFirebase(dogFirebase)) {}
+                    val imageUriDeferred = coroutineScope.async {
+                        uploadImageFirebase(data, dogRoom.dogID)
+                    }
+                    imageUrl = imageUriDeferred.await()
+                    imageUrl?.let {
+                        Log.i("handle lost dog report", "imageUrl: $imageUrl")
+                        // update the dog firebase
+                        dogFirebase.dogImages.put(dogFirebase.dogID, it)
+                        var dogImages = dogRoom.dogImages
+                        var tempImages = ArrayList<String>()
+                        if (!dogImages.isNullOrEmpty()) {
+                            tempImages = dogImages as ArrayList<String>
+                        } else {
+                            tempImages = ArrayList<String>()
+                        }
+                        tempImages.add(it)
+                        dogRoom.dogImages = tempImages
+                    }
                 }
             } else {
-                Log.i("firebaseClient", "current user id and email is null")
-                cancellableContinuation.resume(false) {}
+            //if (dogFirebase != null) {
+            coroutineScope.launch {
+                saveDogFirebase(dogFirebase)
+                saveDogRoom(dogRoom)
+                cancellableContinuation.resume(updateUserLostDogFirebase(dogFirebase)) {}
+            }
+            //} else {
+            //    Log.i("firebaseClient", "current user id and email is null")
+            //    cancellableContinuation.resume(false) {}
             }
         }  else {
             Log.i("handle lost dog report", "couldn't find current user")
             cancellableContinuation.resume(false) {}
         }
     }
-/*
-    private fun convertDogRoomToDogFirebase(dogRoom: DogRoom): DogFirebase? {
-        if (currentUserID != "" && currentUserEmail != "") {
-            return DogFirebase(
-                id = dogRoom.dogID, name = dogRoom.dogName, breed = dogRoom.dogBreed,
-                gender = dogRoom.dogGender, age = dogRoom.dogAge, date = dogRoom.dateLastSeen,
-                hr = dogRoom.hour, min = dogRoom.minute, place = dogRoom.placeLastSeen,
-                userID = currentUserID, userEmail = currentUserEmail,
-                lost = null, found = null
-            )
-        } else {
-            return null
-            }
-    }
-
- */
 
     private suspend fun saveDogFirebase(dog: DogFirebase) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
@@ -538,16 +549,26 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 }
     }
 
-    suspend fun uploadImageFirebase(data: ByteArray, dogID: String) : Task<Uri>? =
-        suspendCancellableCoroutine<Task<Uri>?> { cancellableContinuation ->
+    private fun saveDogRoom(dog: DogRoom) {
+        coroutineScope.launch {
+            localDatabase.pawsDAO.insertDog(dog)
+        }
+    }
+
+    private suspend fun uploadImageFirebase(data: ByteArray, dogID: String) : String? =
+        suspendCancellableCoroutine<String?> { cancellableContinuation ->
             // create a ref for the image
             val imageRef = storageRef.child("lostDogs/${dogID}.jpg")
             val uploadTask = imageRef.putBytes(data)
             uploadTask
                 .addOnSuccessListener { taskSnapshot ->
                     Log.i("upload image", "success")
-                    cancellableContinuation.resume(taskSnapshot.storage.downloadUrl) {}
-                    //val b =  taskSnapshot.metadata!!.reference!!.downloadUrl
+                    var imageUri : String? = null
+                    taskSnapshot.storage.downloadUrl.addOnSuccessListener { uri ->
+                        Log.i("upload image", "got back url - $uri")
+                        imageUri = uri.toString()
+                        cancellableContinuation.resume(imageUri) {}
+                    }
                 }
                 .addOnFailureListener { e ->
                     Log.i("upload image", "failure")

@@ -37,12 +37,19 @@
     <string name="home">Home</string>
     <string name="login_page">Login Page</string>
     <string name="lost_report_intro">Please fill in the form for your lost dog. We\'ll store the data in the database. If anyone found the dog, we\'ll send an email to you. If the other users want to search for lost dogs, the dog\'s data will be listed to the users.</string>
+    <string name="select_a_time">Select a time</string>
+    <string name="select_a_date">Select a date</string>
 
     <string-array name="gender_array">
         <item>Choose</item>
         <item>Male</item>
         <item>Female</item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="i_lost_a_dog">I lost a dog</string>
+    <string name="i_found_a_dog">I found a dog</string>
+    <string name="found_dog_intro">Please fill in the form. We\'ll match lost dogs\' information with the data here. If we found a match, we\'ll email you and the owner.</string>
 
 
 </resources>

@@ -18,6 +18,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.room.InvalidationTracker
+import com.bitpunchlab.android.pawsgo.AppState
 import com.bitpunchlab.android.pawsgo.R
 import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.databinding.FragmentReportLostDogBinding
@@ -51,7 +54,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var allPermissionGranted = MutableLiveData<Boolean>(true)
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var localDatabase : PawsGoDatabase
-    private var imageUri : String? = null
+    private var lostOrFound : Boolean? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +72,13 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         binding.lifecycleOwner = viewLifecycleOwner
         localDatabase = PawsGoDatabase.getInstance(requireContext())
 
+        lostOrFound = requireArguments().getBoolean("lostOrFound")
+        if (lostOrFound == null) {
+            findNavController().popBackStack()
+        }
+
+        setupLostOrFoundFields()
+
         setupGenderSpinner()
 
         binding.buttonChooseDate.setOnClickListener {
@@ -85,7 +95,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         binding.buttonSend.setOnClickListener {
             var processedAge : Int? = null
-            if (binding.edittextDogAge.text != null && binding.edittextDogAge.text.toString() == "") {
+            if (binding.edittextDogAge.text != null && binding.edittextDogAge.text.toString() != "") {
                 try {
                     processedAge = binding.edittextDogAge.text.toString().toInt()
                 } catch (e: java.lang.NumberFormatException) {
@@ -93,7 +103,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
             }
 
-            if (verifyDogData(binding.edittextDogName.text.toString(),
+            if (verifyLostDogData(binding.edittextDogName.text.toString(),
                 lostDate,
                 binding.edittextPlaceLost.text.toString())) {
                 val dogRoom = createDogRoom(
@@ -104,8 +114,9 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     date = lostDate!!,
                     hour = lostHour,
                     minute = lostMinute,
-                    place = binding.edittextPlaceLost.text.toString())
-                //saveDogLocalDatabase(dogRoom)
+                    place = binding.edittextPlaceLost.text.toString(),
+                    lost = lostOrFound!!,
+                    found = !lostOrFound!!)
 
                 // check if imageview is empty
                 // if it is not, save the image to cloud storage
@@ -116,12 +127,18 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     dataByteArray = convertImageToBytes(imageBitmap)
                 }
                 coroutineScope.launch {
-                    firebaseClient.handleNewLostDog(dogRoom, dataByteArray)
-                }
+                    if (firebaseClient.handleNewDog(dogRoom, dataByteArray)) {
+                        firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_SUCCESS)
+                    } else {
+                        firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_ERROR) }
+                    }
+                clearForm()
             } else {
                 invalidDogDataAlert()
             }
         }
+
+        firebaseClient.appState.observe(viewLifecycleOwner, appStateObserver)
 
         if (!checkPermission()) {
             permissionResultLauncher.launch(permissions)
@@ -141,13 +158,39 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         _binding = null
     }
 
+    private val appStateObserver = androidx.lifecycle.Observer<AppState> { appState ->
+        when (appState) {
+            AppState.LOST_DOG_REPORT_SENT_SUCCESS -> {
+                sentReportSuccessAlert()
+                firebaseClient._appState.value = AppState.NORMAL
+            }
+            AppState.LOST_DOG_REPORT_SENT_ERROR -> {
+                sentReportFailureAlert()
+                firebaseClient._appState.value = AppState.NORMAL
+            }
+            else -> {
+
+            }
+        }
+    }
+
+    private fun setupLostOrFoundFields() {
+        if (lostOrFound == false) {
+            binding.artReport.setImageResource(R.drawable.footprint)
+            binding.textviewIntro.text = getString(R.string.found_dog_intro)
+            binding.textviewDogAge.visibility = View.GONE
+            binding.edittextDogAge.visibility = View.GONE
+            binding.textviewDateLost.text = "When did you find the dog?"
+            binding.textviewPlaceLost.text = "The place the dog is found: "
+        }
+    }
+
     private val selectImageFromGalleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
                 // preview
                 binding.previewUpload.setImageURI(uri)
                 binding.previewUpload.visibility = View.VISIBLE
-
             }
         }
 
@@ -188,7 +231,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val startDate = calendar.timeInMillis
 
         calendar.timeInMillis = today
-        calendar[Calendar.YEAR] = 2022
+        //calendar[Calendar.YEAR] = 2022
         val endDate = calendar.timeInMillis
 
         val constraints: CalendarConstraints = CalendarConstraints.Builder()
@@ -201,9 +244,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             .Builder
             .datePicker()
             .setCalendarConstraints(constraints)
-            .setTitleText("Select a date")
+            .setTitleText(getString(R.string.select_a_date))
             .build()
-            //.show(childFragmentManager, "DATE_PICKER")
 
         datePicker!!.show(childFragmentManager, "DATE_PICKER")
 
@@ -219,10 +261,9 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun showTimePicker() {
         timePicker = MaterialTimePicker
             .Builder()
-            .setTitleText("Select a time")
+            .setTitleText(getString(R.string.select_a_time))
             .setInputMode(MaterialTimePicker.INPUT_MODE_KEYBOARD)
             .build()
-            //.show(childFragmentManager, "TIME_PICKER")
 
         timePicker!!.show(childFragmentManager, "TIME_PICKER")
 
@@ -261,11 +302,11 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         return true
     }
 
-    private fun verifyDogData(name: String?, date: String?, place: String?) : Boolean {
+    private fun verifyLostDogData(name: String?, date: String?, place: String?) : Boolean {
         var nameValidity = true
         var dateValidity = true
         var placeValidity = true
-        if (!(name != null && name != "")) {
+        if (!(name != null && name != "") && lostOrFound == true) {
             nameValidity = false
             binding.textviewDogName.setTextColor(resources.getColor(R.color.error_red))
         } else {
@@ -287,9 +328,9 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun createDogRoom(name: String, breed: String?, gender: Boolean?, age: Int?, date: String,
-                        hour: Int?, minute: Int?, place: String): DogRoom {
+                        hour: Int?, minute: Int?, place: String, lost: Boolean, found: Boolean): DogRoom {
         return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name, dogBreed = breed,
-            dogGender = gender, dogAge = age, isLost = true,
+            dogGender = gender, dogAge = age, isLost = lost, isFound = found,
             dateLastSeen = date, hour = hour, minute = minute,
             placeLastSeen = place, ownerID = firebaseClient.currentUserID,
             ownerEmail = firebaseClient.currentUserEmail)
@@ -314,6 +355,23 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         return baos.toByteArray()
+    }
+
+    private fun clearForm() {
+        binding.edittextDogName.text = null
+        binding.edittextDogBreed.text = null
+        binding.edittextDogAge.text = null
+        binding.textviewDateLostData.text = null
+        binding.textviewDateLostData.visibility = View.GONE
+        binding.textviewTimeLostData.text = null
+        binding.textviewTimeLostData.visibility = View.GONE
+        binding.edittextPlaceLost.text = null
+        binding.previewUpload.visibility = View.GONE
+        lostDate = null
+        lostHour = null
+        lostMinute = null
+        gender = null
+        setupGenderSpinner()
     }
 
     private fun permissionsRequiredAlert() {
@@ -347,6 +405,34 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     dialog.dismiss()
                     //permissionResultLauncher.launch(permissions)
 
+                })
+            show()
+        }
+    }
+
+    private fun sentReportSuccessAlert() {
+        val successAlert = AlertDialog.Builder(context)
+
+        with(successAlert) {
+            setTitle("Lost Dog Report")
+            setMessage("The report was sent to the server successfully.  We'll send an email to you if there is anyone found the dog.")
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
+                })
+            show()
+        }
+    }
+
+    private fun sentReportFailureAlert() {
+        val failureAlert = AlertDialog.Builder(context)
+
+        with(failureAlert) {
+            setTitle("Lost Dog Report")
+            setMessage("There is error in the server.  Please try again later.")
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
                 })
             show()
         }

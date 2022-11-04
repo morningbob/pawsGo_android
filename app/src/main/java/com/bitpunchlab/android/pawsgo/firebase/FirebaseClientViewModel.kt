@@ -486,7 +486,9 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         currentUserEmail = ""
     }
 
-    suspend fun handleNewLostDog(dogRoom: DogRoom, data: ByteArray? = null) : Boolean = //{
+    // new dog reported is saved in different folders according the lostOrFound
+    // lost is true, dog is saved in lostDogs, lost is false, dog is saved in foundDogs
+    suspend fun handleNewDog(dogRoom: DogRoom, data: ByteArray? = null) : Boolean =
         // refactor the convert method!!
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
         if (currentUserID != null && currentUserID != "") {
@@ -498,7 +500,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             if (data != null) {
                 coroutineScope.launch {
                     val imageUriDeferred = coroutineScope.async {
-                        uploadImageFirebase(data, dogRoom.dogID)
+                        uploadImageFirebase(data, dogRoom.dogID, dogRoom.isLost!!)
                     }
                     imageUrl = imageUriDeferred.await()
                     imageUrl?.let {
@@ -514,18 +516,22 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                         }
                         tempImages.add(it)
                         dogRoom.dogImages = tempImages
+                        // if there is image uploaded, we wait for the above process done
+                        // before we send the dog info
+                        //coroutineScope.launch {
+                        saveDogFirebase(dogFirebase)
+                        saveDogRoom(dogRoom)
+                        cancellableContinuation.resume(updateUserLostDogFirebase(dogFirebase)) {}
+                        //}
                     }
                 }
             } else {
-            //if (dogFirebase != null) {
-            coroutineScope.launch {
-                saveDogFirebase(dogFirebase)
-                saveDogRoom(dogRoom)
-                cancellableContinuation.resume(updateUserLostDogFirebase(dogFirebase)) {}
-            }
-            //} else {
-            //    Log.i("firebaseClient", "current user id and email is null")
-            //    cancellableContinuation.resume(false) {}
+                // if there is no image uploaded, we send the dog info immediately
+                coroutineScope.launch {
+                    saveDogFirebase(dogFirebase)
+                    saveDogRoom(dogRoom)
+                    cancellableContinuation.resume(updateUserLostDogFirebase(dogFirebase)) {}
+                }
             }
         }  else {
             Log.i("handle lost dog report", "couldn't find current user")
@@ -535,8 +541,14 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     private suspend fun saveDogFirebase(dog: DogFirebase) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            var collectionName = ""
+            collectionName = if (dog.isLost!!) {
+                "lostDogs"
+            } else {
+                "foundDogs"
+            }
             firestore
-                .collection("lostDogs")
+                .collection(collectionName)
                 .document(dog.dogID.toString())
                 .set(dog)
                 .addOnSuccessListener { docRef ->
@@ -555,10 +567,16 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         }
     }
 
-    private suspend fun uploadImageFirebase(data: ByteArray, dogID: String) : String? =
+    private suspend fun uploadImageFirebase(data: ByteArray, dogID: String, isLost: Boolean) : String? =
         suspendCancellableCoroutine<String?> { cancellableContinuation ->
+            var folderName : String = ""
+            folderName = if (isLost) {
+                "lostDogs"
+            } else {
+                "foundDogs"
+            }
             // create a ref for the image
-            val imageRef = storageRef.child("lostDogs/${dogID}.jpg")
+            val imageRef = storageRef.child("$folderName/${dogID}.jpg")
             val uploadTask = imageRef.putBytes(data)
             uploadTask
                 .addOnSuccessListener { taskSnapshot ->

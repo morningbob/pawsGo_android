@@ -11,8 +11,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.pawsgo.AppState
-import com.bitpunchlab.android.pawsgo.LoginInfo
-import com.bitpunchlab.android.pawsgo.LoginStatus
 import com.bitpunchlab.android.pawsgo.R
 import com.bitpunchlab.android.pawsgo.databinding.FragmentLoginBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel

@@ -6,8 +6,15 @@
     <item
         android:id="@+id/reportLostDog"
         android:orderInCategory="100"
-        android:title="I lost a dog"
+        android:title="@string/i_lost_a_dog"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/reportFoundDog"
+        android:orderInCategory="100"
+        android:title="@string/i_found_a_dog"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/logout"
         android:orderInCategory="100"

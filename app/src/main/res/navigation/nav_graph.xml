@@ -28,8 +28,11 @@
             android:id="@+id/action_MainFragment_to_LoginFragment"
             app:destination="@id/LoginFragment" />
         <action
-            android:id="@+id/action_MainFragment_to_reportLostDogFragment"
+            android:id="@+id/reportDogAction"
             app:destination="@id/reportLostDogFragment" />
+        <action
+            android:id="@+id/action_MainFragment_to_reportFoundDogFragment"
+            app:destination="@id/reportFoundDogFragment" />
     </fragment>
     <fragment
         android:id="@+id/createAccountFragment"
@@ -44,5 +47,13 @@
     <fragment
         android:id="@+id/reportLostDogFragment"
         android:name="com.bitpunchlab.android.pawsgo.reportLostDog.ReportLostDogFragment"
-        android:label="@string/report_lost_dog" />
+        android:label="Report" >
+        <argument
+            android:name="lostOrFound"
+            app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/reportFoundDogFragment"
+        android:name="com.bitpunchlab.android.pawsgo.reportFoundDog.ReportFoundDogFragment"
+        android:label="Found A Dog" />
 </navigation>

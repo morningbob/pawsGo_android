@@ -18,9 +18,15 @@ interface PawsDAO {
     fun getUser(id: String) : LiveData<UserRoom>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertDog(dog: DogRoom)
+    fun insertDogs(vararg dog: DogRoom)
 
     @Query("SELECT * FROM dog_table WHERE :id == dogID LIMIT 1")
     fun getDog(id: String) : LiveData<DogRoom>
+
+    @Query("SELECT * FROM dog_table WHERE isLost == 1")
+    fun getAllLostDogs() : LiveData<List<DogRoom>>
+
+    @Query("SELECT * FROM dog_table WHERE isLost == 0")
+    fun getAllFoundDogs() : LiveData<List<DogRoom>>
 
 }

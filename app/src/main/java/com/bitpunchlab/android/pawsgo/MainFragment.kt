@@ -18,7 +18,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 
-
+// in the main fragment, we'll contact firestore for current info,
+// including all the lost dogs and found dogs
+// so before we actually display these dogs list,
+// we already retrieve the data here
 class MainFragment : Fragment() {
 
     private var _binding: FragmentMainBinding? = null
@@ -38,9 +41,9 @@ class MainFragment : Fragment() {
             .get(FirebaseClientViewModel::class.java)
         binding.firebaseClient = firebaseClient
 
-        //binding.user = firebaseClient.currentUserRoom.value
-        //Log.i("Main Fragment user: ", LoginInfo.user.value!!.userName)
         localDatabase = PawsGoDatabase.getInstance(requireContext())
+
+
 
         requireActivity().addMenuProvider(object: MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -60,6 +63,11 @@ class MainFragment : Fragment() {
                         // navigate to the found dog form
                         // false represent the Found Dog form
                         val action = MainFragmentDirections.reportDogAction(false)
+                        findNavController().navigate(action)
+                        true
+                    }
+                    R.id.listLostDogs -> {
+                        val action = MainFragmentDirections.viewDogsAction(true)
                         findNavController().navigate(action)
                         true
                     }

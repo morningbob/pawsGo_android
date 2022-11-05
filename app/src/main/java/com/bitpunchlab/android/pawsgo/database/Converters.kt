@@ -2,7 +2,6 @@ package com.bitpunchlab.android.pawsgo.database
 
 import android.util.Log
 import androidx.room.TypeConverter
-import com.bitpunchlab.android.pawsgo.modelsRoom.DogList
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

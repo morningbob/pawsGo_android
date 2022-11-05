@@ -50,6 +50,8 @@
     <string name="i_lost_a_dog">I lost a dog</string>
     <string name="i_found_a_dog">I found a dog</string>
     <string name="found_dog_intro">Please fill in the form. We\'ll match lost dogs\' information with the data here. If we found a match, we\'ll email you and the owner.</string>
+    <string name="lost_dogs_list_intro">Below is a list of the lost dogs reported. If you found the dog or have seen the dog, you can leave the owner a message here.</string>
+    <string name="send_message">Send Message</string>
 
 
 </resources>

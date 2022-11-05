@@ -15,6 +15,7 @@ import com.bitpunchlab.android.pawsgo.modelsRoom.UserRoom
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
@@ -65,6 +66,9 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     var _currentUserRoom = MediatorLiveData<UserRoom?>()
     val currentUserRoom get() = _currentUserRoom
 
+    var _currentUserFirebase = MutableLiveData<UserFirebase>()
+    val currentUserFirebase get() = _currentUserFirebase
+
     // this is the trigger live data that trigger the fetch of a user object
     private var userIDLiveData  = MutableLiveData<String>()
     // whenever the userIDLiveData changed, the currentUserLiveData's transformation
@@ -82,7 +86,10 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     val currentUserFirebaseLiveData get() = _currentUserFirebaseLiveData
 
     val storageRef = Firebase.storage.reference
-    //val lostDogsRef = storageRef.child()
+
+    var lostDogs = MutableLiveData<List<DogFirebase>>()
+    var foundDogs = MutableLiveData<List<DogFirebase>>()
+
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser != null) {
@@ -94,6 +101,13 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             // we also need to retrieve the user firebase from Firestore
             // to get the most updated user profile,
             // we will save it to local room database too
+            coroutineScope.launch {
+                _currentUserFirebase.postValue(retrieveUserFirebase())
+                // we also retrieve the lost dogs and the found dogs from Firestore,
+                // save to the local database, the local database changes, the data will
+                // be retrieved in dogs view model.
+                retrieveDogs()
+            }
 
         } else {
             _appState.postValue(AppState.LOGGED_OUT)
@@ -406,6 +420,50 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         return localDatabase.pawsDAO.getUser(id)
     }
 
+    private suspend fun retrieveAllDogsFirebase(lostOrFound: Boolean) : List<DogFirebase> =
+        suspendCancellableCoroutine<List<DogFirebase>> { cancellableContinuation ->
+            var collectionName = ""
+            if (lostOrFound) {
+                collectionName = "lostDogs"
+            } else {
+                collectionName = "foundDogs"
+            }
+            firestore
+                .collection(collectionName)
+                .get()
+                .addOnSuccessListener { documents ->
+                    Log.i("retrieve all dogs", "success")
+                    val dogsList = ArrayList<DogFirebase>()
+                    if (!documents.isEmpty) {
+                        documents.map { doc ->
+                            val dog = doc.toObject(DogFirebase::class.java)
+                            dogsList.add(dog)
+                            Log.i("retrieve all dogs", "added a dog ${dog.dogName}")
+                        }
+                    }
+                    cancellableContinuation.resume(dogsList) {}
+                }
+                .addOnFailureListener { e ->
+                    Log.i("retrieve all dogs", "failed: ${e.message}")
+                    cancellableContinuation.resume(ArrayList()) {}
+                }
+
+    }
+
+    private fun retrieveDogs() {
+        var dogList = ArrayList<DogFirebase>()
+        var dogRoomList = ArrayList<DogRoom>()
+        coroutineScope.launch {
+            dogList.addAll(retrieveAllDogsFirebase(true))
+            dogList.addAll(retrieveAllDogsFirebase(false))
+            // convert to dog room and save to local database
+            dogList.map { dog ->
+                dogRoomList.add(convertDogFirebaseToDogRoom(dog))
+            }
+            localDatabase.pawsDAO.insertDogs(*dogRoomList.toTypedArray())
+        }
+    }
+
     private fun convertDogMapToDogList(dogHashmap: HashMap<String, DogFirebase>) : List<DogRoom> {
         val list = ArrayList<DogRoom>()
         for ((key, value) in dogHashmap) {
@@ -464,15 +522,15 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                         cancellableContinuation.resume(false){}
                     }
                 }
-
     }
 
     fun logoutUser() {
         Log.i("logout", "logging out")
         auth.signOut()
+        resetAllFields()
     }
 
-    fun resetAllFields() {
+    private fun resetAllFields() {
         userName.value = ""
         userEmail.value = ""
         userPassword.value = ""
@@ -563,7 +621,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     private fun saveDogRoom(dog: DogRoom) {
         coroutineScope.launch {
-            localDatabase.pawsDAO.insertDog(dog)
+            localDatabase.pawsDAO.insertDogs(dog)
         }
     }
 

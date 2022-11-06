@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
+import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.UserRoom
 
 @Dao
@@ -29,4 +30,6 @@ interface PawsDAO {
     @Query("SELECT * FROM dog_table WHERE isLost == 0")
     fun getAllFoundDogs() : LiveData<List<DogRoom>>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertMessages(vararg message: MessageRoom)
 }

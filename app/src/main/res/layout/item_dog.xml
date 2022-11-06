@@ -58,8 +58,10 @@
                 android:id="@+id/textview_dog_gender"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                tools:text="@{dog.dogGender ? `Male` : `Female`}"
+                android:text="@{dog.dogGender ? `Male` : `Female`}"
+                tools:text="Male"
                 android:textSize="@dimen/content_text_size"/>
+
         </LinearLayout>
 
         <LinearLayout
@@ -98,3 +100,13 @@
 
     </LinearLayout>
 </layout>
+
+<!--
+    <TextView
+                android:id="@+id/textview_dog_id"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@{dog.dogID}"
+                tools:text="123"
+                android:textSize="@dimen/content_text_size"/>
+-->

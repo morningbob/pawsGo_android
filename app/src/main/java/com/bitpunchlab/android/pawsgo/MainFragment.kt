@@ -43,8 +43,6 @@ class MainFragment : Fragment() {
 
         localDatabase = PawsGoDatabase.getInstance(requireContext())
 
-
-
         requireActivity().addMenuProvider(object: MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_main, menu)

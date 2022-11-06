@@ -23,6 +23,7 @@ class DogsAdapter(var clickListener: DogOnClickListener,
             ) {
                 (binding as ItemDogBinding).clickListener = clickListener
                 binding.messageClickListener = messageClickListener as MessageClickListener
+                binding.dog = item
                 binding.executePendingBindings()
             }
 

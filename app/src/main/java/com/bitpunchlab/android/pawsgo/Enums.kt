@@ -14,6 +14,8 @@ enum class AppState {
 
     LOST_DOG_REPORT_SENT_SUCCESS,
     LOST_DOG_REPORT_SENT_ERROR,
+
+    MESSAGE_SENT_SUCCESS,
     RESET
 }
 

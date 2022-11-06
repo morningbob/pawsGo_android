@@ -9,7 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import androidx.navigation.fragment.findNavController
-import com.bitpunchlab.android.pawsgo.R
+
 import com.bitpunchlab.android.pawsgo.databinding.FragmentDogListBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
@@ -42,6 +42,7 @@ class DogListFragment : Fragment() {
             .get(DogsViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         lostOrFound = requireArguments().getBoolean("lostOrFound")
+        binding
 
         dogsAdapter = DogsAdapter( DogOnClickListener { dog ->
             dogsViewModel.onDogChosen(dog)
@@ -61,6 +62,8 @@ class DogListFragment : Fragment() {
                     dogsAdapter.notifyDataSetChanged()
                 }
             })
+
+
         } else if (lostOrFound == false) {
             dogsViewModel.foundDogs.observe(viewLifecycleOwner, Observer { dogs ->
                 dogs?.let {
@@ -69,8 +72,21 @@ class DogListFragment : Fragment() {
                 }
             })
         }
+        dogsViewModel.chosenDog.observe(viewLifecycleOwner, Observer { dog ->
+            dog?.let {
+                // navigate to the dog details fragment
+                dogsViewModel.finishedDogChosen()
+            }
+        })
 
-
+        dogsViewModel.dogMessage.observe(viewLifecycleOwner, Observer { dog ->
+            dog?.let {
+                // navigate to send message fragment
+                val action = DogListFragmentDirections.SendAMessageAction(dog!!.ownerEmail)
+                findNavController().navigate(action)
+                dogsViewModel.finishedDogMessage()
+            }
+        })
 
         return binding.root
     }
@@ -79,4 +95,6 @@ class DogListFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
 }

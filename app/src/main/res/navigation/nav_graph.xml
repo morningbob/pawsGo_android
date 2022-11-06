@@ -33,6 +33,7 @@
         <action
             android:id="@+id/viewDogsAction"
             app:destination="@id/dogListFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/createAccountFragment"
@@ -60,5 +61,17 @@
         <argument
             android:name="lostOrFound"
             app:argType="boolean" />
+        <action
+            android:id="@+id/SendAMessageAction"
+            app:destination="@id/sendMessageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/sendMessageFragment"
+        android:name="com.bitpunchlab.android.pawsgo.messages.SendMessageFragment"
+        android:label="@string/send_message"
+        tools:layout="@layout/fragment_send_message" >
+        <argument
+            android:name="targetEmail"
+            app:argType="string" />
     </fragment>
 </navigation>

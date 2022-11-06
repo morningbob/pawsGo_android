@@ -16,6 +16,8 @@ import kotlinx.coroutines.InternalCoroutinesApi
 // is any change
 class DogsViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val context = getApplication<Application>().applicationContext
+
     @OptIn(InternalCoroutinesApi::class)
     val localDatabase = PawsGoDatabase.getInstance(application.applicationContext)
     var lostDogs = localDatabase.pawsDAO.getAllLostDogs()
@@ -37,7 +39,8 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
         _chosenDog.value = null
     }
 
-    // when the dog message variable has a dog in it, 
+    // when the dog message variable has a dog in it,
+    // we'll start the messaging function
     fun onDogMessageClicked(dog: DogRoom) {
         _dogMessage.value = dog
     }

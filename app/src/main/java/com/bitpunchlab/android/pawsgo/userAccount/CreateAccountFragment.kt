@@ -1,7 +1,6 @@
 package com.bitpunchlab.android.pawsgo.userAccount
 
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +12,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.pawsgo.AppState
-import com.bitpunchlab.android.pawsgo.LoginInfo
 import com.bitpunchlab.android.pawsgo.R
 import com.bitpunchlab.android.pawsgo.databinding.FragmentCreateAccountBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel

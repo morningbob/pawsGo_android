@@ -11,6 +11,7 @@ import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.modelsFirebase.DogFirebase
 import com.bitpunchlab.android.pawsgo.modelsFirebase.UserFirebase
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
+import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.UserRoom
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -87,9 +88,6 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     val storageRef = Firebase.storage.reference
 
-    var lostDogs = MutableLiveData<List<DogFirebase>>()
-    var foundDogs = MutableLiveData<List<DogFirebase>>()
-
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser != null) {
@@ -102,11 +100,18 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             // to get the most updated user profile,
             // we will save it to local room database too
             coroutineScope.launch {
-                _currentUserFirebase.postValue(retrieveUserFirebase())
+                var userFirebaseDeferred = coroutineScope.async { retrieveUserFirebase() }
+                var userFirebase = userFirebaseDeferred.await()
+                userFirebase?.let {
+                    _currentUserFirebaseLiveData.postValue(userFirebase!!)
+                    // update local database
+                    localDatabase = PawsGoDatabase.getInstance(activity)
+                    localDatabase.pawsDAO.insertUser(convertUserFirebaseToUserRoom(userFirebase))
+                }
                 // we also retrieve the lost dogs and the found dogs from Firestore,
                 // save to the local database, the local database changes, the data will
                 // be retrieved in dogs view model.
-                retrieveDogs()
+                retrieveDogsAndSaveToLocalDatabase()
             }
 
         } else {
@@ -243,8 +248,8 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
         currentUserRoomLiveData.observe(activity as LifecycleOwner, Observer { user ->
             if (user != null) {
-                Log.i("user live data", "got back user")
-                Log.i("user live data", "userEmail: ${user.userEmail}")
+                Log.i("user room live data", "got back user")
+                Log.i("user room live data", "userEmail: ${user.userEmail}")
                 currentUserID = user.userID
                 currentUserEmail = user.userEmail
             } else {
@@ -364,7 +369,8 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     private fun createUserFirebase(id: String, name: String, email: String, lost: HashMap<String, DogFirebase>,
                                    dogs: HashMap<String, DogFirebase>) : UserFirebase {
         return UserFirebase(id = id, name = name, email = email,
-            lost = HashMap<String, DogFirebase>(), dog = HashMap<String, DogFirebase>())
+            lost = HashMap<String, DogFirebase>(), dog = HashMap<String, DogFirebase>(),
+            allMessages = HashMap<String, String>())
     }
 
     private suspend fun saveUserFirebase(user: UserFirebase) =
@@ -387,7 +393,9 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         return UserRoom(userID = userFirebase.userID, userName = userFirebase.userName,
             userEmail = userFirebase.userEmail, dateCreated = userFirebase.dateCreated,
             lostDogs = convertDogMapToDogList(userFirebase.lostDogs),
-            dogs = convertDogMapToDogList(userFirebase.dogs))
+            dogs = convertDogMapToDogList(userFirebase.dogs),
+            //messages = ArrayList())
+        messages = convertMapToList(userFirebase.messages, 2) as List<String>)
     }
 
     private fun saveUserRoom(user: UserRoom) {
@@ -404,12 +412,12 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 .get()
                 .addOnSuccessListener { document ->
                     if (!document.exists()) {
-                        Log.i("retrieve user", "can't find the user")
+                        Log.i("retrieve user firebase", "can't find the user")
                         cancellableContinuation.resume(null) {}
                     } else {
-                        Log.i("retrieve user", "found the user")
+                        Log.i("retrieve user firebase", "found the user")
                         val user = document.toObject(UserFirebase::class.java)!!
-                        Log.i("retrieve user object", user.userName)
+                        Log.i("retrieve user firebase", user.userName)
                         cancellableContinuation.resume(user) {}
                     }
                 }
@@ -450,7 +458,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     }
 
-    private fun retrieveDogs() {
+    private fun retrieveDogsAndSaveToLocalDatabase() {
         var dogList = ArrayList<DogFirebase>()
         var dogRoomList = ArrayList<DogRoom>()
         coroutineScope.launch {
@@ -472,8 +480,26 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         return list
     }
 
+    private fun <T: Any> convertMapToList(hashMap: HashMap<String, T>, type: Int) : List<T> {
+        val list = ArrayList<T>()
+        for ((key, value) in hashMap) {
+            list.add(convertFirebaseModelToRoomModel(value, type))
+        }
+        return list
+    }
+
     private fun convertDogListToDogMap(dogList: List<DogRoom>) {
 
+    }
+
+    private fun <T: Any> convertFirebaseModelToRoomModel(item: T, type: Int) : T {
+        if (type == 1) {
+            return convertDogFirebaseToDogRoom(item as DogFirebase) as T
+        } else if (type == 2) {
+            return item
+        } else {
+            return item
+        }
     }
 
     private fun convertDogRoomToDogFirebase(dogRoom: DogRoom): DogFirebase {
@@ -678,6 +704,28 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 }
             }
         }
+
+    suspend fun sendMessageToFirestoreMessaging(messageRoom: MessageRoom) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            var data = HashMap<String, String>()
+            data.put("senderEmail", messageRoom.senderEmail)
+            data.put("targetEmail", messageRoom.targetEmail)
+            data.put("message", messageRoom.messageContent)
+            data.put("date", messageRoom.date)
+            firestore
+                .collection("messaging")
+                .document()
+                .set(data)
+                .addOnSuccessListener { docRef ->
+                    Log.i("send to Messaging", "success")
+                    cancellableContinuation.resume(true) {}
+                }
+                .addOnFailureListener { e ->
+                    Log.i("send to Messaging", "failed: ${e.message}")
+                    cancellableContinuation.resume(false) {}
+                }
+
+    }
 }
 
 class FirebaseClientViewModelFactory(private val activity: Activity)

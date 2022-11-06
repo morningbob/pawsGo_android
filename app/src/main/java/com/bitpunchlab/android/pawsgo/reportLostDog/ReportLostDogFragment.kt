@@ -338,7 +338,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun saveDogLocalDatabase(dog: DogRoom) {
         coroutineScope.launch {
-            localDatabase.pawsDAO.insertDog(dog)
+            localDatabase.pawsDAO.insertDogs(dog)
         }
     }
 

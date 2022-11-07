@@ -30,6 +30,9 @@ interface PawsDAO {
     @Query("SELECT * FROM dog_table WHERE isLost == 0")
     fun getAllFoundDogs() : LiveData<List<DogRoom>>
 
+    @Query("SELECT * FROM dog_table")
+    fun getAllDogs() : List<DogRoom>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessages(vararg message: MessageRoom)
 }

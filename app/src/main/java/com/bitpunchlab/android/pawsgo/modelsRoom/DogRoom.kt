@@ -23,6 +23,7 @@ data class DogRoom (
     var hour: Int? = null,
     var minute: Int? = null,
     var ownerID: String,
+    var ownerName: String,
     var ownerEmail: String,
     var isLost : Boolean? = null,
     var isFound : Boolean? = null,

@@ -333,7 +333,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             dogGender = gender, dogAge = age, isLost = lost, isFound = found,
             dateLastSeen = date, hour = hour, minute = minute,
             placeLastSeen = place, ownerID = firebaseClient.currentUserID,
-            ownerEmail = firebaseClient.currentUserEmail)
+            ownerEmail = firebaseClient.currentUserEmail,
+            ownerName = firebaseClient.currentUserFirebaseLiveData.value!!.userName)
     }
 
     private fun saveDogLocalDatabase(dog: DogRoom) {

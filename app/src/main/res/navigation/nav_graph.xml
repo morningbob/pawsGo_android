@@ -71,7 +71,7 @@
         android:label="@string/send_message"
         tools:layout="@layout/fragment_send_message" >
         <argument
-            android:name="targetEmail"
-            app:argType="string" />
+            android:name="dog"
+            app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
     </fragment>
 </navigation>

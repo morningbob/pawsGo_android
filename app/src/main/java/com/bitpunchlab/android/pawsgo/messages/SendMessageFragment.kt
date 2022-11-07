@@ -15,6 +15,7 @@ import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.databinding.FragmentSendMessageBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
+import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +31,7 @@ class SendMessageFragment : Fragment() {
     private lateinit var firebaseClient : FirebaseClientViewModel
     private lateinit var localDatabase: PawsGoDatabase
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
-    private var targetEmail : String? = null
+    private var dog : DogRoom? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +49,8 @@ class SendMessageFragment : Fragment() {
             .get(FirebaseClientViewModel::class.java)
         localDatabase = PawsGoDatabase.getInstance(requireContext())
         binding.lifecycleOwner = viewLifecycleOwner
-        targetEmail = requireArguments().getString("targetEmail")
-        if (targetEmail == null) {
+        dog = requireArguments().getParcelable("dog")
+        if (dog == null) {
             findNavController().popBackStack()
         }
 
@@ -62,8 +63,9 @@ class SendMessageFragment : Fragment() {
             val message = binding.edittextMessage.text.toString()
             if (message != null && message != "") {
                 val messageRoom = createMessageRoom(
-                    firebaseClient.currentUserFirebaseLiveData.value!!.userEmail,
-                    targetEmail!!, message
+                    userEmail = firebaseClient.currentUserFirebaseLiveData.value!!.userEmail,
+                    userName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
+                    targetEmail = dog!!.ownerEmail, message = message
                 )
                 coroutineScope.launch {
                     if (firebaseClient.sendMessageToFirestoreMessaging(messageRoom)) {
@@ -98,9 +100,10 @@ class SendMessageFragment : Fragment() {
         }
     }
 
-    private fun createMessageRoom(userEmail: String, targetEmail: String, message: String) : MessageRoom {
+    private fun createMessageRoom(userEmail: String, userName: String, targetEmail: String, message: String) : MessageRoom {
         return MessageRoom(messageID = UUID.randomUUID().toString(),
-            senderEmail = userEmail, targetEmail = targetEmail, messageContent = message,
+            senderEmail = userEmail, senderName = userName, targetEmail = targetEmail,
+            messageContent = message,
             date = Date().toString())
     }
 

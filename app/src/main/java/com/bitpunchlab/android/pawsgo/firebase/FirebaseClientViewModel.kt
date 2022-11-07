@@ -1,6 +1,7 @@
 package com.bitpunchlab.android.pawsgo.firebase
 
 import android.app.Activity
+import android.graphics.Bitmap
 import android.net.Uri
 import android.telephony.PhoneNumberUtils
 import android.util.Log
@@ -88,6 +89,12 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     val storageRef = Firebase.storage.reference
 
+    var lostDogRoomLiveData = MutableLiveData<List<DogRoom>>()
+    var foundDogRoomLiveData = MutableLiveData<List<DogRoom>>()
+    var lostDogFirebaseLiveData = MutableLiveData<List<DogFirebase>>()
+    var requestLostDogImageList = ArrayList<DogFirebase>()
+
+    val ONE_MEGABYTE: Long = 1024 * 1024
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser != null) {
@@ -111,7 +118,8 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 // we also retrieve the lost dogs and the found dogs from Firestore,
                 // save to the local database, the local database changes, the data will
                 // be retrieved in dogs view model.
-                retrieveDogsAndSaveToLocalDatabase()
+                //retrieveDogsFromFirebase()
+                updateDogsList()
             }
 
         } else {
@@ -458,18 +466,24 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
 
     }
 
-    private fun retrieveDogsAndSaveToLocalDatabase() {
-        var dogList = ArrayList<DogFirebase>()
-        var dogRoomList = ArrayList<DogRoom>()
-        coroutineScope.launch {
-            dogList.addAll(retrieveAllDogsFirebase(true))
-            dogList.addAll(retrieveAllDogsFirebase(false))
-            // convert to dog room and save to local database
-            dogList.map { dog ->
-                dogRoomList.add(convertDogFirebaseToDogRoom(dog))
+    private suspend fun retrieveDogsFromFirebase() : List<DogFirebase> {
+        //suspendCancellableCoroutine<Pair<List<DogFirebase>, List<DogFirebase>>> { cancellableContinuation ->
+            var lostDogList = ArrayList<DogFirebase>()
+            var foundDogList = ArrayList<DogFirebase>()
+            //var dogRoomList = ArrayList<DogRoom>()
+           return withContext(Dispatchers.IO) {
+                lostDogList.addAll(retrieveAllDogsFirebase(true))
+                lostDogList.addAll(retrieveAllDogsFirebase(false))
+                //cancellableContinuation.resume() {}
+                //var result = lostDogList.addAll(foundDogList)
+                return@withContext lostDogList
             }
-            localDatabase.pawsDAO.insertDogs(*dogRoomList.toTypedArray())
-        }
+            // convert to dog room and save to local database
+            //dogList.map { dog ->
+            //    dogRoomList.add(convertDogFirebaseToDogRoom(dog))
+            //}
+            //localDatabase.pawsDAO.insertDogs(*dogRoomList.toTypedArray())
+
     }
 
     private fun convertDogMapToDogList(dogHashmap: HashMap<String, DogFirebase>) : List<DogRoom> {
@@ -506,18 +520,81 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         return DogFirebase(id = dogRoom.dogID, name = dogRoom.dogName, gender = dogRoom.dogGender,
             breed = dogRoom.dogBreed, age = dogRoom.dogAge, date = dogRoom.dateLastSeen,
             hr = dogRoom.hour, min = dogRoom.minute, place = dogRoom.placeLastSeen,
-            userID = dogRoom.ownerID, userEmail = dogRoom.ownerEmail, lost = dogRoom.isLost,
-            found = dogRoom.isFound)
+            userID = dogRoom.ownerID, userName = dogRoom.ownerName, userEmail = dogRoom.ownerEmail,
+            lost = dogRoom.isLost, found = dogRoom.isFound)
     }
 
     private fun convertDogFirebaseToDogRoom(dogFirebase: DogFirebase): DogRoom {
         return DogRoom(dogID = dogFirebase.dogID, dogName = dogFirebase.dogName,
             dogBreed = dogFirebase.dogBreed, dogGender = dogFirebase.dogGender,
             dogAge = dogFirebase.dogAge, ownerID = dogFirebase.ownerID,
+            ownerName = dogFirebase.ownerName,
             ownerEmail = dogFirebase.ownerEmail, isLost = dogFirebase.isLost,
             isFound = dogFirebase.isFound, dateLastSeen = dogFirebase.dateLastSeen,
             hour = dogFirebase.hour, minute = dogFirebase.minute,
             placeLastSeen = dogFirebase.placeLastSeen)
+    }
+
+    private fun updateDogsList() {
+        var requestList = ArrayList<DogFirebase>()
+        var lostDogs = ArrayList<DogFirebase>()
+        var dogRooms = ArrayList<DogRoom>()
+        coroutineScope.launch {
+            val lostDogsDeferred = coroutineScope.async {
+                retrieveDogsFromFirebase() as ArrayList<DogFirebase>
+            }
+            lostDogs = lostDogsDeferred.await()
+            val dogRoomsDeferred = coroutineScope.async {
+                localDatabase.pawsDAO.getAllDogs() as ArrayList<DogRoom>
+            }
+            dogRooms = dogRoomsDeferred.await()
+
+            requestList =
+                getListOfDogsRequestImage(lostDogs, dogRooms) as ArrayList<DogFirebase>
+
+            // now we can send request to Firestore
+        }
+
+    }
+
+    private fun retrieveDogsFromLocalDatabase() : LiveData<List<DogRoom>> {
+        return localDatabase.pawsDAO.getAllLostDogs()
+    }
+
+    private fun getListOfDogsRequestImage(dogListFirestore: ArrayList<DogFirebase>, dogListLocal: ArrayList<DogRoom>)
+        : List<DogFirebase> {
+        var dogFirebaseList = ArrayList<DogFirebase>()
+        if (!dogListFirestore.isNullOrEmpty() && !dogListLocal.isNullOrEmpty()) {
+            // this new list is already a copy , not references
+            dogFirebaseList = dogListFirestore.toList() as ArrayList
+            dogListLocal.map { dogRoom ->
+                val dog = dogFirebaseList.find { it.dogID == dogRoom.dogID }
+                dog?.let {
+                    dogFirebaseList.remove(dog)
+                }
+            }
+        }
+        return dogFirebaseList
+    }
+
+    private suspend fun requestDogImages(dogs: List<DogFirebase>) : Bitmap? =
+        suspendCancellableCoroutine<Bitmap> { cancellableContinuation ->
+        dogs.map { dog ->
+            // create a httpRef
+            if (dog.dogImages.values.isNotEmpty()) {
+                // in this case, we just randomly get one of the photo to display
+                val httpsRef = Firebase.storage.getReferenceFromUrl(dog.dogImages.values.first())
+                httpsRef
+                    .getBytes(ONE_MEGABYTE)
+                    .addOnSuccessListener { byteArray ->
+                        Log.i("request dog image from cloud storage", "success")
+
+                    }
+                    .addOnFailureListener { e ->
+                        Log.i("request dog image from cloud storage", "failed: ${e.message}")
+                    }
+            }
+        }
     }
 
     private suspend fun createUserOfAuth() : Boolean =
@@ -709,7 +786,9 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
             var data = HashMap<String, String>()
             data.put("senderEmail", messageRoom.senderEmail)
+            data.put("senderName", messageRoom.senderName)
             data.put("targetEmail", messageRoom.targetEmail)
+            data.put("messageID", messageRoom.messageID)
             data.put("message", messageRoom.messageContent)
             data.put("date", messageRoom.date)
             firestore

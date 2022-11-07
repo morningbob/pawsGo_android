@@ -82,7 +82,7 @@ class DogListFragment : Fragment() {
         dogsViewModel.dogMessage.observe(viewLifecycleOwner, Observer { dog ->
             dog?.let {
                 // navigate to send message fragment
-                val action = DogListFragmentDirections.SendAMessageAction(dog!!.ownerEmail)
+                val action = DogListFragmentDirections.SendAMessageAction(dog!!)
                 findNavController().navigate(action)
                 dogsViewModel.finishedDogMessage()
             }

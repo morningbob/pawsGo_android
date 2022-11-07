@@ -11,6 +11,7 @@ data class MessageRoom(
     @PrimaryKey
     val messageID : String,
     val senderEmail : String,
+    val senderName : String,
     val targetEmail : String,
     val messageContent : String,
     val date : String

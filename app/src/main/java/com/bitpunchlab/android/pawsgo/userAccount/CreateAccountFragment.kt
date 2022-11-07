@@ -54,25 +54,7 @@ class CreateAccountFragment : Fragment() {
                 }
             }
         })
-/*
-        LoginInfo.state.observe(viewLifecycleOwner, Observer { appState ->
-            when (appState) {
-                AppState.ERROR_CREATE_USER_AUTH -> {
-                    authErrorAlert()
-                }
-                AppState.SUCCESS_CREATED_USER_ACCOUNT -> {
-                    createSuccessAlert()
-                }
-                AppState.ERROR_CREATE_USER_ACCOUNT -> {
-                    createErrorAlert()
-                }
-                AppState.LOGGED_IN -> {
-                    findNavController().navigate(R.id.action_createAccountFragment_to_MainFragment)
-                }
-                else -> 0
-            }
-        })
-*/
+
         firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
                 AppState.LOGGED_IN -> {

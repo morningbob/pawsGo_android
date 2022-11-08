@@ -44,7 +44,7 @@ class ReportFoundDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     ): View? {
         _binding = FragmentReportFoundDogBinding.inflate(inflater, container, false)
         firebaseClient = ViewModelProvider(requireActivity(),
-            FirebaseClientViewModelFactory(requireActivity()))
+            FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.firebaseClient = firebaseClient

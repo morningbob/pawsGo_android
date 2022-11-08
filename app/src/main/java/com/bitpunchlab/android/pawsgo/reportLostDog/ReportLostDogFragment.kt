@@ -67,7 +67,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentReportLostDogBinding.inflate(inflater, container, false)
-        firebaseClient = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
+        firebaseClient = ViewModelProvider(requireActivity(),
+            FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         localDatabase = PawsGoDatabase.getInstance(requireContext())

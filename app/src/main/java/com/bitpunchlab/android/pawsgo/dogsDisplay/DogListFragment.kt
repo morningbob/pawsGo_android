@@ -35,7 +35,7 @@ class DogListFragment : Fragment() {
     ): View? {
         _binding = FragmentDogListBinding.inflate(inflater, container, false)
         firebaseClient = ViewModelProvider(requireActivity(),
-                FirebaseClientViewModelFactory(requireActivity()))
+                FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
         dogsViewModel = ViewModelProvider(requireActivity(),
             DogsViewModelFactory(requireActivity().application))

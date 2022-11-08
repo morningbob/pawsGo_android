@@ -5,6 +5,6 @@
         path="."/>
 
     <files-path
-        name="images"
+        name="paws_go_images"
         path="."/>
 </paths>

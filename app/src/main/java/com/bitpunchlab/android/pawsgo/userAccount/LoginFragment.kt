@@ -33,7 +33,8 @@ class LoginFragment : Fragment() {
     ): View? {
 
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
-        firebaseClient = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
+        firebaseClient = ViewModelProvider(requireActivity(),
+            FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.firebaseClient = firebaseClient

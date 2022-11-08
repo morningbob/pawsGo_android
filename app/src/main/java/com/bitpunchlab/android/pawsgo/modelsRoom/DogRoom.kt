@@ -27,5 +27,6 @@ data class DogRoom (
     var ownerEmail: String,
     var isLost : Boolean? = null,
     var isFound : Boolean? = null,
-    var dogImages : List<String>? = emptyList()
+    var dogImages : List<String>? = emptyList(),
+    var dogImagesLocal : List<String>? = emptyList()
     ) : Parcelable

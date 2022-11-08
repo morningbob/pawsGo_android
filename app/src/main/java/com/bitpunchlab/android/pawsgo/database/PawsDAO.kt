@@ -1,10 +1,7 @@
 package com.bitpunchlab.android.pawsgo.database
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.UserRoom
@@ -35,4 +32,7 @@ interface PawsDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessages(vararg message: MessageRoom)
+
+    @Delete
+    fun deleteDogs(vararg dog: DogRoom)
 }

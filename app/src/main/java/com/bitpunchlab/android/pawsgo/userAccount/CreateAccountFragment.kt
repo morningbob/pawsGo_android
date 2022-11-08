@@ -34,7 +34,8 @@ class CreateAccountFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentCreateAccountBinding.inflate(inflater, container, false)
-        firebaseClient = ViewModelProvider(requireActivity(), FirebaseClientViewModelFactory(requireActivity()))
+        firebaseClient = ViewModelProvider(requireActivity(),
+            FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.firebaseClient = firebaseClient

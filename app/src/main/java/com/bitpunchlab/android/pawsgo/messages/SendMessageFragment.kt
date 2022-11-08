@@ -45,7 +45,7 @@ class SendMessageFragment : Fragment() {
     ): View? {
         _binding = FragmentSendMessageBinding.inflate(inflater, container, false)
         firebaseClient = ViewModelProvider(requireActivity(),
-            FirebaseClientViewModelFactory(requireActivity()))
+            FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
         localDatabase = PawsGoDatabase.getInstance(requireContext())
         binding.lifecycleOwner = viewLifecycleOwner

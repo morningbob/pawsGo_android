@@ -1,6 +1,8 @@
 package com.bitpunchlab.android.pawsgo
 
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.*
 import androidx.core.view.MenuProvider
@@ -17,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import java.io.File
 
 // in the main fragment, we'll contact firestore for current info,
 // including all the lost dogs and found dogs
@@ -37,7 +40,7 @@ class MainFragment : Fragment() {
     ): View? {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         firebaseClient = ViewModelProvider(requireActivity(),
-            FirebaseClientViewModelFactory(requireActivity()))
+            FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
         binding.firebaseClient = firebaseClient
 
@@ -97,6 +100,8 @@ class MainFragment : Fragment() {
         return binding.root
 
     }
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

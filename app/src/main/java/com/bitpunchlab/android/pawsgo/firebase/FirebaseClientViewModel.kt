@@ -1,12 +1,14 @@
 package com.bitpunchlab.android.pawsgo.firebase
 
-import android.app.Activity
+import android.app.Application
 import android.graphics.Bitmap
-import android.net.Uri
+import android.graphics.BitmapFactory
+import android.os.Environment
 import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.*
+import androidx.lifecycle.Observer
 import com.bitpunchlab.android.pawsgo.AppState
 import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.modelsFirebase.DogFirebase
@@ -14,18 +16,18 @@ import com.bitpunchlab.android.pawsgo.modelsFirebase.UserFirebase
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.UserRoom
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
-import java.time.chrono.ThaiBuddhistChronology
+import java.io.File
+import java.io.FileOutputStream
+import java.util.*
 import java.util.regex.Pattern
 
 @OptIn(InternalCoroutinesApi::class)
-class FirebaseClientViewModel(activity: Activity) : ViewModel() {
+class FirebaseClientViewModel(application: Application) : AndroidViewModel(application) {
 
     var auth : FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore = Firebase.firestore
@@ -112,7 +114,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 userFirebase?.let {
                     _currentUserFirebaseLiveData.postValue(userFirebase!!)
                     // update local database
-                    localDatabase = PawsGoDatabase.getInstance(activity)
+                    localDatabase = PawsGoDatabase.getInstance(application)
                     localDatabase.pawsDAO.insertUser(convertUserFirebaseToUserRoom(userFirebase))
                 }
                 // we also retrieve the lost dogs and the found dogs from Firestore,
@@ -120,6 +122,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 // be retrieved in dogs view model.
                 //retrieveDogsFromFirebase()
                 updateDogsList()
+                //deleteAllDogs()
             }
 
         } else {
@@ -252,9 +255,9 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         // by just summing up all 4 fields to see if it is 4, then it is ready
         fieldsValidArray = arrayListOf(0,0,0,0)
         auth.addAuthStateListener(authStateListener)
-        localDatabase = PawsGoDatabase.getInstance(activity)
+        localDatabase = PawsGoDatabase.getInstance(application)
 
-        currentUserRoomLiveData.observe(activity as LifecycleOwner, Observer { user ->
+        currentUserRoomLiveData.observeForever(Observer { user ->
             if (user != null) {
                 Log.i("user room live data", "got back user")
                 Log.i("user room live data", "userEmail: ${user.userEmail}")
@@ -265,7 +268,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
             }
         })
 
-        appState.observe(activity as LifecycleOwner, Observer { state ->
+        appState.observeForever( Observer { state ->
             when (state) {
                 AppState.READY_CREATE_USER_AUTH -> {
                     coroutineScope.launch {
@@ -536,6 +539,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     }
 
     private fun updateDogsList() {
+        //deleteAllDogs()
         var requestList = ArrayList<DogFirebase>()
         var lostDogs = ArrayList<DogFirebase>()
         var dogRooms = ArrayList<DogRoom>()
@@ -553,6 +557,7 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                 getListOfDogsRequestImage(lostDogs, dogRooms) as ArrayList<DogFirebase>
 
             // now we can send request to Firestore
+            requestDogImages(lostDogs)
         }
 
     }
@@ -577,6 +582,10 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
         return dogFirebaseList
     }
 
+    // we send the request one by one,
+    // we need to save the images in a place that the app can access
+    // we store the local url in dog object and save to local database
+    //
     private suspend fun requestDogImages(dogs: List<DogFirebase>) : Bitmap? =
         suspendCancellableCoroutine<Bitmap> { cancellableContinuation ->
         dogs.map { dog ->
@@ -588,12 +597,50 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
                     .getBytes(ONE_MEGABYTE)
                     .addOnSuccessListener { byteArray ->
                         Log.i("request dog image from cloud storage", "success")
-
+                        // turn byte array into bitmap and save in device
+                        val dogBitmap = convertByteArrayToBitmap(byteArray)
+                        // save in device
+                        saveBitmap(dogBitmap, dog.ownerName)
+                        // save url in object
                     }
                     .addOnFailureListener { e ->
                         Log.i("request dog image from cloud storage", "failed: ${e.message}")
                     }
             }
+        }
+    }
+
+    private fun convertByteArrayToBitmap(byteArray: ByteArray) : Bitmap {
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+    }
+
+    private fun saveBitmap(bitmap: Bitmap, dogName: String) {
+        try {
+            val root: File? = getApplication<Application>()
+                .applicationContext
+                .getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val storageDir = File(root.toString() + "/paws_go_images")
+            storageDir.mkdirs()
+            val fname: String = Date().toString() + dogName + ".jpg"
+            val file: File = File(storageDir, fname)
+            val out = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            out.flush()
+            out.close()
+            Log.i("save bitmap", "should have saved image")
+        } catch (e: java.lang.Exception) {
+            Log.i("save bitmap", "error")
+        }
+    }
+
+    // for debug
+    private fun deleteAllDogs() {
+        coroutineScope.launch {
+            val dogsDeferred = coroutineScope.async {
+                localDatabase.pawsDAO.getAllDogs()
+            }
+            val dogs = dogsDeferred.await()
+            localDatabase.pawsDAO.deleteDogs(*dogs.toTypedArray())
         }
     }
 
@@ -807,11 +854,11 @@ class FirebaseClientViewModel(activity: Activity) : ViewModel() {
     }
 }
 
-class FirebaseClientViewModelFactory(private val activity: Activity)
+class FirebaseClientViewModelFactory(private val application: Application)
     : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FirebaseClientViewModel::class.java)) {
-            return FirebaseClientViewModel(activity) as T
+            return FirebaseClientViewModel(application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

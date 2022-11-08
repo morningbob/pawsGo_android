@@ -1,6 +1,8 @@
 package com.bitpunchlab.android.pawsgo
 
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Environment
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -10,6 +12,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import com.bitpunchlab.android.pawsgo.databinding.ActivityMainBinding
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -54,5 +57,9 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    private fun saveBitmap(bitmap: Bitmap) {
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     }
 }

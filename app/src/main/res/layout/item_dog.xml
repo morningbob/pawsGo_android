@@ -33,59 +33,62 @@
             android:orientation="horizontal"
             android:gravity="center">
 
-        <ImageView
-            android:id="@+id/thumbnail_dog"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_margin="10dp"/>
+            <ImageView
+                android:id="@+id/thumbnail_dog"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_margin="10dp"
+                app:loadImage="@{dog.dogImagesUri[0]}"
+                app:srcCompat="@drawable/placeholder"
+                tools:srcCompat="@drawable/placeholder" />
 
-        <LinearLayout
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/textview_dog_name"
+            <LinearLayout
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="@{dog.dogName}"
-                tools:text="Danny"
-                android:textSize="@dimen/content_text_size"/>
+                android:layout_marginLeft="10dp"
+                android:orientation="vertical"
+                android:gravity="center">
 
-            <TextView
-                android:id="@+id/textview_dog_gender"
-                android:layout_width="100dp"
+                <TextView
+                    android:id="@+id/textview_dog_name"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{dog.dogName}"
+                    tools:text="Danny"
+                    android:textSize="@dimen/content_text_size"/>
+
+                <TextView
+                    android:id="@+id/textview_dog_gender"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{dog.dogGender ? `Male` : `Female`}"
+                    tools:text="Male"
+                    android:textSize="@dimen/content_text_size"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:text="@{dog.dogGender ? `Male` : `Female`}"
-                tools:text="Male"
-                android:textSize="@dimen/content_text_size"/>
+                android:orientation="vertical"
+                android:layout_marginLeft="10dp">
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/textview_place"
+                    android:layout_width="170dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{dog.placeLastSeen}"
+                    tools:text="Markham"
+                    android:textSize="@dimen/content_text_size"/>
 
-        <LinearLayout
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginLeft="20dp">
-
-            <TextView
-                android:id="@+id/textview_place"
-                android:layout_width="170dp"
-                android:layout_height="wrap_content"
-                android:text="@{dog.placeLastSeen}"
-                tools:text="Markham"
-                android:textSize="@dimen/content_text_size"/>
-
-            <TextView
-                android:id="@+id/textview_date"
-                android:layout_width="170dp"
-                android:layout_height="wrap_content"
-                android:text="@{dog.dateLastSeen}"
-                tools:text="Oct 2, 2022"
-                android:textSize="@dimen/content_text_size"/>
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/textview_date"
+                    android:layout_width="170dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{dog.dateLastSeen}"
+                    tools:text="Oct 2, 2022"
+                    android:textSize="@dimen/content_text_size"/>
+            </LinearLayout>
 
         </LinearLayout>
 

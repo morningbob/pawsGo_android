@@ -1,6 +1,7 @@
 package com.bitpunchlab.android.pawsgo.dogsDisplay
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,8 @@ import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.pawsgo.databinding.FragmentDogListBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
+import com.bumptech.glide.Glide
+import java.net.URI
 
 
 class DogListFragment : Fragment() {
@@ -42,7 +45,7 @@ class DogListFragment : Fragment() {
             .get(DogsViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         lostOrFound = requireArguments().getBoolean("lostOrFound")
-        binding
+
 
         dogsAdapter = DogsAdapter( DogOnClickListener { dog ->
             dogsViewModel.onDogChosen(dog)
@@ -58,6 +61,7 @@ class DogListFragment : Fragment() {
         } else if (lostOrFound == true) {
             dogsViewModel.lostDogs.observe(viewLifecycleOwner, Observer { dogs ->
                 dogs?.let {
+                    Log.i("dogsVM lost dogs", dogs.size.toString())
                     dogsAdapter.submitList(dogs)
                     dogsAdapter.notifyDataSetChanged()
                 }
@@ -87,7 +91,6 @@ class DogListFragment : Fragment() {
                 dogsViewModel.finishedDogMessage()
             }
         })
-
         return binding.root
     }
 
@@ -95,6 +98,5 @@ class DogListFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 
 }

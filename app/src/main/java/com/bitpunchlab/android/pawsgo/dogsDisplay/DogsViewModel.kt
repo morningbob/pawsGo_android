@@ -2,6 +2,7 @@ package com.bitpunchlab.android.pawsgo.dogsDisplay
 
 import android.app.Activity
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -24,6 +25,8 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
 
     var foundDogs = localDatabase.pawsDAO.getAllFoundDogs()
     //val lostDogs get() = _lostDogs
+    var _lostDogBitmaps = MutableLiveData<List<Bitmap>>()
+    val lostDogBitmaps get() = _lostDogBitmaps
 
     var _chosenDog = MutableLiveData<DogRoom?>()
     val chosenDog get() = _chosenDog

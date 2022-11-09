@@ -53,6 +53,7 @@ class SendMessageFragment : Fragment() {
         if (dog == null) {
             findNavController().popBackStack()
         }
+        binding.dog = dog
 
         binding.buttonSend.setOnClickListener {
             // save to messages in user room

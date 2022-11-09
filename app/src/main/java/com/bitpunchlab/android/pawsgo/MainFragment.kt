@@ -97,6 +97,18 @@ class MainFragment : Fragment() {
             }
         })
 
+        // testing
+        firebaseClient.testingDogImage.observe(viewLifecycleOwner, Observer { bitmap ->
+            bitmap?.let {
+                binding.dogImage!!.setImageBitmap(it)
+            }
+        })
+
+        //binding.buttonRetrieve!!.setOnClickListener {
+        //    firebaseClient.retrieveDogImageInternal()
+        //}
+
+
         return binding.root
 
     }

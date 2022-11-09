@@ -4,6 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".messages.SendMessageFragment">
 
+    <data>
+        <variable
+            name="dog"
+            type="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
+    </data>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -43,21 +49,22 @@
 
             <ImageView
                 android:id="@+id/thumbnail_dog"
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:layout_marginTop="@dimen/icon_margin_top"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_title"
-                app:srcCompat="@drawable/sendmail"
-                tools:srcCompat="@drawable/sendmail" />
+                app:loadImage="@{dog.dogImagesUri[0]}"
+                app:srcCompat="@drawable/placeholder"
+                tools:srcCompat="@drawable/placeholder" />
 
             <TextView
                 android:id="@+id/textview_dog_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text=""
+                android:text="@{dog.dogName}"
                 android:textStyle="bold"
                 android:textColor="@color/black"
                 android:textSize="@dimen/title_text_size"

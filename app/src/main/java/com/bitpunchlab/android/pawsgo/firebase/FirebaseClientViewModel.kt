@@ -1,8 +1,10 @@
 package com.bitpunchlab.android.pawsgo.firebase
 
 import android.app.Application
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Environment
 import android.telephony.PhoneNumberUtils
 import android.util.Log
@@ -23,6 +25,8 @@ import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URI
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Pattern
 
@@ -91,12 +95,11 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
 
     val storageRef = Firebase.storage.reference
 
-    var lostDogRoomLiveData = MutableLiveData<List<DogRoom>>()
-    var foundDogRoomLiveData = MutableLiveData<List<DogRoom>>()
-    var lostDogFirebaseLiveData = MutableLiveData<List<DogFirebase>>()
-    var requestLostDogImageList = ArrayList<DogFirebase>()
-
     val ONE_MEGABYTE: Long = 1024 * 1024
+
+    var testingDogImage = MutableLiveData<Bitmap?>()
+
+    var testingUri : URI? = null
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser != null) {
@@ -481,12 +484,6 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 //var result = lostDogList.addAll(foundDogList)
                 return@withContext lostDogList
             }
-            // convert to dog room and save to local database
-            //dogList.map { dog ->
-            //    dogRoomList.add(convertDogFirebaseToDogRoom(dog))
-            //}
-            //localDatabase.pawsDAO.insertDogs(*dogRoomList.toTypedArray())
-
     }
 
     private fun convertDogMapToDogList(dogHashmap: HashMap<String, DogFirebase>) : List<DogRoom> {
@@ -539,7 +536,6 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private fun updateDogsList() {
-        //deleteAllDogs()
         var requestList = ArrayList<DogFirebase>()
         var lostDogs = ArrayList<DogFirebase>()
         var dogRooms = ArrayList<DogRoom>()
@@ -548,6 +544,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 retrieveDogsFromFirebase() as ArrayList<DogFirebase>
             }
             lostDogs = lostDogsDeferred.await()
+            Log.i("update dogs list from firebase", "lost dogs: ${lostDogs.size}")
             val dogRoomsDeferred = coroutineScope.async {
                 localDatabase.pawsDAO.getAllDogs() as ArrayList<DogRoom>
             }
@@ -557,9 +554,24 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 getListOfDogsRequestImage(lostDogs, dogRooms) as ArrayList<DogFirebase>
 
             // now we can send request to Firestore
-            requestDogImages(lostDogs)
-        }
+            requestList.map { dog ->
+                Log.i("update dogs list from firebase", "requesting 1 dog: ${dog.dogName}")
+                val dogRoom = convertDogFirebaseToDogRoom(dog)
+                if (dog.dogImages.values.isNotEmpty()) {
+                    val byteArray = requestDogImage(dog)
+                    byteArray?.let {
+                        // update the corresponding dog room object, with the new image filename
+                        // and save the dog object locally
 
+                        val imageUri = saveBitmapInternal(it, dog.dogName!!)
+                        updateDogRoomWithImageUri(dogRoom, imageUri)
+                        saveDogRoom(dogRoom)
+                    }
+                } else {
+                    saveDogRoom(dogRoom)
+                }
+            }
+        }
     }
 
     private fun retrieveDogsFromLocalDatabase() : LiveData<List<DogRoom>> {
@@ -586,9 +598,8 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     // we need to save the images in a place that the app can access
     // we store the local url in dog object and save to local database
     //
-    private suspend fun requestDogImages(dogs: List<DogFirebase>) : Bitmap? =
-        suspendCancellableCoroutine<Bitmap> { cancellableContinuation ->
-        dogs.map { dog ->
+    private suspend fun requestDogImage(dog: DogFirebase) : ByteArray? =
+        suspendCancellableCoroutine<ByteArray?> { cancellableContinuation ->
             // create a httpRef
             if (dog.dogImages.values.isNotEmpty()) {
                 // in this case, we just randomly get one of the photo to display
@@ -597,39 +608,45 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                     .getBytes(ONE_MEGABYTE)
                     .addOnSuccessListener { byteArray ->
                         Log.i("request dog image from cloud storage", "success")
-                        // turn byte array into bitmap and save in device
-                        val dogBitmap = convertByteArrayToBitmap(byteArray)
-                        // save in device
-                        saveBitmap(dogBitmap, dog.ownerName)
-                        // save url in object
+                        cancellableContinuation.resume(byteArray) {}
                     }
                     .addOnFailureListener { e ->
                         Log.i("request dog image from cloud storage", "failed: ${e.message}")
+                        cancellableContinuation.resume(null) {}
                     }
             }
-        }
     }
 
     private fun convertByteArrayToBitmap(byteArray: ByteArray) : Bitmap {
         return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
 
-    private fun saveBitmap(bitmap: Bitmap, dogName: String) {
-        try {
-            val root: File? = getApplication<Application>()
-                .applicationContext
-                .getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val storageDir = File(root.toString() + "/paws_go_images")
-            storageDir.mkdirs()
-            val fname: String = Date().toString() + dogName + ".jpg"
-            val file: File = File(storageDir, fname)
-            val out = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            out.flush()
-            out.close()
-            Log.i("save bitmap", "should have saved image")
-        } catch (e: java.lang.Exception) {
-            Log.i("save bitmap", "error")
+    private fun saveBitmapInternal(byteArray: ByteArray, dogName: String) : URI {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss")
+        val fileName = "$timeStamp$dogName.jpg"
+        var imageUri : URI? = null
+        getApplication<Application>().applicationContext.apply {
+            openFileOutput(fileName, Context.MODE_PRIVATE).use {
+                it.write(byteArray)
+            }
+            val file = getFileStreamPath(fileName)
+            imageUri = file.toURI()
+            Log.i("save bitmap internally", "uri: $imageUri")
+        }
+
+        return imageUri!!
+    }
+
+    private fun updateDogRoomWithImageUri(dog: DogRoom, imageUri: URI) {
+        var arrayList = ArrayList<String>()
+        if (!dog.dogImagesUri.isNullOrEmpty()) {
+            arrayList = dog.dogImagesUri as ArrayList<String>
+        }
+        arrayList.add(imageUri.toString())
+        dog.dogImagesUri = arrayList
+
+        coroutineScope.launch {
+            localDatabase.pawsDAO.insertDogs(dog)
         }
     }
 
@@ -643,6 +660,19 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             localDatabase.pawsDAO.deleteDogs(*dogs.toTypedArray())
         }
     }
+
+    // for debug
+    fun retrieveDogImageInternal(dog: DogRoom) : Bitmap? {
+        if (!dog.dogImagesLocal.isNullOrEmpty()) {
+            val byteArray = getApplication<Application>()
+                .applicationContext.openFileInput(dog.dogImagesLocal!![0])
+                .readBytes()
+            return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+        }
+        return null
+    }
+    // for debug
+
 
     private suspend fun createUserOfAuth() : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
@@ -863,3 +893,25 @@ class FirebaseClientViewModelFactory(private val application: Application)
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+/*
+    private fun saveBitmapExternal(dogBitmap: Bitmap, dogName: String) {
+        try {
+            val root: File? = getApplication<Application>()
+                .applicationContext
+                .getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val storageDir = File(root.toString() + "/paws_go_images")
+            storageDir.mkdirs()
+            val fname: String = Date().toString() + dogName + ".jpg"
+            val file: File = File(storageDir, fname)
+            val out = FileOutputStream(file)
+            dogBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            out.flush()
+            out.close()
+            Log.i("save bitmap", "should have saved image")
+            val fileUriString = file.toURI().toString()
+
+        } catch (e: java.lang.Exception) {
+            Log.i("save bitmap", "error")
+        }
+    }
+ */

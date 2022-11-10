@@ -52,6 +52,9 @@
         <argument
             android:name="lostOrFound"
             app:argType="boolean" />
+        <action
+            android:id="@+id/showMapAction"
+            app:destination="@id/chooseLocationFragment" />
     </fragment>
     <fragment
         android:id="@+id/dogListFragment"
@@ -74,4 +77,9 @@
             android:name="dog"
             app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
     </fragment>
+    <fragment
+        android:id="@+id/chooseLocationFragment"
+        android:name="com.bitpunchlab.android.pawsgo.location.ChooseLocationFragment"
+        android:label="Choose Location"
+        tools:layout="@layout/fragment_choose_location" />
 </navigation>

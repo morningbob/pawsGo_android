@@ -239,6 +239,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_place_lost"/>
 
+            <Button
+                android:id="@+id/button_show_map"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/button_left_right_margin"
+                android:layout_marginRight="@dimen/button_left_right_margin"
+                android:layout_marginTop="20dp"
+                android:textSize="@dimen/button_text_size"
+                android:text="Show Map"
+                android:padding="@dimen/button_padding"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edittext_place_lost"/>
+
             <ImageView
                 android:id="@+id/preview_upload"
                 android:layout_width="200dp"
@@ -247,7 +261,7 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/edittext_place_lost" />
+                app:layout_constraintTop_toBottomOf="@id/button_show_map" />
 
             <Button
                 android:id="@+id/button_upload"

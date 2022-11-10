@@ -90,6 +90,10 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             showTimePicker()
         }
 
+        binding.buttonShowMap!!.setOnClickListener {
+            findNavController().navigate(R.id.showMapAction)
+        }
+
         binding.buttonUpload.setOnClickListener {
             selectImageFromGalleryResult.launch("image/*")
         }

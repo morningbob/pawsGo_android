@@ -554,7 +554,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 getListOfDogsRequestImage(lostDogs, dogRooms) as ArrayList<DogFirebase>
 
             // now we can send request to Firestore
-            requestList.map { dog ->
+            lostDogs.map { dog ->
                 Log.i("update dogs list from firebase", "requesting 1 dog: ${dog.dogName}")
                 // we can start a coroutine here,
                 // so, each dog is processed in a seperate coroutine

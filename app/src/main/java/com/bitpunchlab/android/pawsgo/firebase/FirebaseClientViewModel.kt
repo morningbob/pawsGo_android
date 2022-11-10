@@ -556,19 +556,23 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             // now we can send request to Firestore
             requestList.map { dog ->
                 Log.i("update dogs list from firebase", "requesting 1 dog: ${dog.dogName}")
-                val dogRoom = convertDogFirebaseToDogRoom(dog)
-                if (dog.dogImages.values.isNotEmpty()) {
-                    val byteArray = requestDogImage(dog)
-                    byteArray?.let {
-                        // update the corresponding dog room object, with the new image filename
-                        // and save the dog object locally
-
-                        val imageUri = saveBitmapInternal(it, dog.dogName!!)
-                        updateDogRoomWithImageUri(dogRoom, imageUri)
+                // we can start a coroutine here,
+                // so, each dog is processed in a seperate coroutine
+                // it won't need to wait for the response one by one
+                coroutineScope.launch {
+                    val dogRoom = convertDogFirebaseToDogRoom(dog)
+                    if (dog.dogImages.values.isNotEmpty()) {
+                        val byteArray = requestDogImage(dog)
+                        byteArray?.let {
+                            // update the corresponding dog room object, with the new image filename
+                            // and save the dog object locally
+                            val imageUri = saveBitmapInternal(it, dog.dogName!!)
+                            updateDogRoomWithImageUri(dogRoom, imageUri)
+                            saveDogRoom(dogRoom)
+                        }
+                    } else {
                         saveDogRoom(dogRoom)
                     }
-                } else {
-                    saveDogRoom(dogRoom)
                 }
             }
         }

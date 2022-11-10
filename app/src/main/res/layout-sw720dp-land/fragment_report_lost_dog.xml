@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="firebaseClient"
+            type="com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="50dp"
+            tools:context=".reportLostDog.ReportLostDogFragment"
+            android:background="@color/green_background">
+
+            <ImageView
+                android:id="@+id/art_report"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:layout_marginTop="@dimen/icon_margin_top"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/police"
+                tools:srcCompat="@drawable/police" />
+
+            <TextView
+                android:id="@+id/textview_intro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginRight="@dimen/content_left_right_margin"
+                android:text="@string/lost_report_intro"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/art_report" />
+
+            <TextView
+                android:id="@+id/textview_dog_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginTop="50dp"
+                android:text="@string/dog_name"
+                android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_intro" />
+
+            <EditText
+                android:id="@+id/edittext_dog_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginRight="@dimen/content_left_right_margin"
+                android:layout_marginTop="15dp"
+                android:textSize="@dimen/content_text_size"
+                android:text="@={firebaseClient.userEmail}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_dog_name"/>
+
+            <TextView
+                android:id="@+id/textview_dog_breed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginTop="30dp"
+                android:text="@string/dog_breed"
+                android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edittext_dog_name" />
+
+            <EditText
+                android:id="@+id/edittext_dog_breed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginRight="@dimen/content_left_right_margin"
+                android:layout_marginTop="15dp"
+                android:textSize="@dimen/content_text_size"
+                android:text="@={firebaseClient.userEmail}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_dog_breed"/>
+
+            <TextView
+                android:id="@+id/textview_dog_gender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginTop="30dp"
+                android:text="@string/dog_gender"
+                android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edittext_dog_breed" />
+
+            <Spinner
+                android:id="@+id/gender_spinner"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginRight="@dimen/content_left_right_margin"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_dog_gender"/>
+
+
+            <TextView
+                android:id="@+id/textview_dog_age"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginTop="30dp"
+                android:text="@string/dog_age"
+                android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/gender_spinner" />
+
+            <EditText
+                android:id="@+id/edittext_dog_age"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginRight="@dimen/content_left_right_margin"
+                android:layout_marginTop="15dp"
+                android:textSize="@dimen/content_text_size"
+                android:text="@={firebaseClient.userEmail}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_dog_age"/>
+
+            <TextView
+                android:id="@+id/textview_date_lost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="When did it happen?"
+                android:textSize="@dimen/content_text_size"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edittext_dog_age" />
+
+            <TextView
+                android:id="@+id/textview_date_lost_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:textSize="@dimen/content_text_size"
+                android:textAlignment="center"
+                android:visibility="gone"
+                android:textColor="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_date_lost" />
+
+            <Button
+                android:id="@+id/button_choose_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="@dimen/button_left_right_margin"
+                android:layout_marginRight="@dimen/button_left_right_margin"
+                android:text="@string/select_date"
+                android:textSize="@dimen/button_text_size"
+                android:padding="@dimen/button_padding"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_date_lost_data" />
+
+            <TextView
+                android:id="@+id/textview_time_lost_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:visibility="gone"
+                android:textSize="@dimen/content_text_size"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/button_choose_date" />
+
+            <Button
+                android:id="@+id/button_choose_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="@dimen/button_left_right_margin"
+                android:layout_marginRight="@dimen/button_left_right_margin"
+                android:text="@string/select_time"
+                android:textSize="@dimen/button_text_size"
+                android:padding="@dimen/button_padding"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_time_lost_data" />
+
+
+            <TextView
+                android:id="@+id/textview_place_lost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginTop="30dp"
+                android:text="@string/the_place_last_seen"
+                android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/button_choose_time" />
+
+            <EditText
+                android:id="@+id/edittext_place_lost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginRight="@dimen/content_left_right_margin"
+                android:layout_marginTop="15dp"
+                android:textSize="@dimen/content_text_size"
+                android:text="@={firebaseClient.userEmail}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_place_lost"/>
+
+            <ImageView
+                android:id="@+id/preview_upload"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edittext_place_lost" />
+
+            <Button
+                android:id="@+id/button_upload"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="@dimen/button_left_right_margin"
+                android:layout_marginRight="@dimen/button_left_right_margin"
+                android:text="@string/upload_picture"
+                android:textSize="@dimen/button_text_size"
+                android:padding="@dimen/button_padding"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/preview_upload" />
+
+            <Button
+                android:id="@+id/button_send"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="@dimen/button_left_right_margin"
+                android:layout_marginRight="@dimen/button_left_right_margin"
+                android:text="@string/send"
+                android:textSize="@dimen/button_text_size"
+                android:padding="@dimen/button_padding"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/button_upload" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>
+
+    <!--
+                <DatePicker
+                    android:id="@+id/date_picker"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_left_right_margin"
+                    android:layout_marginRight="@dimen/content_left_right_margin"
+                    android:layout_marginTop="20dp"
+
+                    android:calendarViewShown="true"
+                    android:spinnersShown="false"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textview_date_lost"/>
+
+                <TimePicker
+                    android:id="@+id/time_picker"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="@dimen/content_left_right_margin"
+                    android:layout_marginRight="@dimen/content_left_right_margin"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/date_picker"/>
+
+                    <EditText
+                android:id="@+id/edittext_dog_gender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginRight="@dimen/content_left_right_margin"
+                android:layout_marginTop="5dp"
+                android:textSize="@dimen/content_text_size"
+                android:text="@={firebaseClient.userEmail}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_dog_gender"/>
+    -->

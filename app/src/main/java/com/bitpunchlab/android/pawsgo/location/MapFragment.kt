@@ -1,4 +1,4 @@
-package com.bitpunchlab.android.pawsgo.googleMaps
+package com.bitpunchlab.android.pawsgo.location
 
 import android.annotation.SuppressLint
 import android.location.Location
@@ -8,16 +8,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.MainThread
+import androidx.lifecycle.ViewModelProvider
 import com.bitpunchlab.android.pawsgo.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.*
 
@@ -28,6 +30,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
+    private lateinit var locationViewModel : LocationViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,12 +44,23 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+        locationViewModel = ViewModelProvider(requireActivity()).get(LocationViewModel::class.java)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         supportMapFragment = childFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         supportMapFragment.getMapAsync(this)
+
+        // choose location fragment gets the place from auto complete fragment
+        // and put it in location VM.
+        // the map fragment gets it from location VM and navigate to it
+        locationViewModel.navigateToPlace.observe(viewLifecycleOwner, androidx.lifecycle.Observer { place ->
+            place?.let {
+                showUserLocation(place)
+                locationViewModel.finishNavigation()
+            }
+        })
 
 
         return view
@@ -58,7 +73,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // enable zoom function
         map.uiSettings.isZoomControlsEnabled = true
         map.isMyLocationEnabled = true;
-        map.uiSettings.isMyLocationButtonEnabled = true;
+        map.uiSettings.isMyLocationButtonEnabled = true
+        // place a marker in where user clicks
+        map.setOnMapClickListener(onMapOnClickListener)
 
         coroutineScope.launch {
             val locationDeferred = coroutineScope.async {
@@ -78,6 +95,19 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
         }
     }
+
+    private val onMapOnClickListener = object : OnMapClickListener {
+        // upon click, remove the previous marker
+        // add a new marker in the place
+        override fun onMapClick(place: LatLng) {
+            Log.i("on map clicked", "Place: ${place.latitude}, ${place.longitude}")
+            locationViewModel.placeMarker?.remove()
+            locationViewModel.placeMarker = map.addMarker(
+                MarkerOptions().position(
+                    place).title("New location"))
+        }
+    }
+
 
     @SuppressLint("MissingPermission")
     private suspend fun findDeviceLocation() : Location? =
@@ -100,7 +130,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun showUserLocation(locationLatLng: LatLng) {
-        var marker = map.addMarker(
+        locationViewModel.placeMarker = map.addMarker(
             MarkerOptions().position(
             locationLatLng).title("Current location"))
         map.moveCamera(CameraUpdateFactory.newLatLng(locationLatLng))

@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -26,6 +27,7 @@ import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.databinding.FragmentReportLostDogBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
+import com.bitpunchlab.android.pawsgo.location.LocationViewModel
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.google.android.gms.tasks.Task
 import com.google.android.material.datepicker.CalendarConstraints
@@ -39,6 +41,7 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
@@ -55,6 +58,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var localDatabase : PawsGoDatabase
     private var lostOrFound : Boolean? = null
+    private lateinit var locationViewModel : LocationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,14 +76,17 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             .get(FirebaseClientViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         localDatabase = PawsGoDatabase.getInstance(requireContext())
+        locationViewModel = ViewModelProvider(requireActivity())
+            .get(LocationViewModel::class.java)
 
         lostOrFound = requireArguments().getBoolean("lostOrFound")
         if (lostOrFound == null) {
             findNavController().popBackStack()
         }
 
-        setupLostOrFoundFields()
+        binding.locationVM = locationViewModel
 
+        setupLostOrFoundFields()
         setupGenderSpinner()
 
         binding.buttonChooseDate.setOnClickListener {
@@ -99,6 +106,9 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
         binding.buttonSend.setOnClickListener {
+            // display progress bar
+            startProgressBar()
+
             var processedAge : Int? = null
             if (binding.edittextDogAge.text != null && binding.edittextDogAge.text.toString() != "") {
                 try {
@@ -121,7 +131,10 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     minute = lostMinute,
                     place = binding.edittextPlaceLost.text.toString(),
                     lost = lostOrFound!!,
-                    found = !lostOrFound!!)
+                    found = !lostOrFound!!,
+                    lat = locationViewModel.lostDogLocationLatLng.value?.latitude,
+                    lng = locationViewModel.lostDogLocationLatLng.value?.longitude,
+                    address = locationViewModel.lostDogLocationAddress.value?.get(0))
 
                 // check if imageview is empty
                 // if it is not, save the image to cloud storage
@@ -155,6 +168,11 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         })
 
+        locationViewModel.lostDogLocationAddress.observe(viewLifecycleOwner, androidx.lifecycle.Observer { address ->
+            //binding.edittextPlaceLost.hint = address?.get(0) ?: ""
+            locationViewModel.displayAddress.value = address?.get(0) ?: ""
+        })
+
         return binding.root
     }
 
@@ -163,13 +181,28 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         _binding = null
     }
 
+    private fun startProgressBar() {
+        binding.progressBarContainer?.progressBar?.visibility = View.VISIBLE
+
+        requireActivity().window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun stopProgressBar() {
+        binding.progressBarContainer?.progressBar?.visibility = View.GONE
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
     private val appStateObserver = androidx.lifecycle.Observer<AppState> { appState ->
         when (appState) {
             AppState.LOST_DOG_REPORT_SENT_SUCCESS -> {
+                stopProgressBar()
                 sentReportSuccessAlert()
                 firebaseClient._appState.value = AppState.NORMAL
             }
             AppState.LOST_DOG_REPORT_SENT_ERROR -> {
+                stopProgressBar()
                 sentReportFailureAlert()
                 firebaseClient._appState.value = AppState.NORMAL
             }
@@ -333,13 +366,20 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun createDogRoom(name: String, breed: String?, gender: Boolean?, age: Int?, date: String,
-                        hour: Int?, minute: Int?, place: String, lost: Boolean, found: Boolean): DogRoom {
+                        hour: Int?, minute: Int?, place: String, lost: Boolean, found: Boolean,
+                        lat: Double?, lng: Double?, address: String?): DogRoom {
         return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name, dogBreed = breed,
             dogGender = gender, dogAge = age, isLost = lost, isFound = found,
             dateLastSeen = date, hour = hour, minute = minute,
             placeLastSeen = place, ownerID = firebaseClient.currentUserID,
             ownerEmail = firebaseClient.currentUserEmail,
-            ownerName = firebaseClient.currentUserFirebaseLiveData.value!!.userName)
+            ownerName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
+            locationLat = lat, locationLng = lng,
+            locationAddress = address)
+    }
+
+    private fun convertLatLngHashmapToDouble() {
+
     }
 
     private fun saveDogLocalDatabase(dog: DogRoom) {

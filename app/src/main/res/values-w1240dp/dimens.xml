@@ -1,3 +1,15 @@
 <resources>
-    <dimen name="fab_margin">200dp</dimen>
+    <dimen name="content_left_right_margin">170dp</dimen>
+    <dimen name="content_text_size">33sp</dimen>
+    <dimen name="title_text_size">40sp</dimen>
+    <dimen name="icon_margin_top">100dp</dimen>
+    <dimen name="title_margin_top">60dp</dimen>
+    <dimen name="icon_size">100dp</dimen>
+    <dimen name="error_text_size">28sp</dimen>
+    <dimen name="error_left_right_margin">190dp</dimen>
+    <dimen name="button_text_size">28dp</dimen>
+    <dimen name="button_left_right_margin">230dp</dimen>
+    <dimen name="button_padding">15dp</dimen>
+    <dimen name="progress_bar_top_margin">420dp</dimen>
+    <dimen name="progress_bar_left_right_margin">100dp</dimen>
 </resources>

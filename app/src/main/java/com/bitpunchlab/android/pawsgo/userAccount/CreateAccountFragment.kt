@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -41,6 +42,8 @@ class CreateAccountFragment : Fragment() {
         binding.firebaseClient = firebaseClient
 
         binding.buttonSend.setOnClickListener {
+            // display progress bar
+            startProgressBar()
             firebaseClient.isCreatingUserAccount = true
             firebaseClient._appState.value = AppState.READY_CREATE_USER_AUTH
         }
@@ -64,18 +67,37 @@ class CreateAccountFragment : Fragment() {
                 }
                 AppState.ERROR_CREATE_USER_AUTH -> {
                     authErrorAlert()
+                    stopProgressBar()
+                    firebaseClient._appState.value = AppState.NORMAL
                 }
                 AppState.SUCCESS_CREATED_USER_ACCOUNT -> {
                     //createSuccessAlert()
+                    stopProgressBar()
+                    //firebaseClient._appState.value = AppState.NORMAL
                 }
                 AppState.ERROR_CREATE_USER_ACCOUNT -> {
                     createErrorAlert()
+                    stopProgressBar()
+                    firebaseClient._appState.value = AppState.NORMAL
                 }
                 else -> 0
             }
         })
 
         return binding.root
+    }
+
+    private fun startProgressBar() {
+        binding.progressBarContainer?.progressBar?.visibility = View.VISIBLE
+
+        requireActivity().window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun stopProgressBar() {
+        binding.progressBarContainer?.progressBar?.visibility = View.GONE
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
     override fun onDestroyView() {

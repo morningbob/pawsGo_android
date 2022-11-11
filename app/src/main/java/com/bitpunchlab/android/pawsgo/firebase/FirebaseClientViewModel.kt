@@ -313,11 +313,14 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                     resetAllFields()
                 }
                 AppState.LOGGED_IN -> {
-                    //retrieveUserRoom()
+                    resetAllFields()
                     Log.i("firebaseClient", "login state detected")
                     if (isCreatingUserAccount) {
                         _appState.postValue(AppState.READY_CREATE_USER_FIREBASE)
                     }
+                }
+                AppState.INCORRECT_CREDENTIALS -> {
+                    resetAllFields()
                 }
                 else -> 0
             }
@@ -378,6 +381,41 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
 
         }
 
+    }
+
+    suspend fun loginUserOfAuth() : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            auth
+                .signInWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.i("firebase auth, sign in", "success")
+                        cancellableContinuation.resume(true){}
+                    } else {
+                        Log.i("firebase auth, sign in", "failed ${task.exception?.message}")
+                        cancellableContinuation.resume(false){}
+                    }
+                }
+        }
+
+    fun logoutUser() {
+        Log.i("logout", "logging out")
+        auth.signOut()
+        resetAllFields()
+    }
+
+    private fun resetAllFields() {
+        userName.value = ""
+        userEmail.value = ""
+        userPassword.value = ""
+        userConfirmPassword.value = ""
+        nameError.value = ""
+        emailError.value = ""
+        passwordError.value = ""
+        confirmPasswordError.value = ""
+        isCreatingUserAccount = false
+        currentUserID = ""
+        currentUserEmail = ""
     }
 
     private fun createUserFirebase(id: String, name: String, email: String, lost: HashMap<String, DogFirebase>,
@@ -473,17 +511,16 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private suspend fun retrieveDogsFromFirebase() : List<DogFirebase> {
-        //suspendCancellableCoroutine<Pair<List<DogFirebase>, List<DogFirebase>>> { cancellableContinuation ->
-            var lostDogList = ArrayList<DogFirebase>()
-            var foundDogList = ArrayList<DogFirebase>()
-            //var dogRoomList = ArrayList<DogRoom>()
-           return withContext(Dispatchers.IO) {
-                lostDogList.addAll(retrieveAllDogsFirebase(true))
-                lostDogList.addAll(retrieveAllDogsFirebase(false))
-                //cancellableContinuation.resume() {}
-                //var result = lostDogList.addAll(foundDogList)
-                return@withContext lostDogList
-            }
+        var lostDogList = ArrayList<DogFirebase>()
+        var foundDogList = ArrayList<DogFirebase>()
+        //var dogRoomList = ArrayList<DogRoom>()
+        return withContext(Dispatchers.IO) {
+            lostDogList.addAll(retrieveAllDogsFirebase(true))
+            lostDogList.addAll(retrieveAllDogsFirebase(false))
+            //cancellableContinuation.resume() {}
+            //var result = lostDogList.addAll(foundDogList)
+            return@withContext lostDogList
+        }
     }
 
     private fun convertDogMapToDogList(dogHashmap: HashMap<String, DogFirebase>) : List<DogRoom> {
@@ -521,7 +558,9 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             breed = dogRoom.dogBreed, age = dogRoom.dogAge, date = dogRoom.dateLastSeen,
             hr = dogRoom.hour, min = dogRoom.minute, place = dogRoom.placeLastSeen,
             userID = dogRoom.ownerID, userName = dogRoom.ownerName, userEmail = dogRoom.ownerEmail,
-            lost = dogRoom.isLost, found = dogRoom.isFound)
+            lost = dogRoom.isLost, found = dogRoom.isFound,
+            latLngPoint = createLatLngHashmap(dogRoom.locationLat, dogRoom.locationLng),
+            address = dogRoom.locationAddress)
     }
 
     private fun convertDogFirebaseToDogRoom(dogFirebase: DogFirebase): DogRoom {
@@ -532,7 +571,21 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             ownerEmail = dogFirebase.ownerEmail, isLost = dogFirebase.isLost,
             isFound = dogFirebase.isFound, dateLastSeen = dogFirebase.dateLastSeen,
             hour = dogFirebase.hour, minute = dogFirebase.minute,
-            placeLastSeen = dogFirebase.placeLastSeen)
+            placeLastSeen = dogFirebase.placeLastSeen,
+            locationLat = dogFirebase.locationLatLng.get("Lat"),
+            locationLng = dogFirebase.locationLatLng.get("Lng"),
+            locationAddress = dogFirebase.locationAddress)
+    }
+
+    private fun createLatLngHashmap(lat: Double?, lng: Double?) : HashMap<String, Double> {
+        val latLngHashmap = HashMap<String, Double>()
+        lat?.let {
+            latLngHashmap.put("Lat", lat)
+        }
+        lng?.let {
+            latLngHashmap.put("Lng", lng)
+        }
+        return latLngHashmap
     }
 
     private fun updateDogsList() {
@@ -693,40 +746,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 }
     }
 
-    suspend fun loginUserOfAuth() : Boolean =
-        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
-            auth
-                .signInWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.i("firebase auth, sign in", "success")
-                        cancellableContinuation.resume(true){}
-                    } else {
-                        Log.i("firebase auth, sign in", "failed ${task.exception?.message}")
-                        cancellableContinuation.resume(false){}
-                    }
-                }
-    }
 
-    fun logoutUser() {
-        Log.i("logout", "logging out")
-        auth.signOut()
-        resetAllFields()
-    }
-
-    private fun resetAllFields() {
-        userName.value = ""
-        userEmail.value = ""
-        userPassword.value = ""
-        userConfirmPassword.value = ""
-        nameError.value = ""
-        emailError.value = ""
-        passwordError.value = ""
-        confirmPasswordError.value = ""
-        isCreatingUserAccount = false
-        currentUserID = ""
-        currentUserEmail = ""
-    }
 
     // new dog reported is saved in different folders according the lostOrFound
     // lost is true, dog is saved in lostDogs, lost is false, dog is saved in foundDogs

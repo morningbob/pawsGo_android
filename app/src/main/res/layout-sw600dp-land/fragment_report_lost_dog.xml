@@ -8,6 +8,9 @@
         <variable
             name="firebaseClient"
             type="com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel" />
+        <variable
+            name="locationVM"
+            type="com.bitpunchlab.android.pawsgo.location.LocationViewModel" />
     </data>
 
     <ScrollView
@@ -21,6 +24,18 @@
             android:paddingBottom="50dp"
             tools:context=".reportLostDog.ReportLostDogFragment"
             android:background="@color/green_background">
+
+            <include
+                android:id="@+id/progress_bar_container"
+                layout="@layout/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/progress_bar_top_margin"
+                android:layout_marginLeft="@dimen/progress_bar_left_right_margin"
+                android:layout_marginRight="@dimen/progress_bar_left_right_margin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <ImageView
                 android:id="@+id/art_report"
@@ -67,7 +82,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={firebaseClient.userEmail}"
+                android:text=""
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_dog_name"/>
@@ -92,7 +107,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={firebaseClient.userEmail}"
+                android:text=""
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_dog_breed"/>
@@ -141,7 +156,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={firebaseClient.userEmail}"
+                android:text=""
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_dog_age"/>
@@ -234,7 +249,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={firebaseClient.userEmail}"
+                android:text="@{locationVM.displayAddress}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_place_lost"/>

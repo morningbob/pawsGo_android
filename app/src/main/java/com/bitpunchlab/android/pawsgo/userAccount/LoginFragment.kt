@@ -1,11 +1,14 @@
 package com.bitpunchlab.android.pawsgo.userAccount
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -40,8 +43,12 @@ class LoginFragment : Fragment() {
         binding.firebaseClient = firebaseClient
 
         binding.buttonSend.setOnClickListener {
+            // display progress bar when login is clicked
+            startProgressBar()
             coroutineScope.launch {
-                firebaseClient.loginUserOfAuth()
+                if (!firebaseClient.loginUserOfAuth()) {
+                    firebaseClient._appState.postValue(AppState.INCORRECT_CREDENTIALS)
+                }
             }
         }
 
@@ -62,13 +69,36 @@ class LoginFragment : Fragment() {
         })
 
         firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
-            if (state == AppState.LOGGED_IN) {
-                findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
+            when (state) {
+                AppState.LOGGED_IN -> {
+                    // remove progress bar when the login is successful
+                    stopProgressBar()
+                    findNavController().navigate(R.id.action_LoginFragment_to_MainFragment)
+                }
+                AppState.INCORRECT_CREDENTIALS -> {
+                    stopProgressBar()
+                    incorrectCredentialsAlert()
+                    firebaseClient._appState.postValue(AppState.NORMAL)
+                }
+                else -> 0
             }
         })
 
         return binding.root
 
+    }
+
+    private fun startProgressBar() {
+        binding.progressBarContainer?.progressBar?.visibility = View.VISIBLE
+
+        requireActivity().window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun stopProgressBar() {
+        binding.progressBarContainer?.progressBar?.visibility = View.GONE
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,5 +110,19 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun incorrectCredentialsAlert() {
+        val incorrectAlert = AlertDialog.Builder(context)
+
+        with(incorrectAlert) {
+            setTitle("User Login")
+            setMessage("The login credentials are incorrect.  Either the email or password is incorrect, or both.")
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    // do nothing
+                })
+            show()
+        }
     }
 }

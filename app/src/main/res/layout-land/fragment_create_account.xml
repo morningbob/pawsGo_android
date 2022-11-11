@@ -23,6 +23,18 @@
             tools:context=".userAccount.CreateAccountFragment"
             >
 
+            <include
+                android:id="@+id/progress_bar_container"
+                layout="@layout/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/progress_bar_top_margin"
+                android:layout_marginLeft="@dimen/progress_bar_left_right_margin"
+                android:layout_marginRight="@dimen/progress_bar_left_right_margin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
             <LinearLayout
                 android:id="@+id/title_layout"
                 android:layout_width="wrap_content"

@@ -17,14 +17,18 @@ class DogFirebase {
     var dogImages = HashMap<String, String>()
     var isLost : Boolean? = null
     var isFound : Boolean? = null
+    var locationLatLng = HashMap<String, Double>()
+    var locationAddress : String? = ""
 
     constructor()
 
     constructor(id: String, name: String?, breed: String?, gender: Boolean?, age: Int?,
         place: String, date: String, hr: Int?, min: Int?, userID: String, userName: String,
                 userEmail: String,
-        lost: Boolean?, found: Boolean?,
-                images: HashMap<String, String> = HashMap<String, String>()) : this() {
+                images: HashMap<String, String> = HashMap<String, String>(),
+                lost: Boolean?, found: Boolean?,
+                latLngPoint: HashMap<String, Double> = HashMap<String, Double>(),
+                address: String?) : this() {
             dogID = id
             dogName = name
             dogBreed = breed
@@ -40,5 +44,7 @@ class DogFirebase {
             isLost = lost
             isFound = found
             dogImages = images
+            locationLatLng = latLngPoint
+            locationAddress = address
         }
 }

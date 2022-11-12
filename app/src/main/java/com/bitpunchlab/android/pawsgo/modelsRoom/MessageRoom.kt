@@ -7,6 +7,7 @@ import kotlinx.parcelize.Parcelize
 
 @Entity(tableName = "message_table")
 @Parcelize
+@kotlinx.serialization.Serializable
 data class MessageRoom(
     @PrimaryKey
     val messageID : String,

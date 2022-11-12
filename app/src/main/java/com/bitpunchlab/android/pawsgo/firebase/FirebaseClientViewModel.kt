@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import com.bitpunchlab.android.pawsgo.AppState
 import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.modelsFirebase.DogFirebase
+import com.bitpunchlab.android.pawsgo.modelsFirebase.MessageFirebase
 import com.bitpunchlab.android.pawsgo.modelsFirebase.UserFirebase
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
@@ -29,6 +30,7 @@ import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Pattern
+import kotlin.collections.HashMap
 
 @OptIn(InternalCoroutinesApi::class)
 class FirebaseClientViewModel(application: Application) : AndroidViewModel(application) {
@@ -313,7 +315,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                     resetAllFields()
                 }
                 AppState.LOGGED_IN -> {
-                    resetAllFields()
+                    //resetAllFields()
                     Log.i("firebaseClient", "login state detected")
                     if (isCreatingUserAccount) {
                         _appState.postValue(AppState.READY_CREATE_USER_FIREBASE)
@@ -386,7 +388,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     suspend fun loginUserOfAuth() : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
             auth
-                .signInWithEmailAndPassword(userEmail.value!!, userPassword.value!!)
+                .signInWithEmailAndPassword(userEmail.value!!.lowercase(Locale.getDefault()), userPassword.value!!)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Log.i("firebase auth, sign in", "success")
@@ -418,11 +420,13 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         currentUserEmail = ""
     }
 
+    // when we create user firebase, the messages is for sure empty,
+    // so, I can just put an empty list
     private fun createUserFirebase(id: String, name: String, email: String, lost: HashMap<String, DogFirebase>,
                                    dogs: HashMap<String, DogFirebase>) : UserFirebase {
         return UserFirebase(id = id, name = name, email = email,
             lost = HashMap<String, DogFirebase>(), dog = HashMap<String, DogFirebase>(),
-            allMessages = HashMap<String, String>())
+            allMessages = HashMap<String, MessageFirebase>(), date = Date().toString() )
     }
 
     private suspend fun saveUserFirebase(user: UserFirebase) =
@@ -446,8 +450,9 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             userEmail = userFirebase.userEmail, dateCreated = userFirebase.dateCreated,
             lostDogs = convertDogMapToDogList(userFirebase.lostDogs),
             dogs = convertDogMapToDogList(userFirebase.dogs),
-            //messages = ArrayList())
-        messages = convertMapToList(userFirebase.messages, 2) as List<String>)
+            messages = convertMessageMapToMessageList(userFirebase.messages)
+        )
+            //messages = convertMessageMapToMessageList(userFirebase.messages))
     }
 
     private fun saveUserRoom(user: UserRoom) {
@@ -531,6 +536,22 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         return list
     }
 
+    private fun convertMessageMapToMessageList(messageMap: HashMap<String, MessageFirebase>)
+        : List<MessageRoom> {
+        val list = ArrayList<MessageRoom>()
+        for ((key, value) in messageMap) {
+            list.add(convertMessageFirebaseToMessageRoom(value))
+        }
+        return list
+    }
+
+    private fun convertMessageFirebaseToMessageRoom(messageFirebase: MessageFirebase) : MessageRoom {
+        return MessageRoom(messageID = messageFirebase.messageID,
+            senderName = messageFirebase.senderName, senderEmail = messageFirebase.senderEmail,
+            messageContent = messageFirebase.messageContent, date = messageFirebase.date,
+            targetEmail = messageFirebase.targetEmail)
+    }
+
     private fun <T: Any> convertMapToList(hashMap: HashMap<String, T>, type: Int) : List<T> {
         val list = ArrayList<T>()
         for ((key, value) in hashMap) {
@@ -607,7 +628,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 getListOfDogsRequestImage(lostDogs, dogRooms) as ArrayList<DogFirebase>
 
             // now we can send request to Firestore
-            lostDogs.map { dog ->
+            requestList.map { dog ->
                 Log.i("update dogs list from firebase", "requesting 1 dog: ${dog.dogName}")
                 // we can start a coroutine here,
                 // so, each dog is processed in a seperate coroutine
@@ -642,9 +663,14 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             // this new list is already a copy , not references
             dogFirebaseList = dogListFirestore.toList() as ArrayList
             dogListLocal.map { dogRoom ->
-                val dog = dogFirebaseList.find { it.dogID == dogRoom.dogID }
-                dog?.let {
-                    dogFirebaseList.remove(dog)
+                val dogFirebase = dogFirebaseList.find { it.dogID == dogRoom.dogID }
+                dogFirebase?.let {
+                    // that means, there are some images that were not stored in
+                    // the local storage yet, so the number is different.
+                    if (dogRoom.dogImagesUri?.size == dogFirebase.dogImages.size) {
+                        dogFirebaseList.remove(dogFirebase)
+                        Log.i("get list of dog image request", "removed 1 dog")
+                    }
                 }
             }
         }

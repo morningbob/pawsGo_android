@@ -89,6 +89,7 @@ class MainFragment : Fragment() {
         firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
                 AppState.LOGGED_OUT -> {
+                    Log.i("main fragment", "detected logout state")
                     findNavController().popBackStack()
                 }
                 else -> {
@@ -103,11 +104,6 @@ class MainFragment : Fragment() {
                 binding.dogImage!!.setImageBitmap(it)
             }
         })
-
-        //binding.buttonRetrieve!!.setOnClickListener {
-        //    firebaseClient.retrieveDogImageInternal()
-        //}
-
 
         return binding.root
 

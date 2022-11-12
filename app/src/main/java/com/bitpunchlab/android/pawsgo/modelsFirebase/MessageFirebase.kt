@@ -10,9 +10,10 @@ class MessageFirebase {
 
     constructor()
 
-    constructor(id: String, userEmail: String, receiverEmail: String, message: String, currentDate: String) {
+    constructor(id: String, userEmail: String, userName: String, receiverEmail: String, message: String, currentDate: String) {
         messageID = id
         senderEmail = userEmail
+        senderName = userName
         targetEmail = receiverEmail
         messageContent = message
         date = currentDate

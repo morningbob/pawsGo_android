@@ -54,6 +54,8 @@
     <string name="send_message">Send Message</string>
     <string name="message_sent_alert">Message Sent</string>
     <string name="message_sent_alert_desc">Your message has been sent to the dog owner.</string>
+    <string name="messages_received">Messages Received</string>
+    <string name="lost_dogs">Lost Dogs</string>
 
 
 </resources>

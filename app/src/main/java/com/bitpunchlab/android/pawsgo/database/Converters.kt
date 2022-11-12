@@ -3,6 +3,7 @@ package com.bitpunchlab.android.pawsgo.database
 import android.util.Log
 import androidx.room.TypeConverter
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
+import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -26,6 +27,16 @@ class Converters {
     @TypeConverter
     fun dateToString(date: Date) : String {
         return date.toString()
+    }
+
+    @TypeConverter
+    fun fromMessageRoomToJSON(messageList: List<MessageRoom>) : String {
+        return Json.encodeToString(messageList)
+    }
+
+    @TypeConverter
+    fun fromJSONToMessageRoom(messageJSON: String) : List<MessageRoom> {
+        return Json.decodeFromString(messageJSON)
     }
 
     @TypeConverter

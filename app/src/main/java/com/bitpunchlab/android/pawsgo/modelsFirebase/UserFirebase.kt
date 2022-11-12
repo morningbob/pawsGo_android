@@ -10,19 +10,21 @@ class UserFirebase {
     var userEmail: String = ""
     var lostDogs = HashMap<String, DogFirebase>()
     var dogs = HashMap<String, DogFirebase>()
-    var dateCreated: Date? = Date()
-    var messages = HashMap<String, String>()
+    var dateCreated: String = ""
+    var messages = HashMap<String, MessageFirebase>()
 
     constructor()
 
     constructor(id: String, name: String, email: String,
                 lost: HashMap<String, DogFirebase>, dog: HashMap<String, DogFirebase>,
-                allMessages: HashMap<String, String>) : this() {
+                date: String,
+                allMessages: HashMap<String, MessageFirebase> ) : this() {
                     userID = id
                     userName = name
                     userEmail = email
                     lostDogs = lost
                     dogs = dog
+                    dateCreated = date
                     messages = allMessages
                 }
 }

@@ -15,6 +15,6 @@ data class UserRoom(
     var userEmail: String,
     var lostDogs: List<DogRoom>,
     var dogs: List<DogRoom>,
-    var dateCreated: Date?,
-    var messages: List<String>?
+    var dateCreated: String,
+    var messages: List<MessageRoom>?
 ) : Parcelable

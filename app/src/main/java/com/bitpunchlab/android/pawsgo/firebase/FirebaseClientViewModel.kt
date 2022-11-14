@@ -121,6 +121,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                     // update local database
                     localDatabase = PawsGoDatabase.getInstance(application)
                     localDatabase.pawsDAO.insertUser(convertUserFirebaseToUserRoom(userFirebase))
+                    processMessagesReceivedFromFirebase(userFirebase)
                 }
                 // we also retrieve the lost dogs and the found dogs from Firestore,
                 // save to the local database, the local database changes, the data will
@@ -299,6 +300,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                         if (saveUserFirebase(user)) {
                             // we also create the user room and save it here
                             val userRoom = convertUserFirebaseToUserRoom(user)
+
                             Log.i("creating and saving the user room", "userID: ${userRoom.userID}")
                             saveUserRoom(userRoom)
                             _appState.postValue(AppState.SUCCESS_CREATED_USER_ACCOUNT)
@@ -426,7 +428,9 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                                    dogs: HashMap<String, DogFirebase>) : UserFirebase {
         return UserFirebase(id = id, name = name, email = email,
             lost = HashMap<String, DogFirebase>(), dog = HashMap<String, DogFirebase>(),
-            allMessages = HashMap<String, MessageFirebase>(), date = Date().toString() )
+            allMessagesReceived = HashMap<String, MessageFirebase>(),
+            allMessagesSent = HashMap<String, MessageFirebase>(),
+            date = Date().toString() )
     }
 
     private suspend fun saveUserFirebase(user: UserFirebase) =
@@ -450,7 +454,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             userEmail = userFirebase.userEmail, dateCreated = userFirebase.dateCreated,
             lostDogs = convertDogMapToDogList(userFirebase.lostDogs),
             dogs = convertDogMapToDogList(userFirebase.dogs),
-            messages = convertMessageMapToMessageList(userFirebase.messages)
+            //messages = convertMessageMapToMessageList(userFirebase.messages)
         )
             //messages = convertMessageMapToMessageList(userFirebase.messages))
     }
@@ -549,29 +553,8 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         return MessageRoom(messageID = messageFirebase.messageID,
             senderName = messageFirebase.senderName, senderEmail = messageFirebase.senderEmail,
             messageContent = messageFirebase.messageContent, date = messageFirebase.date,
-            targetEmail = messageFirebase.targetEmail)
-    }
-
-    private fun <T: Any> convertMapToList(hashMap: HashMap<String, T>, type: Int) : List<T> {
-        val list = ArrayList<T>()
-        for ((key, value) in hashMap) {
-            list.add(convertFirebaseModelToRoomModel(value, type))
-        }
-        return list
-    }
-
-    private fun convertDogListToDogMap(dogList: List<DogRoom>) {
-
-    }
-
-    private fun <T: Any> convertFirebaseModelToRoomModel(item: T, type: Int) : T {
-        if (type == 1) {
-            return convertDogFirebaseToDogRoom(item as DogFirebase) as T
-        } else if (type == 2) {
-            return item
-        } else {
-            return item
-        }
+            targetEmail = messageFirebase.targetEmail,
+            userCreatorID = auth.currentUser!!.uid)
     }
 
     private fun convertDogRoomToDogFirebase(dogRoom: DogRoom): DogFirebase {
@@ -607,6 +590,27 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             latLngHashmap.put("Lng", lng)
         }
         return latLngHashmap
+    }
+
+    private fun processMessagesReceivedFromFirebase(user: UserFirebase) {
+        // from firebase, we got the user object
+        // we convert the user firebase to user room, with the exception of the messages list
+        // we separate the message lists and create message room objects and save it
+        // by the relations defined in the database classes, the messages will be assigned to
+        // the user by the userCreatorID.  It is a one to many relationship
+        Log.i("messages received from firebase", "start processing")
+
+        val allMessagesRoom = ArrayList<MessageRoom>()
+        Log.i("messages received from firebase", "messages received: ${user.messagesReceived.size}")
+        Log.i("messages sent from firebase", "messages sent: ${user.messagesSent.size}")
+        allMessagesRoom.addAll(convertMessageMapToMessageList(user.messagesReceived))
+        allMessagesRoom.addAll(convertMessageMapToMessageList(user.messagesSent))
+        Log.i("messages received from firebase", "all messages collect: ${allMessagesRoom.size}")
+        // save to local database
+        coroutineScope.launch {
+            localDatabase.pawsDAO.insertMessages(*allMessagesRoom.toTypedArray())
+            Log.i("messages received from firebase", "inserted messages: ${allMessagesRoom.size}")
+        }
     }
 
     private fun updateDogsList() {
@@ -909,6 +913,9 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             }
         }
 
+    // we write to the messaging collection to trigger the cloud function to process
+    // the delievery of the message.  It needs to write in both the messagesReceived in
+    // the target user, and the messagesSent in this user's object in firestore.
     suspend fun sendMessageToFirestoreMessaging(messageRoom: MessageRoom) : Boolean =
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
             var data = HashMap<String, String>()
@@ -918,6 +925,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             data.put("messageID", messageRoom.messageID)
             data.put("message", messageRoom.messageContent)
             data.put("date", messageRoom.date)
+
             firestore
                 .collection("messaging")
                 .document()
@@ -930,7 +938,6 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                     Log.i("send to Messaging", "failed: ${e.message}")
                     cancellableContinuation.resume(false) {}
                 }
-
     }
 }
 
@@ -962,6 +969,22 @@ class FirebaseClientViewModelFactory(private val application: Application)
 
         } catch (e: java.lang.Exception) {
             Log.i("save bitmap", "error")
+        }
+    }
+    private fun <T: Any> convertMapToList(hashMap: HashMap<String, T>, type: Int) : List<T> {
+        val list = ArrayList<T>()
+        for ((key, value) in hashMap) {
+            list.add(convertFirebaseModelToRoomModel(value, type))
+        }
+        return list
+    }
+    private fun <T: Any> convertFirebaseModelToRoomModel(item: T, type: Int) : T {
+        if (type == 1) {
+            return convertDogFirebaseToDogRoom(item as DogFirebase) as T
+        } else if (type == 2) {
+            return item
+        } else {
+            return item
         }
     }
  */

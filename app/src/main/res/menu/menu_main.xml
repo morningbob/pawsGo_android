@@ -18,13 +18,19 @@
     <item
         android:id="@+id/listLostDogs"
         android:orderInCategory="100"
-        android:title="List of Lost Dogs"
+        android:title="@string/list_of_lost_dogs"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/listFoundDogs"
         android:orderInCategory="100"
-        android:title="List of Found Dogs"
+        android:title="@string/list_of_found_dogs"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/readMessages"
+        android:orderInCategory="100"
+        android:title="Messages Received"
         app:showAsAction="never" />
 
     <item

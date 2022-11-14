@@ -11,6 +11,7 @@ import kotlinx.parcelize.Parcelize
 data class MessageRoom(
     @PrimaryKey
     val messageID : String,
+    val userCreatorID : String,
     val senderEmail : String,
     val senderName : String,
     val targetEmail : String,

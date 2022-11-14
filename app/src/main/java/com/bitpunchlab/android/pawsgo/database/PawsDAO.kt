@@ -5,6 +5,7 @@ import androidx.room.*
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.UserRoom
+import com.bitpunchlab.android.pawsgo.modelsRoom.UserWithMessages
 
 @Dao
 interface PawsDAO {
@@ -30,9 +31,22 @@ interface PawsDAO {
     @Query("SELECT * FROM dog_table")
     fun getAllDogs() : List<DogRoom>
 
+    @Delete
+    fun deleteDogs(vararg dog: DogRoom)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMessages(vararg message: MessageRoom)
 
-    @Delete
-    fun deleteDogs(vararg dog: DogRoom)
+    @Query("SELECT * FROM message_table WHERE :email == targetEmail")
+    fun getAllMessagesReceived(email: String) : LiveData<List<MessageRoom>>
+
+    @Query("SELECT * FROM message_table WHERE :email == senderEmail")
+    fun getAllMessagesSent(email: String) : LiveData<List<MessageRoom>>
+
+    @Transaction
+    @Query("SELECT * FROM user_table")
+    fun getUsersWithMessages() : List<UserWithMessages>
+
+    @Query("SELECT * FROM user_table WHERE :id == userID")
+    fun getUserWithMessages(id: String) : LiveData<UserWithMessages>
 }

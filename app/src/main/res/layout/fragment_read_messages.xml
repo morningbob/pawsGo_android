@@ -26,17 +26,22 @@
                 android:id="@+id/title_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
                 android:orientation="horizontal"
                 android:layout_marginTop="30dp"
                 android:gravity="center"
+                android:weightSum="8"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/art_read_messages"
-                    android:layout_width="@dimen/icon_size"
+                    android:layout_width="0dp"
                     android:layout_height="@dimen/icon_size"
+                    android:layout_weight="2"
+                    android:layout_marginLeft="25dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -45,9 +50,11 @@
 
                 <TextView
                     android:id="@+id/textview_title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="6"
                     android:layout_marginLeft="20dp"
+                    android:layout_marginRight="25dp"
                     android:text="@string/messages_received"
                     android:textStyle="bold"
                     android:textColor="@color/black"

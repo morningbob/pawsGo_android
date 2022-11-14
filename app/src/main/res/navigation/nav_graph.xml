@@ -33,6 +33,9 @@
         <action
             android:id="@+id/viewDogsAction"
             app:destination="@id/dogListFragment" />
+        <action
+            android:id="@+id/readMessagesAction"
+            app:destination="@id/readMessagesFragment" />
 
     </fragment>
     <fragment
@@ -82,4 +85,9 @@
         android:name="com.bitpunchlab.android.pawsgo.location.ChooseLocationFragment"
         android:label="Choose Location"
         tools:layout="@layout/fragment_choose_location" />
+    <fragment
+        android:id="@+id/readMessagesFragment"
+        android:name="com.bitpunchlab.android.pawsgo.messages.ReadMessagesFragment"
+        android:label="Messages Received"
+        tools:layout="@layout/fragment_read_messages" />
 </navigation>

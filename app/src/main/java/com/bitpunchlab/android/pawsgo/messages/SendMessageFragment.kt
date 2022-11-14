@@ -105,7 +105,8 @@ class SendMessageFragment : Fragment() {
         return MessageRoom(messageID = UUID.randomUUID().toString(),
             senderEmail = userEmail, senderName = userName, targetEmail = targetEmail,
             messageContent = message,
-            date = Date().toString())
+            date = Date().toString(),
+            userCreatorID = firebaseClient.auth.currentUser!!.uid)
     }
 
     private fun saveMessageRoom(message: MessageRoom) {

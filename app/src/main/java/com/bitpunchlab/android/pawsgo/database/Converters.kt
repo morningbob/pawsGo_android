@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.room.TypeConverter
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -28,7 +30,7 @@ class Converters {
     fun dateToString(date: Date) : String {
         return date.toString()
     }
-
+/*
     @TypeConverter
     fun fromMessageRoomToJSON(messageList: List<MessageRoom>) : String {
         return Json.encodeToString(messageList)
@@ -37,6 +39,17 @@ class Converters {
     @TypeConverter
     fun fromJSONToMessageRoom(messageJSON: String) : List<MessageRoom> {
         return Json.decodeFromString(messageJSON)
+    }
+*/
+    @TypeConverter
+    fun fromMessagesJSONToMessages(messagesJSON: String) : List<MessageRoom> {
+        val objectType = object : TypeToken<List<MessageRoom>>() { }.type
+        return Gson().fromJson<List<MessageRoom>>(messagesJSON, objectType)
+    }
+
+    @TypeConverter
+    fun fromMessagesToMessagesJSON(messages: List<MessageRoom>) : String {
+        return Gson().toJson(messages)
     }
 
     @TypeConverter
@@ -50,12 +63,12 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromListToJSON(imageList: List<String>) : String {
+    fun fromStringListToJSON(imageList: List<String>) : String {
         return Json.encodeToString(imageList)
     }
 
     @TypeConverter
-    fun fromJSONToList(imageJSON: String) : List<String> {
+    fun fromJSONToStringList(imageJSON: String) : List<String> {
         return Json.decodeFromString(imageJSON)
     }
 }

@@ -72,6 +72,10 @@ class MainFragment : Fragment() {
                         findNavController().navigate(action)
                         true
                     }
+                    R.id.readMessages -> {
+                        findNavController().navigate(R.id.readMessagesAction)
+                        true
+                    }
                     R.id.logout -> {
                         firebaseClient.logoutUser()
                         true

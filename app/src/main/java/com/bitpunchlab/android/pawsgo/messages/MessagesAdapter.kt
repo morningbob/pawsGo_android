@@ -10,6 +10,7 @@ import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 
 class MessagesAdapter(var clickListener: MessageOnClickListener) : BaseRecyclerViewAdapter<MessageRoom>(
     clickListener = clickListener,
+    messageClickListener = null,
     compareItems = { old, new ->  old.messageID == new.messageID },
     compareContents = { old, new ->  old.date == new.date },
     bindingInter = object : GenericRecyclerBindingInterface<MessageRoom> {
@@ -27,7 +28,7 @@ class MessagesAdapter(var clickListener: MessageOnClickListener) : BaseRecyclerV
     }
 ) {
     override fun getLayoutRes(viewType: Int): Int {
-        return R.layout.activity_main
+        return R.layout.item_message
     }
 }
 

@@ -32,6 +32,8 @@ class SendMessageFragment : Fragment() {
     private lateinit var localDatabase: PawsGoDatabase
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
     private var dog : DogRoom? = null
+    private var email: String? = null
+    private var name: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +52,7 @@ class SendMessageFragment : Fragment() {
         localDatabase = PawsGoDatabase.getInstance(requireContext())
         binding.lifecycleOwner = viewLifecycleOwner
         dog = requireArguments().getParcelable("dog")
-        if (dog == null) {
+        if (dog == null && (email == null || name == null)) {
             findNavController().popBackStack()
         }
         binding.dog = dog
@@ -66,7 +68,8 @@ class SendMessageFragment : Fragment() {
                 val messageRoom = createMessageRoom(
                     userEmail = firebaseClient.currentUserFirebaseLiveData.value!!.userEmail,
                     userName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
-                    targetEmail = dog!!.ownerEmail, message = message
+                    targetEmail = dog!!.ownerEmail, targetName = dog!!.ownerName,
+                    message = message
                 )
                 coroutineScope.launch {
                     if (firebaseClient.sendMessageToFirestoreMessaging(messageRoom)) {
@@ -76,6 +79,8 @@ class SendMessageFragment : Fragment() {
                         firebaseClient._appState.postValue(AppState.MESSAGE_SENT_SUCCESS)
                         // clear fields
                         binding.edittextMessage.text = null
+                    } else {
+                        firebaseClient._appState.postValue(AppState.MESSAGE_SENT_ERROR)
                     }
                 }
             }
@@ -97,14 +102,19 @@ class SendMessageFragment : Fragment() {
                 messageSentSuccessAlert()
                 firebaseClient._appState.value = AppState.NORMAL
             }
+            AppState.MESSAGE_SENT_ERROR -> {
+                messageSentErrorAlert()
+                firebaseClient._appState.value = AppState.NORMAL
+            }
             else -> 0
         }
     }
 
-    private fun createMessageRoom(userEmail: String, userName: String, targetEmail: String, message: String) : MessageRoom {
+    private fun createMessageRoom(userEmail: String, userName: String, targetEmail: String,
+                                  targetName: String, message: String) : MessageRoom {
         return MessageRoom(messageID = UUID.randomUUID().toString(),
             senderEmail = userEmail, senderName = userName, targetEmail = targetEmail,
-            messageContent = message,
+            targetName = targetName, messageContent = message,
             date = Date().toString(),
             userCreatorID = firebaseClient.auth.currentUser!!.uid)
     }
@@ -121,6 +131,20 @@ class SendMessageFragment : Fragment() {
         with(successAlert) {
             setTitle(getString(R.string.message_sent_alert))
             setMessage(getString(R.string.message_sent_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    // do nothing
+                })
+            show()
+        }
+    }
+
+    private fun messageSentErrorAlert() {
+        val successAlert = AlertDialog.Builder(context)
+
+        with(successAlert) {
+            setTitle("Message was not Sent")
+            setMessage("There is error in sending the message.  Please make sure you have wifi.  If the error persists, there is probably error in the server.")
             setPositiveButton(getString(R.string.ok),
                 DialogInterface.OnClickListener { dialog, button ->
                     // do nothing

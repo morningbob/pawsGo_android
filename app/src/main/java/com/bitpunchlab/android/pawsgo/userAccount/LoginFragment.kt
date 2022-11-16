@@ -89,7 +89,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun startProgressBar() {
-        binding.progressBarContainer?.progressBar?.visibility = View.VISIBLE
+        binding.progressBarContainer.progressBar.visibility = View.VISIBLE
 
         requireActivity().window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,

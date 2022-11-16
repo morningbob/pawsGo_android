@@ -60,7 +60,11 @@
                 app:layout_constraintTop_toBottomOf="@id/textview_greeting" />
 
 
-            <ImageView
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>
+<!--
+<ImageView
                 android:id="@+id/dogImage"
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
@@ -80,8 +84,4 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/dogImage" />
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
-</layout>
+-->

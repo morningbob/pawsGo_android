@@ -8,9 +8,12 @@ import com.bitpunchlab.android.pawsgo.base.GenericRecyclerBindingInterface
 import com.bitpunchlab.android.pawsgo.databinding.ItemMessageBinding
 import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 
-class MessagesAdapter(var clickListener: MessageOnClickListener) : BaseRecyclerViewAdapter<MessageRoom>(
+class MessagesAdapter(var clickListener: MessageOnClickListener,
+                      //var replyClickListener: MessageOnClickListener,
+        var receivedOrSent: Boolean) : BaseRecyclerViewAdapter<MessageRoom>(
     clickListener = clickListener,
     messageClickListener = null,
+    messageBoolean = receivedOrSent,
     compareItems = { old, new ->  old.messageID == new.messageID },
     compareContents = { old, new ->  old.date == new.date },
     bindingInter = object : GenericRecyclerBindingInterface<MessageRoom> {
@@ -18,10 +21,17 @@ class MessagesAdapter(var clickListener: MessageOnClickListener) : BaseRecyclerV
             item: MessageRoom,
             binding: ViewDataBinding,
             onClickListener: GenericListener<MessageRoom>?,
-            messageClickListener: GenericListener<MessageRoom>?
+            messageClickListener: GenericListener<MessageRoom>?,
+            messageBoolean: Boolean?
+
         ) {
             (binding as ItemMessageBinding).message = item
             binding.clickListener = clickListener
+            if (messageBoolean == true) {
+                binding.userName.text = item.senderName
+            } else {
+                binding.userName.text = item.targetName
+            }
             binding.executePendingBindings()
         }
 

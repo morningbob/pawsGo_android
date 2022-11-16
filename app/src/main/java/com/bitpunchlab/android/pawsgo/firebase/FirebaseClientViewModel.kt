@@ -73,14 +73,8 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     var _appState = MutableLiveData<AppState>(AppState.NORMAL)
     val appState get() = _appState
 
-    var _currentUserRoom = MediatorLiveData<UserRoom?>()
-    val currentUserRoom get() = _currentUserRoom
-
-    var _currentUserFirebase = MutableLiveData<UserFirebase>()
-    val currentUserFirebase get() = _currentUserFirebase
-
     // this is the trigger live data that trigger the fetch of a user object
-    private var userIDLiveData  = MutableLiveData<String>()
+    var userIDLiveData  = MutableLiveData<String>()
     // whenever the userIDLiveData changed, the currentUserLiveData's transformation
     // will be triggered and retrieve the user from local database
     // now, we can observe this variable to update the UI.
@@ -553,7 +547,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         return MessageRoom(messageID = messageFirebase.messageID,
             senderName = messageFirebase.senderName, senderEmail = messageFirebase.senderEmail,
             messageContent = messageFirebase.messageContent, date = messageFirebase.date,
-            targetEmail = messageFirebase.targetEmail,
+            targetEmail = messageFirebase.targetEmail, targetName = messageFirebase.targetName,
             userCreatorID = auth.currentUser!!.uid)
     }
 
@@ -632,7 +626,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 getListOfDogsRequestImage(lostDogs, dogRooms) as ArrayList<DogFirebase>
 
             // now we can send request to Firestore
-            requestList.map { dog ->
+            lostDogs.map { dog ->
                 Log.i("update dogs list from firebase", "requesting 1 dog: ${dog.dogName}")
                 // we can start a coroutine here,
                 // so, each dog is processed in a seperate coroutine
@@ -922,6 +916,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             data.put("senderEmail", messageRoom.senderEmail)
             data.put("senderName", messageRoom.senderName)
             data.put("targetEmail", messageRoom.targetEmail)
+            data.put("targetName", messageRoom.targetName)
             data.put("messageID", messageRoom.messageID)
             data.put("message", messageRoom.messageContent)
             data.put("date", messageRoom.date)

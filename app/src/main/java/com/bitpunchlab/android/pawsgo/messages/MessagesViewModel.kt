@@ -20,7 +20,24 @@ class MessagesViewModel(application: Application) : AndroidViewModel(application
     }
 
     var messagesReceived = Transformations.switchMap(user) { user ->
-        MutableLiveData<List<MessageRoom>>(user.messages)
+        // we separate out the messagesReceived from all the messages in user
+        val messagesGot = ArrayList<MessageRoom>()
+        for (message in user.messages) {
+            if (message.targetEmail == user.user.userEmail) {
+                messagesGot.add(message)
+            }
+        }
+        MutableLiveData<List<MessageRoom>>(messagesGot)
+    }
+
+    var messagesSent = Transformations.switchMap(user) { user ->
+        val messagesGot = ArrayList<MessageRoom>()
+        for (message in user.messages) {
+            if (message.senderEmail == user.user.userEmail) {
+                messagesGot.add(message)
+            }
+        }
+        MutableLiveData<List<MessageRoom>>(messagesGot)
     }
 
 

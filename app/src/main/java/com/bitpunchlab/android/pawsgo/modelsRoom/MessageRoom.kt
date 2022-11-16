@@ -15,6 +15,7 @@ data class MessageRoom(
     val senderEmail : String,
     val senderName : String,
     val targetEmail : String,
+    val targetName : String,
     val messageContent : String,
     val date : String
 ) : Parcelable

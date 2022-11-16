@@ -78,7 +78,16 @@
         tools:layout="@layout/fragment_send_message" >
         <argument
             android:name="dog"
-            app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
+            app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom"
+            app:nullable="true" />
+        <argument
+            android:name="email"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="name"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/chooseLocationFragment"
@@ -88,6 +97,13 @@
     <fragment
         android:id="@+id/readMessagesFragment"
         android:name="com.bitpunchlab.android.pawsgo.messages.ReadMessagesFragment"
-        android:label="Messages Received"
-        tools:layout="@layout/fragment_read_messages" />
+        android:label="Messages"
+        tools:layout="@layout/fragment_read_messages" >
+        <argument
+            android:name="receivedOrSent"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_readMessagesFragment_to_sendMessageFragment"
+            app:destination="@id/sendMessageFragment" />
+    </fragment>
 </navigation>

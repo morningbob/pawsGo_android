@@ -28,9 +28,15 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/readMessages"
+        android:id="@+id/readMessagesReceived"
         android:orderInCategory="100"
         android:title="Messages Received"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/readMessagesSent"
+        android:orderInCategory="100"
+        android:title="Messages Sent"
         app:showAsAction="never" />
 
     <item

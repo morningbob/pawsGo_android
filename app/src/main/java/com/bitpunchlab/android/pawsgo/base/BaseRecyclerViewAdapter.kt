@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 abstract class BaseRecyclerViewAdapter<T : Any>(
     private val clickListener: GenericListener<T>?,
     private val messageClickListener: GenericListener<T>?,
+    private val messageBoolean: Boolean?,
     compareItems: (old: T, new: T) -> Boolean,
     compareContents: (old: T, new: T) -> Boolean,
     private val bindingInter: GenericRecyclerBindingInterface<T>,
@@ -32,7 +33,7 @@ abstract class BaseRecyclerViewAdapter<T : Any>(
 
     override fun onBindViewHolder(holder: GenericViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item, clickListener, messageClickListener, bindingInter)
+        holder.bind(item, clickListener, messageClickListener, messageBoolean, bindingInter)
     }
 
     @LayoutRes
@@ -47,14 +48,16 @@ class GenericViewHolder(val binding: ViewDataBinding) : RecyclerView.ViewHolder(
     fun <T : Any> bind(item: T,
                        clickListener: GenericListener<T>?,
                        messageClickListener: GenericListener<T>?,
+                       messageBoolean: Boolean?,
                        bindingInterface: GenericRecyclerBindingInterface<T>) {
-        bindingInterface.bindData(item, binding, clickListener, messageClickListener)
+        bindingInterface.bindData(item, binding, clickListener, messageClickListener, messageBoolean)
     }
 }
 
 interface GenericRecyclerBindingInterface<T: Any> {
     fun bindData(item: T, binding: ViewDataBinding, onClickListener: GenericListener<T>?,
                  messageClickListener: GenericListener<T>?,
+                 messageBoolean: Boolean?,
     )
 }
 

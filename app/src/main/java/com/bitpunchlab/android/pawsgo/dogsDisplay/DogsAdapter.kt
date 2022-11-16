@@ -12,6 +12,7 @@ class DogsAdapter(var clickListener: DogOnClickListener,
     var messageClickListener: MessageClickListener) : BaseRecyclerViewAdapter<DogRoom>(
         clickListener = clickListener,
         messageClickListener = messageClickListener,
+        messageBoolean = null,
         compareItems = { old, new ->  old.dogID == new.dogID },
         compareContents = { old, new ->  old.ownerEmail == new.ownerEmail },
         bindingInter = object : GenericRecyclerBindingInterface<DogRoom> {
@@ -19,7 +20,8 @@ class DogsAdapter(var clickListener: DogOnClickListener,
                 item: DogRoom,
                 binding: ViewDataBinding,
                 onClickListener: GenericListener<DogRoom>?,
-                messageClickListener: GenericListener<DogRoom>?
+                messageClickListener: GenericListener<DogRoom>?,
+                messageBoolean: Boolean?
             ) {
                 (binding as ItemDogBinding).clickListener = clickListener
                 binding.messageClickListener = messageClickListener as MessageClickListener

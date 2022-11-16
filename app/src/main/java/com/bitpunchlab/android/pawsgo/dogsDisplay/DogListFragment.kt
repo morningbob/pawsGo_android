@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.pawsgo.dogsDisplay
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,12 +11,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import androidx.navigation.fragment.findNavController
+import com.bitpunchlab.android.pawsgo.R
 
 import com.bitpunchlab.android.pawsgo.databinding.FragmentDogListBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
+import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
+import com.bitpunchlab.android.pawsgo.modelsRoom.MessageRoom
 import com.bumptech.glide.Glide
 import java.net.URI
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class DogListFragment : Fragment() {
@@ -46,7 +52,6 @@ class DogListFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         lostOrFound = requireArguments().getBoolean("lostOrFound")
 
-
         dogsAdapter = DogsAdapter( DogOnClickListener { dog ->
             dogsViewModel.onDogChosen(dog)
         },
@@ -56,26 +61,9 @@ class DogListFragment : Fragment() {
          })
 
         binding.dogListRecycler.adapter = dogsAdapter
-        if (lostOrFound == null) {
-            findNavController().popBackStack()
-        } else if (lostOrFound == true) {
-            dogsViewModel.lostDogs.observe(viewLifecycleOwner, Observer { dogs ->
-                dogs?.let {
-                    Log.i("dogsVM lost dogs", dogs.size.toString())
-                    dogsAdapter.submitList(dogs)
-                    dogsAdapter.notifyDataSetChanged()
-                }
-            })
 
+        setupCorrespondingIconAndTitle()
 
-        } else if (lostOrFound == false) {
-            dogsViewModel.foundDogs.observe(viewLifecycleOwner, Observer { dogs ->
-                dogs?.let {
-                    dogsAdapter.submitList(dogs)
-                    dogsAdapter.notifyDataSetChanged()
-                }
-            })
-        }
         dogsViewModel.chosenDog.observe(viewLifecycleOwner, Observer { dog ->
             dog?.let {
                 // navigate to the dog details fragment
@@ -86,7 +74,7 @@ class DogListFragment : Fragment() {
         dogsViewModel.dogMessage.observe(viewLifecycleOwner, Observer { dog ->
             dog?.let {
                 // navigate to send message fragment
-                val action = DogListFragmentDirections.SendAMessageAction(dog!!)
+                val action = DogListFragmentDirections.SendAMessageAction(dog, null, null)
                 findNavController().navigate(action)
                 dogsViewModel.finishedDogMessage()
             }
@@ -94,9 +82,54 @@ class DogListFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun setupCorrespondingIconAndTitle() {
+        if (lostOrFound == null) {
+            findNavController().popBackStack()
+        } else if (lostOrFound == true) {
+            binding.artDogList.setImageResource(R.drawable.track)
+            binding.textviewTitle.text = getString(R.string.lost_dogs)
+            binding.textviewIntro.text = getString(R.string.lost_dogs_list_intro)
+            dogsViewModel.lostDogs.observe(viewLifecycleOwner, Observer { dogs ->
+                dogs?.let {
+                    Log.i("dogsVM lost dogs", dogs.size.toString())
+                    val orderedDogs = orderByDate(dogs)
+                    dogsAdapter.submitList(orderedDogs)
+                    dogsAdapter.notifyDataSetChanged()
+                }
+            })
+        } else if (lostOrFound == false) {
+            binding.artDogList.setImageResource(R.drawable.laughing)
+            binding.textviewTitle.text = getString(R.string.found_dogs)
+            binding.textviewIntro.text = getString(R.string.found_dogs_list_intro)
+            dogsViewModel.foundDogs.observe(viewLifecycleOwner, Observer { dogs ->
+                dogs?.let {
+                    val orderedDogs = orderByDate(dogs)
+                    dogsAdapter.submitList(orderedDogs)
+                    dogsAdapter.notifyDataSetChanged()
+                }
+            })
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
+    private fun orderByDate(dogs: List<DogRoom>) : List<DogRoom> {
+        return dogs.sortedByDescending { convertToDate(it.dateLastSeen) }
+    }
+
+    private fun convertToDate(dateString: String) : Date? {
+        val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy")
+
+        try {
+            //val formatterOut = SimpleDateFormat("dd MMM yyyy  HH:mm:ss")
+            return dateFormat.parse(dateString)
+        } catch (e: java.lang.Exception) {
+            Log.i("orderByDate", "parsing error")
+            return null
+        }
+    }
 }

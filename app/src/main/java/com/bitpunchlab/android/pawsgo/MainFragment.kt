@@ -25,6 +25,9 @@ import java.io.File
 // including all the lost dogs and found dogs
 // so before we actually display these dogs list,
 // we already retrieve the data here
+
+// in the main fragment, it is the place after user login ,
+// or when the user starts the app, he has already login earlier
 class MainFragment : Fragment() {
 
     private var _binding: FragmentMainBinding? = null
@@ -46,6 +49,40 @@ class MainFragment : Fragment() {
 
         localDatabase = PawsGoDatabase.getInstance(requireContext())
 
+        setupMenu()
+        loadCurrentUserRoom()
+
+        firebaseClient.currentUserRoomLiveData.observe(viewLifecycleOwner, Observer { user ->
+            binding.user = user
+        })
+
+        firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
+            when (state) {
+                AppState.LOGGED_IN -> {
+                    Log.i("main fragment", "login state detected")
+                }
+                AppState.LOGGED_OUT -> {
+                    Log.i("main fragment", "detected logout state")
+                    findNavController().popBackStack()
+                }
+                else -> {
+                    Log.i("login state", "still logged in")
+                }
+            }
+        })
+
+        // testing
+        //firebaseClient.testingDogImage.observe(viewLifecycleOwner, Observer { bitmap ->
+        //    bitmap?.let {
+        //        binding.dogImage!!.setImageBitmap(it)
+        //    }
+        //})
+
+        return binding.root
+
+    }
+
+    private fun setupMenu() {
         requireActivity().addMenuProvider(object: MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_main, menu)
@@ -72,8 +109,19 @@ class MainFragment : Fragment() {
                         findNavController().navigate(action)
                         true
                     }
-                    R.id.readMessages -> {
-                        findNavController().navigate(R.id.readMessagesAction)
+                    R.id.listFoundDogs -> {
+                        val action = MainFragmentDirections.viewDogsAction(false)
+                        findNavController().navigate(action)
+                        true
+                    }
+                    R.id.readMessagesReceived -> {
+                        val action = MainFragmentDirections.readMessagesAction(true)
+                        findNavController().navigate(action)
+                        true
+                    }
+                    R.id.readMessagesSent -> {
+                        val action = MainFragmentDirections.readMessagesAction(false)
+                        findNavController().navigate(action)
                         true
                     }
                     R.id.logout -> {
@@ -85,35 +133,11 @@ class MainFragment : Fragment() {
             }
 
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-
-        firebaseClient.currentUserRoomLiveData.observe(viewLifecycleOwner, Observer { user ->
-            binding.user = user
-        })
-
-        firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
-            when (state) {
-                AppState.LOGGED_OUT -> {
-                    Log.i("main fragment", "detected logout state")
-                    findNavController().popBackStack()
-                }
-                else -> {
-                    Log.i("login state", "still logged in")
-                }
-            }
-        })
-
-        // testing
-        firebaseClient.testingDogImage.observe(viewLifecycleOwner, Observer { bitmap ->
-            bitmap?.let {
-                binding.dogImage!!.setImageBitmap(it)
-            }
-        })
-
-        return binding.root
-
     }
 
+    private fun loadCurrentUserRoom() {
 
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

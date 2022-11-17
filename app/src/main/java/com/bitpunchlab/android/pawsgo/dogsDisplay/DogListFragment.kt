@@ -67,6 +67,8 @@ class DogListFragment : Fragment() {
         dogsViewModel.chosenDog.observe(viewLifecycleOwner, Observer { dog ->
             dog?.let {
                 // navigate to the dog details fragment
+                val action = DogListFragmentDirections.showDogAction(it)
+                findNavController().navigate(action)
                 dogsViewModel.finishedDogChosen()
             }
         })
@@ -122,7 +124,7 @@ class DogListFragment : Fragment() {
     }
 
     private fun convertToDate(dateString: String) : Date? {
-        val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy")
+        val dateFormat = SimpleDateFormat("dd MMM yyyy")
 
         try {
             //val formatterOut = SimpleDateFormat("dd MMM yyyy  HH:mm:ss")

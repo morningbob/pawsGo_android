@@ -288,7 +288,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         datePicker!!.show(childFragmentManager, "DATE_PICKER")
 
         datePicker!!.addOnPositiveButtonClickListener { data ->
-            val simpleDate = SimpleDateFormat("dd MMM yyyy  HH:mm:ss", Locale.getDefault())
+            val simpleDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
             lostDate = simpleDate.format(data)
             Log.i("got back date", lostDate.toString())
             binding.textviewDateLostData.text = lostDate
@@ -388,7 +388,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    fun getBitmapFromView(view: View): Bitmap {
+    private fun getBitmapFromView(view: View): Bitmap {
         val bitmap = Bitmap.createBitmap(
             view.width, view.height, Bitmap.Config.ARGB_8888
         )

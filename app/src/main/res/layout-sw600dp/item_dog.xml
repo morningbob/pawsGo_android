@@ -38,7 +38,6 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_margin="10dp"
-                android:clickable="true"
                 app:loadImage="@{dog.dogImagesUri[0]}"
                 app:srcCompat="@drawable/placeholder"
                 tools:srcCompat="@drawable/placeholder" />
@@ -46,7 +45,7 @@
             <LinearLayout
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="40dp"
                 android:orientation="vertical"
                 android:gravity="center">
 
@@ -69,14 +68,14 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="150dp"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginLeft="10dp">
+                android:layout_marginLeft="40dp">
 
                 <TextView
                     android:id="@+id/textview_place"
-                    android:layout_width="170dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{dog.placeLastSeen}"
                     tools:text="Markham"
@@ -84,7 +83,7 @@
 
                 <TextView
                     android:id="@+id/textview_date"
-                    android:layout_width="170dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{dog.dateLastSeen}"
                     tools:text="Oct 2, 2022"

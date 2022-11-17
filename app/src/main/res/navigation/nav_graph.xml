@@ -70,6 +70,9 @@
         <action
             android:id="@+id/SendAMessageAction"
             app:destination="@id/sendMessageFragment" />
+        <action
+            android:id="@+id/showDogAction"
+            app:destination="@id/dogFragment" />
     </fragment>
     <fragment
         android:id="@+id/sendMessageFragment"
@@ -105,5 +108,20 @@
         <action
             android:id="@+id/action_readMessagesFragment_to_sendMessageFragment"
             app:destination="@id/sendMessageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dogFragment"
+        android:name="com.bitpunchlab.android.pawsgo.dogsDisplay.DogFragment"
+        android:label="fragment_dog"
+        tools:layout="@layout/fragment_dog" >
+        <argument
+            android:name="dog"
+            app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
+        <action
+            android:id="@+id/sendMessageAction"
+            app:destination="@id/sendMessageFragment" />
+        <action
+            android:id="@+id/showLocationAction"
+            app:destination="@id/chooseLocationFragment" />
     </fragment>
 </navigation>

@@ -15,6 +15,6 @@ fun parseDate(view: TextView, dateString: String)  {
         view.text = formatterOut.format(date)
     } catch (e: java.lang.Exception) {
         Log.i("parse date", "parsing error")
-        view.text = "Now Available"
+        view.text = "Not Available"
     }
 }

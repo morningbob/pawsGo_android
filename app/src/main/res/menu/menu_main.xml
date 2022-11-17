@@ -30,13 +30,13 @@
     <item
         android:id="@+id/readMessagesReceived"
         android:orderInCategory="100"
-        android:title="Messages Received"
+        android:title="@string/messages_received"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/readMessagesSent"
         android:orderInCategory="100"
-        android:title="Messages Sent"
+        android:title="@string/messages_sent"
         app:showAsAction="never" />
 
     <item

@@ -67,7 +67,7 @@ class ReadMessagesFragment : Fragment() {
 
         // we set the userID in the messagesVM here, to trigger the live data to retrieve the user
         // object, and hence the messages received
-        messagesViewModel.userID.value = firebaseClient.currentUserFirebaseLiveData.value!!.userID
+        messagesViewModel.userID.value = firebaseClient.auth.currentUser!!.uid
 
         messagesAdapter = MessagesAdapter(MessageOnClickListener { message ->
             messagesViewModel.onMessageClicked(message)

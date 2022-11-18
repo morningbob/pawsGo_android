@@ -112,7 +112,7 @@
     <fragment
         android:id="@+id/dogFragment"
         android:name="com.bitpunchlab.android.pawsgo.dogsDisplay.DogFragment"
-        android:label="fragment_dog"
+        android:label="@string/dog"
         tools:layout="@layout/fragment_dog" >
         <argument
             android:name="dog"
@@ -120,8 +120,17 @@
         <action
             android:id="@+id/sendMessageAction"
             app:destination="@id/sendMessageFragment" />
+
         <action
             android:id="@+id/showLocationAction"
-            app:destination="@id/chooseLocationFragment" />
+            app:destination="@id/showLocationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/showLocationFragment"
+        android:name="com.bitpunchlab.android.pawsgo.location.ShowLocationFragment"
+        android:label="@string/the_lost_location" >
+        <argument
+            android:name="dog"
+            app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
     </fragment>
 </navigation>

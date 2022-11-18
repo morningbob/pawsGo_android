@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bitpunchlab.android.pawsgo.R
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -57,11 +58,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // the map fragment gets it from location VM and navigate to it
         locationViewModel.navigateToPlace.observe(viewLifecycleOwner, androidx.lifecycle.Observer { place ->
             place?.let {
-                showUserLocation(place)
+                locationViewModel.placeMarker = showUserLocation(place)
                 locationViewModel.finishNavigation()
             }
         })
-
+/*
+        locationViewModel.showLostDogLocation.observe(viewLifecycleOwner, Observer { place ->
+            place?.let {
+                showUserLocation(place)
+                locationViewModel.finishedShowLocation()
+            }
+        })
+*/
 
         return view
     }
@@ -74,23 +82,31 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         map.uiSettings.isZoomControlsEnabled = true
         map.isMyLocationEnabled = true;
         map.uiSettings.isMyLocationButtonEnabled = true
-        // place a marker in where user clicks
-        map.setOnMapClickListener(onMapOnClickListener)
 
-        coroutineScope.launch {
-            val locationDeferred = coroutineScope.async {
-                findDeviceLocation()
-            }
-            var location = locationDeferred.await()
-            location?.let {
-                val locationLatLng = LatLng(location.latitude, location.longitude)
-                CoroutineScope(Dispatchers.Main).launch {
-                    showUserLocation(locationLatLng)
+        if (locationViewModel.showLostDogLocation.value != null) {
+            // show lost dog location
+            showUserLocation(locationViewModel.showLostDogLocation.value!!)
+            locationViewModel.finishedShowLocation()
+        } else {
+            // place a marker in where user clicks
+            map.setOnMapClickListener(onMapOnClickListener)
+
+            coroutineScope.launch {
+                val locationDeferred = coroutineScope.async {
+                    findDeviceLocation()
                 }
-            }
-            if (location == null) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    showUserLocation(LatLng(43.651070, -79.347015))
+                var location = locationDeferred.await()
+                location?.let {
+                    val locationLatLng = LatLng(location.latitude, location.longitude)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        locationViewModel.placeMarker = showUserLocation(locationLatLng)
+                    }
+                }
+                if (location == null) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        locationViewModel.placeMarker =
+                            showUserLocation(LatLng(43.651070, -79.347015))
+                    }
                 }
             }
         }
@@ -129,8 +145,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
     }
 
-    private fun showUserLocation(locationLatLng: LatLng) {
-        locationViewModel.placeMarker = map.addMarker(
+    private fun showUserLocation(locationLatLng: LatLng) : Marker? {
+        val marker = map.addMarker(
             MarkerOptions().position(
             locationLatLng).title("Current location"))
         map.moveCamera(CameraUpdateFactory.newLatLng(locationLatLng))
@@ -144,5 +160,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
         Log.i("showed location", "location: lat ${locationLatLng.latitude} long ${locationLatLng.longitude}")
+        return marker
     }
 }

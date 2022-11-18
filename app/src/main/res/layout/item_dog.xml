@@ -52,43 +52,43 @@
 
                 <TextView
                     android:id="@+id/textview_dog_name"
-                    android:layout_width="100dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{dog.dogName}"
                     tools:text="Danny"
-                    android:textSize="@dimen/content_text_size"/>
+                    android:textSize="18dp"/>
 
                 <TextView
                     android:id="@+id/textview_dog_gender"
-                    android:layout_width="100dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{dog.dogGender ? `Male` : `Female`}"
                     tools:text="Male"
-                    android:textSize="@dimen/content_text_size"/>
+                    android:textSize="18dp"/>
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="150dp"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginLeft="10dp">
 
                 <TextView
                     android:id="@+id/textview_place"
-                    android:layout_width="170dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{dog.placeLastSeen}"
                     tools:text="Markham"
-                    android:textSize="@dimen/content_text_size"/>
+                    android:textSize="18dp"/>
 
                 <TextView
                     android:id="@+id/textview_date"
-                    android:layout_width="170dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{dog.dateLastSeen}"
                     tools:text="Oct 2, 2022"
-                    android:textSize="@dimen/content_text_size"/>
+                    android:textSize="18dp"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -100,6 +100,7 @@
             android:layout_marginLeft="@dimen/button_left_right_margin"
             android:layout_marginRight="@dimen/button_left_right_margin"
             android:text="@string/send_message"
+            android:textSize="@dimen/button_text_size"
             android:layout_margin="10dp"
             android:padding="@dimen/button_padding"
             android:onClick="@{ () -> messageClickListener.onClick(dog) }" />

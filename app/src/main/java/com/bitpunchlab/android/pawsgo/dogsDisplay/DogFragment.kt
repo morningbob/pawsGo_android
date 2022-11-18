@@ -1,5 +1,7 @@
 package com.bitpunchlab.android.pawsgo.dogsDisplay
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -43,7 +45,13 @@ class DogFragment : Fragment() {
         binding.dog = dog
 
         binding.buttonShowMap.setOnClickListener {
-            findNavController().navigate(R.id.showLocationAction)
+            // firstly, check if there is a point location in dog object
+            if (dog!!.locationLat != null && dog!!.locationLng != null) {
+                val action = DogFragmentDirections.showLocationAction(dog!!)
+                findNavController().navigate(action)
+            } else {
+                noLocationAlert()
+            }
         }
 
         binding.buttonSendMessage.setOnClickListener {
@@ -57,5 +65,19 @@ class DogFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun noLocationAlert() {
+        val noAlert = AlertDialog.Builder(context)
+
+        with(noAlert) {
+            setTitle(getString(R.string.no_location_available_alert))
+            setMessage(getString(R.string.no_location_available_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    // do nothing
+                })
+            show()
+        }
     }
 }

@@ -66,5 +66,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="location_in_map">Location in Map</string>
+    <string name="the_lost_location">The Lost Location</string>
+    <string name="no_location_available_alert">No Location Available</string>
+    <string name="no_location_available_alert_desc">The owner didn\'t set the location in the map.  Please refer to the location description.</string>
+    <string name="dog">Dog</string>
 
 </resources>

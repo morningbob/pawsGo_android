@@ -51,7 +51,7 @@
 
                 <TextView
                     android:id="@+id/textview_dog_name"
-                    android:layout_width="100dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{dog.dogName}"
                     tools:text="Danny"
@@ -59,7 +59,7 @@
 
                 <TextView
                     android:id="@+id/textview_dog_gender"
-                    android:layout_width="100dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{dog.dogGender ? `Male` : `Female`}"
                     tools:text="Male"

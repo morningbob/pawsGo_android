@@ -129,6 +129,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     date = lostDate!!,
                     hour = lostHour,
                     minute = lostMinute,
+
                     place = binding.edittextPlaceLost.text.toString(),
                     lost = lostOrFound!!,
                     found = !lostOrFound!!,
@@ -182,7 +183,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun startProgressBar() {
-        binding.progressBarContainer?.progressBar?.visibility = View.VISIBLE
+        binding.progressBarContainer.progressBar.visibility = View.VISIBLE
 
         requireActivity().window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -190,7 +191,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun stopProgressBar() {
-        binding.progressBarContainer?.progressBar?.visibility = View.GONE
+        binding.progressBarContainer.progressBar?.visibility = View.GONE
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 

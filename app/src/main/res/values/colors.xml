@@ -12,4 +12,6 @@
     <color name="brown_deep">#2e2102</color>
     <color name="lighter_brown">#9c7305</color>
     <color name="error_red">#b54402</color>
+    <color name="light_yellow">#f2db9b</color>
+    <color name="light_green">#d9faa5</color>
 </resources>

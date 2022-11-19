@@ -26,22 +26,31 @@
             <ImageView
                 android:id="@+id/image_dog"
                 android:layout_width="300dp"
-                android:layout_height="300dp"
-                android:layout_marginTop="30dp"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginLeft="30dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:loadImage="@{dog.dogImagesUri[0]}"
                 app:srcCompat="@drawable/placeholder"
                 tools:srcCompat="@drawable/placeholder" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/image_dog"
+                app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView
                 android:id="@+id/dog_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
                 android:text="@{dog.dogName}"
                 android:textSize="@dimen/title_text_size"
                 android:textColor="@color/black"
@@ -57,8 +66,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
                 android:text="@{`Owner:   ` + dog.ownerName}"
                 android:textSize="@dimen/content_text_size"
                 android:textColor="@color/black"
@@ -73,8 +80,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
                 android:text="@{`Email:   ` + dog.ownerEmail}"
                 android:textSize="@dimen/content_text_size"
                 android:textColor="@color/black"
@@ -89,9 +94,7 @@
                 android:id="@+id/dog_lost_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
+                android:layout_marginTop="10dp"
                 android:text="@{`Lost Location:   ` + dog.placeLastSeen}"
                 android:textSize="@dimen/content_text_size"
                 android:textColor="@color/black"
@@ -106,8 +109,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="@dimen/button_left_right_margin"
-                android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/location_in_map"
                 android:textSize="@dimen/button_text_size"
                 android:padding="@dimen/button_padding"
@@ -121,8 +122,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
                 android:text="@{dog.notes != null ? `Notes:   ` + dog.notes : `Notes:   Not Available` }"
                 android:textSize="@dimen/content_text_size"
                 android:textColor="@color/black"
@@ -137,8 +136,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="@dimen/button_left_right_margin"
-                android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/send_message"
                 android:textSize="@dimen/button_text_size"
                 android:padding="@dimen/button_padding"
@@ -146,6 +143,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_notes"
                 tools:ignore="SpUsage" />
+
+            </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

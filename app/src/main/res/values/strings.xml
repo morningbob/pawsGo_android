@@ -70,5 +70,9 @@
     <string name="no_location_available_alert">No Location Available</string>
     <string name="no_location_available_alert_desc">The owner didn\'t set the location in the map.  Please refer to the location description.</string>
     <string name="dog">Dog</string>
+    <string name="show_map">Show Map</string>
+    <string name="set_location">Set Location</string>
+    <string name="notes">Notes</string>
+    <string name="hint_for_notes">Please enter anything you want to note.</string>
 
 </resources>

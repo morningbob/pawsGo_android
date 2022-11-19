@@ -79,6 +79,10 @@ class ChooseLocationFragment : Fragment() {
                 }
             }
         }
+
+        binding.buttonCancel.setOnClickListener {
+            findNavController().popBackStack()
+        }
         return binding.root
     }
 

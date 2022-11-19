@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:layout_marginRight="@dimen/content_left_right_margin"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:textSize="@dimen/content_text_size"
                 android:text=""
                 app:layout_constraintEnd_toEndOf="parent"
@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:layout_marginRight="@dimen/content_left_right_margin"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:textSize="@dimen/content_text_size"
                 android:text=""
                 app:layout_constraintEnd_toEndOf="parent"
@@ -128,7 +128,7 @@
                 android:id="@+id/gender_spinner"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 app:layout_constraintStart_toStartOf="parent"
@@ -154,7 +154,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:layout_marginRight="@dimen/content_left_right_margin"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:textSize="@dimen/content_text_size"
                 android:text=""
                 app:layout_constraintEnd_toEndOf="parent"
@@ -191,7 +191,7 @@
                 android:id="@+id/button_choose_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/select_date"
@@ -247,12 +247,52 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_left_right_margin"
                 android:layout_marginRight="@dimen/content_left_right_margin"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:textSize="@dimen/content_text_size"
                 android:text="@={locationVM.displayAddress}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_place_lost"/>
+
+            <Button
+                android:id="@+id/button_show_map"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/button_left_right_margin"
+                android:layout_marginRight="@dimen/button_left_right_margin"
+                android:layout_marginTop="20dp"
+                android:textSize="@dimen/button_text_size"
+                android:text="@string/show_map"
+                android:padding="@dimen/button_padding"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edittext_place_lost"/>
+
+            <TextView
+                android:id="@+id/textview_notes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginTop="30dp"
+                android:text="@string/notes"
+                android:textSize="@dimen/content_text_size"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/button_show_map" />
+
+            <EditText
+                android:id="@+id/edittext_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginRight="@dimen/content_left_right_margin"
+                android:layout_marginTop="10dp"
+                android:textSize="@dimen/content_text_size"
+                android:text=""
+                android:hint="@string/hint_for_notes"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_notes"/>
 
             <ImageView
                 android:id="@+id/preview_upload"
@@ -262,13 +302,13 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/edittext_place_lost" />
+                app:layout_constraintTop_toBottomOf="@id/edittext_notes" />
 
             <Button
                 android:id="@+id/button_upload"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/upload_picture"
@@ -282,7 +322,7 @@
                 android:id="@+id/button_send"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginLeft="@dimen/button_left_right_margin"
                 android:layout_marginRight="@dimen/button_left_right_margin"
                 android:text="@string/send"

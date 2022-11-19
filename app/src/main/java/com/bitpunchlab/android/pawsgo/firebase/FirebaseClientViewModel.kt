@@ -558,7 +558,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             userID = dogRoom.ownerID, userName = dogRoom.ownerName, userEmail = dogRoom.ownerEmail,
             lost = dogRoom.isLost, found = dogRoom.isFound,
             latLngPoint = createLatLngHashmap(dogRoom.locationLat, dogRoom.locationLng),
-            address = dogRoom.locationAddress)
+            address = dogRoom.locationAddress, note = dogRoom.notes)
     }
 
     private fun convertDogFirebaseToDogRoom(dogFirebase: DogFirebase): DogRoom {
@@ -572,7 +572,8 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
             placeLastSeen = dogFirebase.placeLastSeen,
             locationLat = dogFirebase.locationLatLng.get("Lat"),
             locationLng = dogFirebase.locationLatLng.get("Lng"),
-            locationAddress = dogFirebase.locationAddress)
+            locationAddress = dogFirebase.locationAddress,
+            notes = dogFirebase.notes)
     }
 
     private fun createLatLngHashmap(lat: Double?, lng: Double?) : HashMap<String, Double> {

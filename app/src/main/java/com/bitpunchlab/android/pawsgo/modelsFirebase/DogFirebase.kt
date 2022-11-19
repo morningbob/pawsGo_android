@@ -11,6 +11,7 @@ class DogFirebase {
     var dateLastSeen: String = ""
     var hour : Int? = null
     var minute : Int? = null
+    var notes : String? = null
     var ownerID : String = ""
     var ownerName : String = ""
     var ownerEmail : String = ""
@@ -23,7 +24,8 @@ class DogFirebase {
     constructor()
 
     constructor(id: String, name: String?, breed: String?, gender: Boolean?, age: Int?,
-        place: String, date: String, hr: Int?, min: Int?, userID: String, userName: String,
+        place: String, date: String, hr: Int?, min: Int?, note: String?,
+                userID: String, userName: String,
                 userEmail: String,
                 images: HashMap<String, String> = HashMap<String, String>(),
                 lost: Boolean?, found: Boolean?,
@@ -38,6 +40,7 @@ class DogFirebase {
             dateLastSeen = date
             hour = hr
             minute = min
+            notes = note
             ownerID = userID
             ownerName = userName
             ownerEmail = userEmail

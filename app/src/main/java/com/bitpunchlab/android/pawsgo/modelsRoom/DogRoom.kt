@@ -22,6 +22,7 @@ data class DogRoom (
     var dateLastSeen: String = "",
     var hour: Int? = null,
     var minute: Int? = null,
+    var notes : String? = null,
     var ownerID: String,
     var ownerName: String,
     var ownerEmail: String,

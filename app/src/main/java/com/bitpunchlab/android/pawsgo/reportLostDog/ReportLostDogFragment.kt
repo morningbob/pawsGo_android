@@ -129,7 +129,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     date = lostDate!!,
                     hour = lostHour,
                     minute = lostMinute,
-
+                    note = binding.edittextNotes.text.toString(),
                     place = binding.edittextPlaceLost.text.toString(),
                     lost = lostOrFound!!,
                     found = !lostOrFound!!,
@@ -253,9 +253,9 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         ArrayAdapter.createFromResource(
             requireContext(),
             R.array.gender_array,
-            android.R.layout.simple_spinner_item
+            R.layout.spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
             binding.genderSpinner.adapter = adapter
         }
 
@@ -367,11 +367,11 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun createDogRoom(name: String, breed: String?, gender: Boolean?, age: Int?, date: String,
-                        hour: Int?, minute: Int?, place: String, lost: Boolean, found: Boolean,
+                        hour: Int?, minute: Int?, note: String?, place: String, lost: Boolean, found: Boolean,
                         lat: Double?, lng: Double?, address: String?): DogRoom {
         return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name, dogBreed = breed,
             dogGender = gender, dogAge = age, isLost = lost, isFound = found,
-            dateLastSeen = date, hour = hour, minute = minute,
+            dateLastSeen = date, hour = hour, minute = minute, notes = note,
             placeLastSeen = place, ownerID = firebaseClient.currentUserID,
             ownerEmail = firebaseClient.currentUserEmail,
             ownerName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,

@@ -99,6 +99,7 @@
             android:layout_marginLeft="@dimen/button_left_right_margin"
             android:layout_marginRight="@dimen/button_left_right_margin"
             android:text="@string/send_message"
+            android:textSize="@dimen/button_text_size"
             android:layout_margin="10dp"
             android:padding="@dimen/button_padding"
             android:onClick="@{ () -> messageClickListener.onClick(dog) }" />

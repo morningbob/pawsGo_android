@@ -51,7 +51,8 @@ class ChooseLocationFragment : Fragment() {
         // of course, everything still base on the information in the marker of the map
         geoCoder = Geocoder(requireContext(), Locale.getDefault())
 
-        insertMapFragment()
+        //insertMapFragment()
+        arrangeMapFragment()
         setupAutoCompleteFragment()
 
         binding.buttonSetLocation.setOnClickListener {
@@ -87,7 +88,7 @@ class ChooseLocationFragment : Fragment() {
     }
 
     private fun startProgressBar() {
-        binding.progressBarContainer?.progressBar?.visibility = View.VISIBLE
+        binding.progressBarContainer.progressBar.visibility = View.VISIBLE
 
         requireActivity().window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -95,13 +96,23 @@ class ChooseLocationFragment : Fragment() {
     }
 
     private fun stopProgressBar() {
-        binding.progressBarContainer?.progressBar?.visibility = View.GONE
+        binding.progressBarContainer.progressBar.visibility = View.GONE
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun arrangeMapFragment() {
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map)
+        if (mapFragment != null) {
+            val transaction = childFragmentManager.beginTransaction()
+            transaction.replace(R.id.map_fragment_container, mapFragment).commit()
+        } else {
+            insertMapFragment()
+        }
     }
 
     private fun insertMapFragment() {
@@ -147,7 +158,7 @@ class ChooseLocationFragment : Fragment() {
             }
             val addressList = addressListDeferred.await()
             if (!addressList.isNullOrEmpty()) {
-                addressList?.get(0)?.getAddressLine(0)?.let {
+                addressList.get(0)?.getAddressLine(0)?.let {
                     address = it
                     Log.i("search place address", "address : $address")
                 }
@@ -159,4 +170,9 @@ class ChooseLocationFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        //insertMapFragment()
+
+    }
 }

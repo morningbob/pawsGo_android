@@ -36,6 +36,9 @@
         <action
             android:id="@+id/readMessagesAction"
             app:destination="@id/readMessagesFragment" />
+        <action
+            android:id="@+id/changePasswordAction"
+            app:destination="@id/changePasswordFragment" />
 
     </fragment>
     <fragment
@@ -133,4 +136,8 @@
             android:name="dog"
             app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
     </fragment>
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.bitpunchlab.android.pawsgo.userAccount.ChangePasswordFragment"
+        android:label="@string/change_password_title" />
 </navigation>

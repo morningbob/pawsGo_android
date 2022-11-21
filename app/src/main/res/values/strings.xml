@@ -74,5 +74,10 @@
     <string name="set_location">Set Location</string>
     <string name="notes">Notes</string>
     <string name="hint_for_notes">Please enter anything you want to note.</string>
+    <string name="change_password">Change Password</string>
+    <string name="profile">Profile</string>
+    <string name="current_password">Current Password:</string>
+    <string name="new_password">New Password:</string>
+    <string name="change_password_title">Change Password</string>
 
 </resources>

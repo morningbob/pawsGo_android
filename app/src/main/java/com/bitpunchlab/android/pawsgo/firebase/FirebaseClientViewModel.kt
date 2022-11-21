@@ -47,6 +47,9 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     private var _userPassword = MutableLiveData<String>()
     val userPassword get() = _userPassword
 
+    private var _newPassword = MutableLiveData<String>()
+    val newPassword get() = _newPassword
+
     private var _userConfirmPassword = MutableLiveData<String>()
     val userConfirmPassword get() = _userConfirmPassword
 
@@ -58,6 +61,9 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
 
     private var _passwordError = MutableLiveData<String>()
     val passwordError get() = _passwordError
+
+    private var _newPasswordError = MutableLiveData<String>()
+    val newPasswordError get() = _newPasswordError
 
     private var _confirmPasswordError= MutableLiveData<String>()
     val confirmPasswordError get() = _confirmPasswordError
@@ -92,10 +98,6 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     val storageRef = Firebase.storage.reference
 
     val ONE_MEGABYTE: Long = 1024 * 1024
-
-    var testingDogImage = MutableLiveData<Bitmap?>()
-
-    var testingUri : URI? = null
 
     private var authStateListener = FirebaseAuth.AuthStateListener { auth ->
         if (auth.currentUser != null) {
@@ -217,6 +219,29 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    private val newPasswordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(newPassword) { password ->
+            if (!password.isNullOrEmpty()) {
+                if (isPasswordContainSpace(password)) {
+                    newPasswordError.value = "Password cannot has space."
+                    value = false
+                } else if (password.count() < 8) {
+                    newPasswordError.value = "Password should be at least 8 characters."
+                    value = false
+                } else if (!isPasswordValid(password)) {
+                    newPasswordError.value = "Password can only be composed of letters and numbers."
+                    value = false
+                } else {
+                    newPasswordError.value = ""
+                    value = true
+                }
+            } else {
+                value = false
+            }
+            Log.i("password valid? ", value.toString())
+        }
+    }
+
     private fun isEmailValid(email: String) : Boolean {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
@@ -244,6 +269,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     }
     var readyRegisterLiveData = MediatorLiveData<Boolean>()
     var readyLoginLiveData = MediatorLiveData<Boolean>()
+    var readyChangePasswordLiveData = MediatorLiveData<Boolean>()
 
 
     init {
@@ -379,6 +405,24 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
 
         }
 
+        readyChangePasswordLiveData.addSource(passwordValid) { valid ->
+            readyChangePasswordLiveData.value = newPasswordValid.value != null &&
+                    confirmPasswordValid.value != null &&
+                valid && newPasswordValid.value!! && confirmPasswordValid.value!!
+        }
+        readyChangePasswordLiveData.addSource(newPasswordValid) { valid ->
+            readyChangePasswordLiveData.value = valid &&
+                    passwordValid.value != null && confirmPasswordValid.value != null &&
+                    passwordValid.value!! && confirmPasswordValid.value!!
+        }
+
+        readyChangePasswordLiveData.addSource(confirmPasswordValid) { valid ->
+            readyChangePasswordLiveData.value = valid &&
+                    passwordValid.value != null &&
+                    newPasswordValid.value != null &&
+                    passwordValid.value!!
+                    && newPasswordValid.value!!
+        }
     }
 
     suspend fun loginUserOfAuth() : Boolean =

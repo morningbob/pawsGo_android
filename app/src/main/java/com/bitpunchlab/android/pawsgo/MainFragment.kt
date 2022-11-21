@@ -71,6 +71,10 @@ class MainFragment : Fragment() {
             }
         })
 
+        binding.buttonChangePassword?.setOnClickListener {
+            findNavController().navigate(R.id.changePasswordAction)
+        }
+
         // testing
         //firebaseClient.testingDogImage.observe(viewLifecycleOwner, Observer { bitmap ->
         //    bitmap?.let {

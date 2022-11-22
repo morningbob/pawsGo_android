@@ -125,7 +125,7 @@
 
             <TextView
                 android:id="@+id/textview_password_error"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/error_left_right_margin"
                 android:layout_marginRight="@dimen/error_left_right_margin"
@@ -134,6 +134,21 @@
                 android:textColor="@color/error_red"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edittext_login_password" />
+
+            <TextView
+                android:id="@+id/textview_reset_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="@dimen/error_left_right_margin"
+                android:layout_marginRight="@dimen/error_left_right_margin"
+                android:textSize="@dimen/content_text_size"
+                android:text="@string/reset_password"
+                android:textColor="@color/clickable_text"
+                android:textAlignment="center"
+                android:clickable="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textview_reset_password" />
 
             <Button
                 android:id="@+id/button_send"

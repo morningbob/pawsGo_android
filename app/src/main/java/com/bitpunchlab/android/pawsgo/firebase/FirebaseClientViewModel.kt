@@ -47,8 +47,8 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     private var _userPassword = MutableLiveData<String>()
     val userPassword get() = _userPassword
 
-    private var _newPassword = MutableLiveData<String>()
-    val newPassword get() = _newPassword
+    var _currentPassword = MutableLiveData<String>()
+    val currentPassword get() = _currentPassword
 
     private var _userConfirmPassword = MutableLiveData<String>()
     val userConfirmPassword get() = _userConfirmPassword
@@ -219,8 +219,8 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    private val newPasswordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
-        addSource(newPassword) { password ->
+    private val currentPasswordValid: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(currentPassword) { password ->
             if (!password.isNullOrEmpty()) {
                 if (isPasswordContainSpace(password)) {
                     newPasswordError.value = "Password cannot has space."
@@ -307,6 +307,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 }
                 AppState.ERROR_CREATE_USER_AUTH -> {
                     resetAllFields()
+                    _appState.value = AppState.NORMAL
                 }
                 AppState.READY_CREATE_USER_FIREBASE -> {
                     Log.i("ready create user firebase", "user id from auth ${auth.currentUser!!.uid}")
@@ -345,6 +346,10 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 }
                 AppState.INCORRECT_CREDENTIALS -> {
                     resetAllFields()
+                }
+                AppState.RESET -> {
+                    resetAllFields()
+                    _appState.value = AppState.NORMAL
                 }
                 else -> 0
             }
@@ -406,11 +411,11 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         }
 
         readyChangePasswordLiveData.addSource(passwordValid) { valid ->
-            readyChangePasswordLiveData.value = newPasswordValid.value != null &&
+            readyChangePasswordLiveData.value = currentPasswordValid.value != null &&
                     confirmPasswordValid.value != null &&
-                valid && newPasswordValid.value!! && confirmPasswordValid.value!!
+                valid && currentPasswordValid.value!! && confirmPasswordValid.value!!
         }
-        readyChangePasswordLiveData.addSource(newPasswordValid) { valid ->
+        readyChangePasswordLiveData.addSource(currentPasswordValid) { valid ->
             readyChangePasswordLiveData.value = valid &&
                     passwordValid.value != null && confirmPasswordValid.value != null &&
                     passwordValid.value!! && confirmPasswordValid.value!!
@@ -419,9 +424,9 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         readyChangePasswordLiveData.addSource(confirmPasswordValid) { valid ->
             readyChangePasswordLiveData.value = valid &&
                     passwordValid.value != null &&
-                    newPasswordValid.value != null &&
+                    currentPasswordValid.value != null &&
                     passwordValid.value!!
-                    && newPasswordValid.value!!
+                    && currentPasswordValid.value!!
         }
     }
 
@@ -451,6 +456,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         userEmail.value = ""
         userPassword.value = ""
         userConfirmPassword.value = ""
+        currentPassword.value = ""
         nameError.value = ""
         emailError.value = ""
         passwordError.value = ""
@@ -979,6 +985,48 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                     cancellableContinuation.resume(false) {}
                 }
     }
+
+    suspend fun changePasswordFirebaseAuth() : Int =
+        suspendCancellableCoroutine<Int> { cancellableContinuation ->
+            auth.signInWithEmailAndPassword(auth.currentUser!!.email!!, currentPassword.value!!)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.i("change password", "first step, sign in successful")
+                        auth.currentUser!!.updatePassword(userPassword.value!!)
+                            .addOnCompleteListener { updateTask ->
+                                if (updateTask.isSuccessful) {
+                                    Log.i("change password", "successfully updated password")
+                                    cancellableContinuation.resume(1) {}
+                                } else {
+                                    Log.i("change password", "update password failed")
+                                    cancellableContinuation.resume(2) {}
+                                }
+                            }
+                    } else {
+                        Log.i("change password", "first step, sign in failed")
+                        cancellableContinuation.resume(0) {}
+                    }
+                }
+        }
+
+    suspend fun generatePasswordResetEmail(email: String) : Int =
+        suspendCancellableCoroutine<Int> { cancellableContinuation ->
+        if (isEmailValid(email)) {
+            auth.sendPasswordResetEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.i("password reset email", "success")
+                        cancellableContinuation.resume(1) {}
+                    } else {
+                        Log.i("password reset email", "failed")
+                        cancellableContinuation.resume(2) {}
+                    }
+                }
+        } else if (!isEmailValid(email)) {
+            cancellableContinuation.resume(0) {}
+        }
+    }
+
 }
 
 class FirebaseClientViewModelFactory(private val application: Application)

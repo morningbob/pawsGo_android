@@ -1,5 +1,7 @@
 package com.bitpunchlab.android.pawsgo
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
@@ -94,6 +96,10 @@ class MainFragment : Fragment() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
+                    R.id.appIntro -> {
+                        appIntroAlert()
+                        true
+                    }
                     R.id.reportLostDog -> {
                         // navigate to the lost dog form
                         // true represent the Lost Dog form
@@ -156,6 +162,20 @@ class MainFragment : Fragment() {
     private fun retrieveUserRoom() {
         coroutineScope.launch {
             localDatabase.pawsDAO.getUser(firebaseClient.auth.currentUser!!.uid)
+        }
+    }
+
+    private fun appIntroAlert() {
+        val introAlert = AlertDialog.Builder(context)
+
+        with(introAlert) {
+            setTitle(getString(R.string.app_introduction))
+            setMessage(getString(R.string.app_introduction_text))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    // do nothing
+                })
+            show()
         }
     }
 }

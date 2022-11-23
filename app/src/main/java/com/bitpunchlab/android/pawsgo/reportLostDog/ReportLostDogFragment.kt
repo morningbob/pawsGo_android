@@ -54,11 +54,13 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var lostHour : Int? = null
     private var lostMinute : Int? = null
     private var gender : Boolean? = null
-    private var allPermissionGranted = MutableLiveData<Boolean>(true)
+    //private var allPermissionGranted = MutableLiveData<Boolean>(true)
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var localDatabase : PawsGoDatabase
     private var lostOrFound : Boolean? = null
     private lateinit var locationViewModel : LocationViewModel
+    val ONE_DAY_IN_MILLIS = 86400000
+    private var isPermissionGranted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +81,12 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationViewModel::class.java)
 
+        if (!checkPermission()) {
+            permissionResultLauncher.launch(permissions)
+        } else {
+            isPermissionGranted = true
+        }
+
         lostOrFound = requireArguments().getBoolean("lostOrFound")
         if (lostOrFound == null) {
             findNavController().popBackStack()
@@ -97,8 +105,15 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             showTimePicker()
         }
 
-        binding.buttonShowMap!!.setOnClickListener {
-            findNavController().navigate(R.id.showMapAction)
+        binding.buttonShowMap.setOnClickListener {
+            // check permission first
+            //if (!checkPermission()) {
+            //    permissionResultLauncher.launch(permissions)
+            if (!isPermissionGranted) {
+                permissionsNeededAlert()
+            } else {
+                findNavController().navigate(R.id.showMapAction)
+            }
         }
 
         binding.buttonUpload.setOnClickListener {
@@ -108,69 +123,12 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         binding.buttonSend.setOnClickListener {
             // display progress bar
             startProgressBar()
-
-            var processedAge : Int? = null
-            if (binding.edittextDogAge.text != null && binding.edittextDogAge.text.toString() != "") {
-                try {
-                    processedAge = binding.edittextDogAge.text.toString().toInt()
-                } catch (e: java.lang.NumberFormatException) {
-                    Log.i("processing dog age", "error converting to number")
-                }
-            }
-
-            if (verifyLostDogData(binding.edittextDogName.text.toString(),
-                lostDate,
-                binding.edittextPlaceLost.text.toString())) {
-                val dogRoom = createDogRoom(
-                    name = binding.edittextDogName.text.toString(),
-                    breed = binding.edittextDogBreed.text.toString(),
-                    gender = gender,
-                    age = processedAge,
-                    date = lostDate!!,
-                    hour = lostHour,
-                    minute = lostMinute,
-                    note = binding.edittextNotes.text.toString(),
-                    place = binding.edittextPlaceLost.text.toString(),
-                    lost = lostOrFound!!,
-                    found = !lostOrFound!!,
-                    lat = locationViewModel.lostDogLocationLatLng.value?.latitude,
-                    lng = locationViewModel.lostDogLocationLatLng.value?.longitude,
-                    address = locationViewModel.lostDogLocationAddress.value?.get(0))
-
-                // check if imageview is empty
-                // if it is not, save the image to cloud storage
-                var dataByteArray : ByteArray? = null
-                if (binding.previewUpload.drawable != null) {
-                    Log.i("check image", "image is not null")
-                    val imageBitmap = getBitmapFromView(binding.previewUpload)
-                    dataByteArray = convertImageToBytes(imageBitmap)
-                }
-                coroutineScope.launch {
-                    if (firebaseClient.handleNewDog(dogRoom, dataByteArray)) {
-                        firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_SUCCESS)
-                    } else {
-                        firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_ERROR) }
-                    }
-                clearForm()
-            } else {
-                invalidDogDataAlert()
-            }
+            processReportInputs()
         }
 
         firebaseClient.appState.observe(viewLifecycleOwner, appStateObserver)
 
-        if (!checkPermission()) {
-            permissionResultLauncher.launch(permissions)
-        }
-
-        allPermissionGranted.observe(viewLifecycleOwner, androidx.lifecycle.Observer { value ->
-            if (!value) {
-        //        permissionsRequiredAlert()
-            }
-        })
-
         locationViewModel.lostDogLocationAddress.observe(viewLifecycleOwner, androidx.lifecycle.Observer { address ->
-            //binding.edittextPlaceLost.hint = address?.get(0) ?: ""
             locationViewModel.displayAddress.value = address?.get(0) ?: ""
         })
 
@@ -191,7 +149,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun stopProgressBar() {
-        binding.progressBarContainer.progressBar?.visibility = View.GONE
+        binding.progressBarContainer.progressBar.visibility = View.GONE
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
@@ -210,6 +168,55 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             else -> {
 
             }
+        }
+    }
+
+    private fun processReportInputs() {
+        var processedAge : Int? = null
+        if (binding.edittextDogAge.text != null && binding.edittextDogAge.text.toString() != "") {
+            try {
+                processedAge = binding.edittextDogAge.text.toString().toInt()
+            } catch (e: java.lang.NumberFormatException) {
+                Log.i("processing dog age", "error converting to number")
+            }
+        }
+
+        if (verifyLostDogData(binding.edittextDogName.text.toString(),
+                lostDate,
+                binding.edittextPlaceLost.text.toString())) {
+            val dogRoom = createDogRoom(
+                name = binding.edittextDogName.text.toString(),
+                breed = binding.edittextDogBreed.text.toString(),
+                gender = gender,
+                age = processedAge,
+                date = lostDate!!,
+                hour = lostHour,
+                minute = lostMinute,
+                note = binding.edittextNotes.text.toString(),
+                place = binding.edittextPlaceLost.text.toString(),
+                lost = lostOrFound!!,
+                found = !lostOrFound!!,
+                lat = locationViewModel.lostDogLocationLatLng.value?.latitude,
+                lng = locationViewModel.lostDogLocationLatLng.value?.longitude,
+                address = locationViewModel.lostDogLocationAddress.value?.get(0))
+
+            // check if imageview is empty
+            // if it is not, save the image to cloud storage
+            var dataByteArray : ByteArray? = null
+            if (binding.previewUpload.drawable != null) {
+                Log.i("check image", "image is not null")
+                val imageBitmap = getBitmapFromView(binding.previewUpload)
+                dataByteArray = convertImageToBytes(imageBitmap)
+            }
+            coroutineScope.launch {
+                if (firebaseClient.handleNewDog(dogRoom, dataByteArray)) {
+                    firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_SUCCESS)
+                } else {
+                    firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_ERROR) }
+            }
+            clearForm()
+        } else {
+            invalidDogDataAlert()
         }
     }
 
@@ -263,8 +270,9 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun showDatePicker() {
-        val today = MaterialDatePicker.todayInUtcMilliseconds()
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        val today = MaterialDatePicker.todayInUtcMilliseconds() + ONE_DAY_IN_MILLIS
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH)
+
         calendar.timeInMillis = today
         calendar[Calendar.YEAR] = 2012
         val startDate = calendar.timeInMillis
@@ -289,11 +297,18 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         datePicker!!.show(childFragmentManager, "DATE_PICKER")
 
         datePicker!!.addOnPositiveButtonClickListener { data ->
-            val simpleDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-            lostDate = simpleDate.format(data)
-            Log.i("got back date", lostDate.toString())
-            binding.textviewDateLostData.text = lostDate
-            binding.textviewDateLostData.visibility = View.VISIBLE
+            if (data < today) {
+                val simpleDate = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+                lostDate = simpleDate.format(calendar.time)
+                //Log.i("got back date", "day: $dayOfMonth, month: $month, year: $year")
+                Log.i("got back date", lostDate.toString())
+                binding.textviewDateLostData.text = lostDate
+                binding.textviewDateLostData.visibility = View.VISIBLE
+            } else {
+                coroutineScope.launch(Dispatchers.Main) {
+                    invalidDateAlert()
+                }
+            }
         }
     }
 
@@ -324,13 +339,16 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
+            var result = true
             //allPermissionGranted = true
             permissions.entries.forEach {
                 if (!it.value) {
                     Log.e("result launcher", "Permission ${it.key} not granted : ${it.value}")
-                    allPermissionGranted.value = false
+                    //allPermissionGranted.value = false
+                    result = false
                 }
             }
+            isPermissionGranted = result
         }
 
     private fun checkPermission() : Boolean {
@@ -414,6 +432,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         binding.textviewTimeLostData.visibility = View.GONE
         binding.edittextPlaceLost.text = null
         binding.previewUpload.visibility = View.GONE
+        binding.edittextNotes.text = null
         lostDate = null
         lostHour = null
         lostMinute = null
@@ -461,8 +480,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val successAlert = AlertDialog.Builder(context)
 
         with(successAlert) {
-            setTitle("Lost Dog Report")
-            setMessage("The report was sent to the server successfully.  We'll send an email to you if there is anyone found the dog.")
+            setTitle(getString(R.string.lost_dog_report))
+            setMessage(getString(R.string.lost_report_success_alert_desc))
             setPositiveButton(getString(R.string.ok),
                 DialogInterface.OnClickListener { dialog, button ->
                     dialog.dismiss()
@@ -475,8 +494,36 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val failureAlert = AlertDialog.Builder(context)
 
         with(failureAlert) {
-            setTitle("Lost Dog Report")
-            setMessage("There is error in the server.  Please try again later.")
+            setTitle(getString(R.string.lost_dog_report))
+            setMessage(getString(R.string.lost_report_failure_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
+                })
+            show()
+        }
+    }
+
+    private fun invalidDateAlert() {
+        val dateAlert = AlertDialog.Builder(context)
+
+        with(dateAlert) {
+            setTitle(getString(R.string.lost_dog_report))
+            setMessage(getString(R.string.invalid_date_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
+                })
+            show()
+        }
+    }
+
+    private fun permissionsNeededAlert() {
+        val permissionAlert = AlertDialog.Builder(context)
+
+        with(permissionAlert) {
+            setTitle(getString(R.string.location_permissions))
+            setMessage(getString(R.string.location_permissions_alert_desc))
             setPositiveButton(getString(R.string.ok),
                 DialogInterface.OnClickListener { dialog, button ->
                     dialog.dismiss()
@@ -485,3 +532,21 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
     }
 }
+/*
+// we turn the data's millis into utc time zone to get the day, month
+// and year
+val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+utc.timeInMillis = data
+val dayOfMonth = utc.get(Calendar.DAY_OF_MONTH)
+val month = utc.get(Calendar.MONTH) + 1
+val year = utc.get(Calendar.YEAR)
+// then, we put the day, month and year to calendar
+//val calendar = Calendar.getInstance()
+//calendar.set(year, month, dayOfMonth)
+
+allPermissionGranted.observe(viewLifecycleOwner, androidx.lifecycle.Observer { value ->
+            if (!value) {
+        //        permissionsRequiredAlert()
+            }
+        })
+ */

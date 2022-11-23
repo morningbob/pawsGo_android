@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Paws Go</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
 
     <string name="next">Next</string>
     <string name="previous">Previous</string>
@@ -25,7 +24,7 @@
     <string name="the_place_last_seen">The place last seen:</string>
     <string name="choose_a_date">Choose a date</string>
     <string name="location_permissions_alert">Location Permissions</string>
-    <string name="location_permissions_alert_desc">The location permissions are required to access your location and display in the map.</string>
+    <string name="location_permissions_alert_desc">The location permissions are required to access the map functions of the app.  If you don\'t grant the permissions, you can\'t set the lost location in the map.</string>
     <string name="allow">Allow</string>
     <string name="cancel">Cancel</string>
     <string name="select_date">Select date</string>
@@ -92,5 +91,16 @@
     <string name="reset_email_error_alert_desc">Either the email you entered was not in our record, or there was an error in the server.  Please try again.</string>
     <string name="email_invalid_desc">The email you entered was not valid.  Please try again.</string>
     <string name="touch_to_reply">Touch to reply</string>
+    <string name="app_introduction">App Introduction</string>
+    <string name="app_introduction_text">The app let the user report their lost dogs or found dogs.  The data will be saved in the database.\n\nThe other users can read the data anytime they like.  So if a user lost a dog, he/she can read the found dogs list to see if anyone found his/her dog.  Vice versa for a user who found a dog.\n\nThe app dedicates to help dog owners to find their lost dogs.  You can also send message to the dog owner directly in the app.</string>
+    <string name="lost_dog_report">Dog Report</string>
+    <string name="lost_report_success_alert_desc">The report was sent to the server successfully.  We\'ll send an email to you if there is anyone found the dog.</string>
+    <string name="lost_report_failure_alert_desc">There is error in the server.  Please try again later.</string>
+    <string name="invalid_date_alert_desc">You can only enter a date back to ten years ago till now.</string>
+    <string name="location_permissions">Location Permissions</string>
+    <string name="send_message_failure_alert">Message was not Sent</string>
+    <string name="send_message_failure_alert_desc">There is error in sending the message.  Please make sure you have wifi.  If the error persists, there is probably error in the server.</string>
+    <string name="send_message_error_alert">Send Message Error</string>
+    <string name="send_message_error_alert_desc">The app doesn\'t allow users send messages to themselves.</string>
 
 </resources>

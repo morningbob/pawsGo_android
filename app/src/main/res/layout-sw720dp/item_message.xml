@@ -38,7 +38,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/black"
                 tools:text="Bobby"
-                android:textSize="22sp"/>
+                android:textSize="33sp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -46,28 +46,28 @@
                 android:text="@{message.messageContent}"
                 android:textColor="@color/brown_deep"
                 tools:text="I am waiting for you!"
-                android:textSize="22sp"/>
+                android:textSize="33sp"/>
 
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             app:formatDate="@{message.date}"
             tools:text="Oct 22"
-            android:textSize="18sp"
+            android:textSize="28sp"
             android:textAlignment="center"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:text="Touch to reply"
-            android:textSize="22sp"
+            android:text="@string/touch_to_reply"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@color/button_brown"
             android:clickable="true"

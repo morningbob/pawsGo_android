@@ -58,32 +58,7 @@ class SendMessageFragment : Fragment() {
         binding.dog = dog
 
         binding.buttonSend.setOnClickListener {
-            // save to messages in user room
-            // send to messaging collection in firestore
-            // create cloud function to send the message
-            // cloud function: write to target user's messages field
-            // modify firebase client to load and parse messages and update user room
-            val message = binding.edittextMessage.text.toString()
-            if (message != null && message != "") {
-                val messageRoom = createMessageRoom(
-                    userEmail = firebaseClient.currentUserFirebaseLiveData.value!!.userEmail,
-                    userName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
-                    targetEmail = dog!!.ownerEmail, targetName = dog!!.ownerName,
-                    message = message
-                )
-                coroutineScope.launch {
-                    if (firebaseClient.sendMessageToFirestoreMessaging(messageRoom)) {
-                        // if saved to firestore successfully, we save it here
-                        saveMessageRoom(messageRoom)
-                        // display an alert
-                        firebaseClient._appState.postValue(AppState.MESSAGE_SENT_SUCCESS)
-                        // clear fields
-                        binding.edittextMessage.text = null
-                    } else {
-                        firebaseClient._appState.postValue(AppState.MESSAGE_SENT_ERROR)
-                    }
-                }
-            }
+            processSendMessage()
         }
 
         firebaseClient.appState.observe(viewLifecycleOwner, messageSentObserver)
@@ -125,6 +100,36 @@ class SendMessageFragment : Fragment() {
         }
     }
 
+    private fun processSendMessage() {
+        // we also check if the user is sending message to himself,
+        // we don't allow that.
+        if (dog!!.ownerEmail == firebaseClient.auth.currentUser!!.email) {
+            sendMessageSelfAlert()
+        } else {
+            val message = binding.edittextMessage.text.toString()
+            if (message != null && message != "") {
+                val messageRoom = createMessageRoom(
+                    userEmail = firebaseClient.currentUserFirebaseLiveData.value!!.userEmail,
+                    userName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
+                    targetEmail = dog!!.ownerEmail, targetName = dog!!.ownerName,
+                    message = message
+                )
+                coroutineScope.launch {
+                    if (firebaseClient.sendMessageToFirestoreMessaging(messageRoom)) {
+                        // if saved to firestore successfully, we save it here
+                        saveMessageRoom(messageRoom)
+                        // display an alert
+                        firebaseClient._appState.postValue(AppState.MESSAGE_SENT_SUCCESS)
+                        // clear fields
+                        binding.edittextMessage.text = null
+                    } else {
+                        firebaseClient._appState.postValue(AppState.MESSAGE_SENT_ERROR)
+                    }
+                }
+            }
+        }
+    }
+
     private fun messageSentSuccessAlert() {
         val successAlert = AlertDialog.Builder(context)
 
@@ -143,8 +148,22 @@ class SendMessageFragment : Fragment() {
         val successAlert = AlertDialog.Builder(context)
 
         with(successAlert) {
-            setTitle("Message was not Sent")
-            setMessage("There is error in sending the message.  Please make sure you have wifi.  If the error persists, there is probably error in the server.")
+            setTitle(getString(R.string.send_message_failure_alert))
+            setMessage(getString(R.string.send_message_failure_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    // do nothing
+                })
+            show()
+        }
+    }
+
+    private fun sendMessageSelfAlert() {
+        val selfAlert = AlertDialog.Builder(context)
+
+        with(selfAlert) {
+            setTitle(getString(R.string.send_message_error_alert))
+            setMessage(getString(R.string.send_message_error_alert_desc))
             setPositiveButton(getString(R.string.ok),
                 DialogInterface.OnClickListener { dialog, button ->
                     // do nothing

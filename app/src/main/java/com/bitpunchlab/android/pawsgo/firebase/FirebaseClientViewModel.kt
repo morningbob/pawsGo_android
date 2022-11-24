@@ -318,7 +318,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                         lost = HashMap<String, DogFirebase>(),
                         dogs = HashMap<String, DogFirebase>())
                     coroutineScope.launch {
-                        if (saveUserFirebase(user)) {
+                        if (saveUserFirebase(user) && saveEmailFirestore(userEmail.value!!)) {
                             // we also create the user room and save it here
                             val userRoom = convertUserFirebaseToUserRoom(user)
 
@@ -330,6 +330,12 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                         }
 
                     }
+                }
+                AppState.EMAIL_ALREADY_EXISTS -> {
+                    userEmail.value = ""
+                }
+                AppState.EMAIL_SERVER_ERROR -> {
+                    resetAllFields()
                 }
                 AppState.ERROR_CREATE_USER_ACCOUNT -> {
                     resetAllFields()
@@ -464,6 +470,67 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         isCreatingUserAccount = false
         currentUserID = ""
         currentUserEmail = ""
+    }
+
+    suspend fun checkEmailExistFirestore(newEmail: String) : Int =
+        suspendCancellableCoroutine<Int> { cancellableContinuation ->
+            firestore
+                .collection("emails")
+                .whereEqualTo("email", newEmail)
+                .get()
+                .addOnSuccessListener { docRef ->
+                    Log.i("check email exists", "success")
+                    if (docRef.isEmpty) {
+                        // can proceed to registration
+                        cancellableContinuation.resume(1) {}
+                    } else {
+                        // email already exists
+                        cancellableContinuation.resume(2) {}
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.i("check email exists", "failure: ${e.message}")
+                    cancellableContinuation.resume(0) {}
+                }
+    }
+
+    // we test if firebase auth already has the email by checking if the email signin exists
+    // for the email.
+    suspend fun checkEmailExistFirebaseAuth(email: String) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            auth
+                .fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.result.signInMethods?.size == 0) {
+                        // email not exist
+                        Log.i("check firebase auth email exists", "email doesn't exist")
+                        cancellableContinuation.resume(false) {}
+                    } else {
+                        // email exists
+                        Log.i("check firebase auth email exists", "email exist")
+                        cancellableContinuation.resume(true) {}
+                    }
+                }
+    }
+
+    private suspend fun saveEmailFirestore(email: String) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            var data = java.util.HashMap<String, String>()
+            data.put("email", email)
+
+            firestore
+                .collection("emails")
+                .document(email)
+                .set(data)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.i("save email", "success")
+                        cancellableContinuation.resume(true) {}
+                    } else {
+                        Log.i("save email", "failed")
+                        cancellableContinuation.resume(false) {}
+                    }
+                }
     }
 
     // when we create user firebase, the messages is for sure empty,

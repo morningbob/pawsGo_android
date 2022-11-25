@@ -65,7 +65,7 @@
     <fragment
         android:id="@+id/dogListFragment"
         android:name="com.bitpunchlab.android.pawsgo.dogsDisplay.DogListFragment"
-        android:label="Dogs List"
+        android:label="Pets List"
         tools:layout="@layout/fragment_dog_list" >
         <argument
             android:name="lostOrFound"
@@ -115,7 +115,7 @@
     <fragment
         android:id="@+id/dogFragment"
         android:name="com.bitpunchlab.android.pawsgo.dogsDisplay.DogFragment"
-        android:label="@string/dog"
+        android:label="Pet"
         tools:layout="@layout/fragment_dog" >
         <argument
             android:name="dog"

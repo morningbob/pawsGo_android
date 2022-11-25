@@ -62,10 +62,50 @@
                     app:layout_constraintTop_toBottomOf="@id/image_dog"/>
 
                 <TextView
+                    android:id="@+id/pet_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@{dog.animalType + `  -  ` + dog.dogBreed}"
+                    android:textSize="@dimen/content_text_size"
+                    android:textAlignment="center"
+                    tools:text="Dog"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/dog_name"/>
+
+                <TextView
+                    android:id="@+id/pet_gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@{dog.dogGender == true ? `Gender:   Male` : `Gender:   Female`}"
+                    android:textSize="@dimen/content_text_size"
+                    android:textAlignment="center"
+                    tools:text="Male"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/pet_type"/>
+
+                <TextView
+                    android:id="@+id/pet_age"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@{`Age:  ` + dog.dogAge}"
+                    android:textSize="@dimen/content_text_size"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    tools:text="10"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/pet_gender"/>
+
+                <TextView
                     android:id="@+id/dog_owner_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="20dp"
                     android:text="@{`Owner:   ` + dog.ownerName}"
                     android:textSize="@dimen/content_text_size"
                     android:textColor="@color/black"
@@ -73,7 +113,7 @@
                     tools:text="Jessie"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/dog_name"/>
+                    app:layout_constraintTop_toBottomOf="@id/pet_age"/>
 
                 <TextView
                     android:id="@+id/dog_owner_email"
@@ -94,7 +134,7 @@
                     android:id="@+id/dog_lost_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="20dp"
                     android:text="@{`Lost Location:   ` + dog.placeLastSeen}"
                     android:textSize="@dimen/content_text_size"
                     android:textColor="@color/black"
@@ -120,6 +160,20 @@
                     tools:ignore="SpUsage" />
 
                 <TextView
+                    android:id="@+id/dog_lost_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@{`Lost Time:   ` + dog.hour + `:` + dog.minute}"
+                    android:textSize="@dimen/content_text_size"
+                    android:textColor="@color/black"
+                    android:textAlignment="center"
+                    tools:text="12.00"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/button_show_map"/>
+
+                <TextView
                     android:id="@+id/textview_notes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -131,7 +185,7 @@
                     tools:text="Contact me via email"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/button_show_map"/>
+                    app:layout_constraintTop_toBottomOf="@id/dog_lost_time"/>
 
                 <Button
                     android:id="@+id/button_send_message"

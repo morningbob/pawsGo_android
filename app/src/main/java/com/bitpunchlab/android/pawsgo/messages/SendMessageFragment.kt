@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.pawsgo.AppState
@@ -58,7 +59,12 @@ class SendMessageFragment : Fragment() {
         binding.dog = dog
 
         binding.buttonSend.setOnClickListener {
-            processSendMessage()
+            if (dog!!.ownerEmail == firebaseClient.auth.currentUser!!.email) {
+                sendMessageSelfAlert()
+            } else {
+                startProgressBar()
+                processSendMessage()
+            }
         }
 
         firebaseClient.appState.observe(viewLifecycleOwner, messageSentObserver)
@@ -71,17 +77,34 @@ class SendMessageFragment : Fragment() {
         _binding = null
     }
 
+    private fun startProgressBar() {
+        binding.progressBar.visibility = View.VISIBLE
+
+        requireActivity().window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun stopProgressBar() {
+        binding.progressBar.visibility = View.GONE
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
     private val messageSentObserver = androidx.lifecycle.Observer<AppState> { appState ->
         when (appState) {
             AppState.MESSAGE_SENT_SUCCESS -> {
+                stopProgressBar()
                 messageSentSuccessAlert()
                 firebaseClient._appState.value = AppState.NORMAL
             }
             AppState.MESSAGE_SENT_ERROR -> {
+                stopProgressBar()
                 messageSentErrorAlert()
                 firebaseClient._appState.value = AppState.NORMAL
             }
-            else -> 0
+            else -> {
+                stopProgressBar()
+            }
         }
     }
 
@@ -103,28 +126,24 @@ class SendMessageFragment : Fragment() {
     private fun processSendMessage() {
         // we also check if the user is sending message to himself,
         // we don't allow that.
-        if (dog!!.ownerEmail == firebaseClient.auth.currentUser!!.email) {
-            sendMessageSelfAlert()
-        } else {
-            val message = binding.edittextMessage.text.toString()
-            if (message != null && message != "") {
-                val messageRoom = createMessageRoom(
-                    userEmail = firebaseClient.currentUserFirebaseLiveData.value!!.userEmail,
-                    userName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
-                    targetEmail = dog!!.ownerEmail, targetName = dog!!.ownerName,
-                    message = message
-                )
-                coroutineScope.launch {
-                    if (firebaseClient.sendMessageToFirestoreMessaging(messageRoom)) {
-                        // if saved to firestore successfully, we save it here
-                        saveMessageRoom(messageRoom)
-                        // display an alert
-                        firebaseClient._appState.postValue(AppState.MESSAGE_SENT_SUCCESS)
-                        // clear fields
-                        binding.edittextMessage.text = null
-                    } else {
-                        firebaseClient._appState.postValue(AppState.MESSAGE_SENT_ERROR)
-                    }
+        val message = binding.edittextMessage.text.toString()
+        if (message != null && message != "") {
+            val messageRoom = createMessageRoom(
+                userEmail = firebaseClient.currentUserFirebaseLiveData.value!!.userEmail,
+                userName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
+                targetEmail = dog!!.ownerEmail, targetName = dog!!.ownerName,
+                message = message
+            )
+            coroutineScope.launch {
+                if (firebaseClient.sendMessageToFirestoreMessaging(messageRoom)) {
+                    // if saved to firestore successfully, we save it here
+                    saveMessageRoom(messageRoom)
+                    // display an alert
+                    firebaseClient._appState.postValue(AppState.MESSAGE_SENT_SUCCESS)
+                    // clear fields
+                    binding.edittextMessage.text = null
+                } else {
+                    firebaseClient._appState.postValue(AppState.MESSAGE_SENT_ERROR)
                 }
             }
         }

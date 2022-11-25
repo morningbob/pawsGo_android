@@ -12,7 +12,7 @@ import com.bitpunchlab.android.pawsgo.modelsRoom.UserWithMessages
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @Database(entities = [UserRoom::class, DogRoom::class, MessageRoom::class,
-                     ], version = 21, exportSchema = false)
+                     ], version = 22, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class PawsGoDatabase : RoomDatabase() {
     abstract val pawsDAO: PawsDAO

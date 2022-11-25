@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bitpunchlab.android.pawsgo.AppState
@@ -49,18 +50,8 @@ class ChangePasswordFragment : Fragment() {
             if (firebaseClient.currentPassword.value == firebaseClient.userPassword.value) {
                 samePasswordAlert()
             } else {
-                coroutineScope.launch {
-                    val result = firebaseClient.changePasswordFirebaseAuth()
-                    when (result) {
-                        1 -> firebaseClient._appState.postValue(AppState.CHANGE_PASSWORD_SUCCESS)
-                        0 -> {
-                            firebaseClient._appState.postValue(AppState.CHANGE_PASSWORD_INCORRECT)
-                            // clear only the current password field
-                            firebaseClient._currentPassword.postValue("")
-                        }
-                        2 -> firebaseClient._appState.postValue(AppState.CHANGE_PASSWORD_ERROR)
-                    }
-                }
+                startProgressBar()
+                processChangePassword()
             }
         }
 
@@ -77,18 +68,23 @@ class ChangePasswordFragment : Fragment() {
         firebaseClient.appState.observe(viewLifecycleOwner, Observer { appState ->
             when (appState) {
                 AppState.CHANGE_PASSWORD_SUCCESS -> {
+                    stopProgressBar()
                     changePasswordSuccessAlert()
                     firebaseClient._appState.value = AppState.RESET
                 }
                 AppState.CHANGE_PASSWORD_INCORRECT -> {
+                    stopProgressBar()
                     passwordIncorrectAlert()
                     firebaseClient._appState.value = AppState.NORMAL
                 }
                 AppState.CHANGE_PASSWORD_ERROR -> {
+                    stopProgressBar()
                     changePasswordErrorAlert()
                     firebaseClient._appState.value = AppState.RESET
                 }
-                else -> 0
+                else -> {
+                    stopProgressBar()
+                }
             }
         })
 
@@ -98,6 +94,34 @@ class ChangePasswordFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun startProgressBar() {
+        binding.progressBar.visibility = View.VISIBLE
+
+        requireActivity().window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun stopProgressBar() {
+        binding.progressBar.visibility = View.GONE
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun processChangePassword() {
+        coroutineScope.launch {
+            val result = firebaseClient.changePasswordFirebaseAuth()
+            when (result) {
+                1 -> firebaseClient._appState.postValue(AppState.CHANGE_PASSWORD_SUCCESS)
+                0 -> {
+                    firebaseClient._appState.postValue(AppState.CHANGE_PASSWORD_INCORRECT)
+                    // clear only the current password field
+                    firebaseClient._currentPassword.postValue("")
+                }
+                2 -> firebaseClient._appState.postValue(AppState.CHANGE_PASSWORD_ERROR)
+            }
+        }
     }
 
     private fun samePasswordAlert() {

@@ -669,7 +669,8 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     }
 
     private fun convertDogRoomToDogFirebase(dogRoom: DogRoom): DogFirebase {
-        return DogFirebase(id = dogRoom.dogID, name = dogRoom.dogName, gender = dogRoom.dogGender,
+        return DogFirebase(id = dogRoom.dogID, name = dogRoom.dogName, animal = dogRoom.animalType,
+            gender = dogRoom.dogGender,
             breed = dogRoom.dogBreed, age = dogRoom.dogAge, date = dogRoom.dateLastSeen,
             hr = dogRoom.hour, min = dogRoom.minute, place = dogRoom.placeLastSeen,
             userID = dogRoom.ownerID, userName = dogRoom.ownerName, userEmail = dogRoom.ownerEmail,
@@ -680,6 +681,7 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
 
     private fun convertDogFirebaseToDogRoom(dogFirebase: DogFirebase): DogRoom {
         return DogRoom(dogID = dogFirebase.dogID, dogName = dogFirebase.dogName,
+            animalType = dogFirebase.animalType,
             dogBreed = dogFirebase.dogBreed, dogGender = dogFirebase.dogGender,
             dogAge = dogFirebase.dogAge, ownerID = dogFirebase.ownerID,
             ownerName = dogFirebase.ownerName,

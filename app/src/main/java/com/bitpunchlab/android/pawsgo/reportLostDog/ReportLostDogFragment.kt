@@ -54,6 +54,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var lostHour : Int? = null
     private var lostMinute : Int? = null
     private var gender : Boolean? = null
+    private var animalType : String? = null
     //private var allPermissionGranted = MutableLiveData<Boolean>(true)
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var localDatabase : PawsGoDatabase
@@ -96,6 +97,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         setupLostOrFoundFields()
         setupGenderSpinner()
+        setupPetSpinner()
 
         binding.buttonChooseDate.setOnClickListener {
             showDatePicker()
@@ -106,9 +108,6 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
         binding.buttonShowMap.setOnClickListener {
-            // check permission first
-            //if (!checkPermission()) {
-            //    permissionResultLauncher.launch(permissions)
             if (!isPermissionGranted) {
                 permissionsNeededAlert()
             } else {
@@ -141,7 +140,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun startProgressBar() {
-        binding.progressBarContainer.progressBar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
 
         requireActivity().window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -149,7 +148,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun stopProgressBar() {
-        binding.progressBarContainer.progressBar.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
@@ -166,7 +165,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 firebaseClient._appState.value = AppState.NORMAL
             }
             else -> {
-
+                stopProgressBar()
             }
         }
     }
@@ -180,12 +179,20 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 Log.i("processing dog age", "error converting to number")
             }
         }
+        // we know we need to get the type from the edittext
+        if (animalType == "Other") {
+            val type = binding.edittextOtherType.text.toString()
+            if (type != null && type != "") {
+                animalType = type
+            }
+        }
 
         if (verifyLostDogData(binding.edittextDogName.text.toString(),
                 lostDate,
                 binding.edittextPlaceLost.text.toString())) {
             val dogRoom = createDogRoom(
                 name = binding.edittextDogName.text.toString(),
+                animal = animalType,
                 breed = binding.edittextDogBreed.text.toString(),
                 gender = gender,
                 age = processedAge,
@@ -226,8 +233,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             binding.textviewIntro.text = getString(R.string.found_dog_intro)
             binding.textviewDogAge.visibility = View.GONE
             binding.edittextDogAge.visibility = View.GONE
-            binding.textviewDateLost.text = "When did you find the dog?"
-            binding.textviewPlaceLost.text = "The place the dog is found: "
+            binding.textviewDateLost.text = "When did you find the pet?"
+            binding.textviewPlaceLost.text = "The place the pet is found: "
         }
     }
 
@@ -241,14 +248,32 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        if (parent!!.getItemAtPosition(position) == "Male") {
-            gender = true
-            Log.i("spinner", "set gender male")
-        } else if (parent!!.getItemAtPosition(position) == "Female") {
-            gender = false
-            Log.i("spinner", "set gender female")
-        } else {
-            gender = null
+        val choice = parent!!.getItemAtPosition(position)
+        when (choice) {
+            "Male" -> {
+                gender = true
+                Log.i("spinner", "set gender male")
+            }
+            "Female" -> {
+                gender = false
+                Log.i("spinner", "set gender female")
+            }
+            "Dog" -> {
+                animalType = "Dog"
+                Log.i("spinner", "set type dog")
+            }
+            "Cat" -> {
+                animalType = "Cat"
+                Log.i("spinner", "set type cat")
+            }
+            "Bird" -> {
+                animalType = "Bird"
+                Log.i("spinner", "set type bird")
+            }
+            "Other" -> {
+                animalType = "Other"
+                Log.i("spinner", "set type other")
+            }
         }
     }
 
@@ -267,6 +292,19 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
         binding.genderSpinner.onItemSelectedListener= this
+    }
+
+    private fun setupPetSpinner() {
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.animalType_array,
+            R.layout.spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+            binding.petSpinner!!.adapter = adapter
+        }
+
+        binding.petSpinner!!.onItemSelectedListener= this
     }
 
     private fun showDatePicker() {
@@ -384,10 +422,12 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         return nameValidity && dateValidity && placeValidity
     }
 
-    private fun createDogRoom(name: String, breed: String?, gender: Boolean?, age: Int?, date: String,
+    private fun createDogRoom(name: String, animal: String?, breed: String?,
+                              gender: Boolean?, age: Int?, date: String,
                         hour: Int?, minute: Int?, note: String?, place: String, lost: Boolean, found: Boolean,
                         lat: Double?, lng: Double?, address: String?): DogRoom {
-        return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name, dogBreed = breed,
+        return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name,
+            animalType = animal, dogBreed = breed,
             dogGender = gender, dogAge = age, isLost = lost, isFound = found,
             dateLastSeen = date, hour = hour, minute = minute, notes = note,
             placeLastSeen = place, ownerID = firebaseClient.currentUserID,

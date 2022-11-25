@@ -15,6 +15,7 @@ data class DogRoom (
     @PrimaryKey
     var dogID : String = "",
     var dogName: String? = null,
+    var animalType: String? = null, 
     var dogBreed: String? = null,
     var dogGender: Boolean? = null,
     var dogAge: Int? = null,

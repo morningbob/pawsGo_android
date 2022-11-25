@@ -17,11 +17,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            android:id="@+id/progress_bar_container"
-            layout="@layout/progress_bar"
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress_bar"
+            style="android:attr/progressBarStyleHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:max="100"
+            android:visibility="gone"
+            android:translationZ="3dp"
+            app:indicatorColor="#b58807"
+            app:indicatorSize="90dp"
+            app:trackColor="@color/lighter_brown"
+            app:trackCornerRadius="8dp"
+            app:trackThickness="15dp"
+            tools:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -90,6 +100,44 @@
                     app:layout_constraintTop_toBottomOf="@id/textview_dog_name"/>
 
                 <TextView
+                    android:id="@+id/textview_pet_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_left_right_margin"
+                    android:layout_marginRight="@dimen/content_left_right_margin"
+                    android:layout_marginTop="5dp"
+                    android:textSize="@dimen/content_text_size"
+                    android:text="@string/pet_type"
+                    android:textColor="@color/black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/edittext_dog_name"/>
+
+                <Spinner
+                    android:id="@+id/pet_spinner"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="@dimen/content_left_right_margin"
+                    android:layout_marginRight="@dimen/content_left_right_margin"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textview_pet_type"/>
+
+                <EditText
+                    android:id="@+id/edittext_other_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150dp"
+                    android:layout_marginRight="150dp"
+                    android:layout_marginTop="5dp"
+                    android:textSize="@dimen/content_text_size"
+                    android:text=""
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/pet_spinner"/>
+
+                <TextView
                     android:id="@+id/textview_dog_breed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -99,7 +147,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textColor="@color/black"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/edittext_dog_name" />
+                    app:layout_constraintTop_toBottomOf="@id/edittext_other_type" />
 
                 <EditText
                     android:id="@+id/edittext_dog_breed"

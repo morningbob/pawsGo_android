@@ -95,7 +95,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun startProgressBar() {
-        binding.progressBarContainer.progressBar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
 
         requireActivity().window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -103,7 +103,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun stopProgressBar() {
-        binding.progressBarContainer?.progressBar?.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
         requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 

@@ -19,7 +19,7 @@ import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
 
 class DogFragment : Fragment() {
 
-    private var _binding : FragmentDogBinding? = null
+    private var _binding : com.bitpunchlab.android.pawsgo.databinding.FragmentDogBinding? = null
     private val binding get() = _binding!!
     private var dog : DogRoom? = null
     private lateinit var firebaseClient : FirebaseClientViewModel
@@ -44,6 +44,8 @@ class DogFragment : Fragment() {
             .get(FirebaseClientViewModel::class.java)
         binding.dog = dog
 
+        setViewsVisibleOrNot()
+
         binding.buttonShowMap.setOnClickListener {
             // firstly, check if there is a point location in dog object
             if (dog!!.locationLat != null && dog!!.locationLng != null) {
@@ -65,6 +67,33 @@ class DogFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setViewsVisibleOrNot() {
+        if (dog!!.dogGender == null) {
+            binding.petGender.visibility = View.GONE
+        } else {
+            binding.petGender.visibility = View.VISIBLE
+        }
+        if ((dog!!.animalType == null || dog!!.animalType == "")
+            && (dog!!.dogBreed == null || dog!!.dogBreed == "")) {
+            binding.petType.visibility = View.GONE
+        }
+        if (dog!!.dogAge == null) {
+            binding.petAge.visibility = View.GONE
+        } else {
+            binding.petAge.visibility = View.VISIBLE
+        }
+        if (dog!!.hour == null || dog!!.minute == null) {
+            binding.dogLostTime.visibility = View.GONE
+        } else {
+            binding.dogLostTime.visibility = View.VISIBLE
+        }
+        if (dog!!.notes == null || dog!!.notes == "") {
+            binding.textviewNotes.visibility = View.GONE
+        } else {
+            binding.textviewNotes.visibility = View.VISIBLE
+        }
     }
 
     private fun noLocationAlert() {

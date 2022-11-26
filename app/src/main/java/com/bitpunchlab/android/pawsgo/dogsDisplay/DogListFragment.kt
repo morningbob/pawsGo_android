@@ -7,13 +7,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import androidx.navigation.fragment.findNavController
+import com.bitpunchlab.android.pawsgo.PetTypeMap
 import com.bitpunchlab.android.pawsgo.R
-
-import com.bitpunchlab.android.pawsgo.databinding.FragmentDogListBinding
+import com.bitpunchlab.android.pawsgo.TypeOfPet
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
@@ -22,16 +23,18 @@ import com.bumptech.glide.Glide
 import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
+import com.bitpunchlab.android.pawsgo.databinding.FragmentDogListBinding
 
 
 class DogListFragment : Fragment() {
 
-    private var _binding : FragmentDogListBinding? = null
+    private var _binding : com.bitpunchlab.android.pawsgo.databinding.FragmentDogListBinding? = null
     private val binding get() = _binding!!
     private lateinit var firebaseClient : FirebaseClientViewModel
     private lateinit var dogsAdapter : DogsAdapter
     private lateinit var dogsViewModel : DogsViewModel
     private var lostOrFound : Boolean? = null
+    private var petType = MutableLiveData<TypeOfPet>(TypeOfPet.All)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +66,7 @@ class DogListFragment : Fragment() {
         binding.dogListRecycler.adapter = dogsAdapter
 
         setupCorrespondingIconAndTitle()
+        setupChoiceOfPetFunction()
 
         dogsViewModel.chosenDog.observe(viewLifecycleOwner, Observer { dog ->
             dog?.let {
@@ -81,6 +85,14 @@ class DogListFragment : Fragment() {
                 dogsViewModel.finishedDogMessage()
             }
         })
+
+        petType.observe(viewLifecycleOwner, Observer { type ->
+            if (lostOrFound == true && !dogsViewModel.lostDogs.value.isNullOrEmpty()) {
+                updatePetList(dogsViewModel.lostDogs.value!!, type)
+            } else if (!dogsViewModel.foundDogs.value.isNullOrEmpty()){
+                updatePetList(dogsViewModel.foundDogs.value!!, type)
+            }
+        })
         return binding.root
     }
 
@@ -95,9 +107,7 @@ class DogListFragment : Fragment() {
             dogsViewModel.lostDogs.observe(viewLifecycleOwner, Observer { dogs ->
                 dogs?.let {
                     Log.i("dogsVM lost dogs", dogs.size.toString())
-                    val orderedDogs = orderByDate(dogs)
-                    dogsAdapter.submitList(orderedDogs)
-                    dogsAdapter.notifyDataSetChanged()
+                    updatePetList(it, petType.value!!)
                 }
             })
         } else if (lostOrFound == false) {
@@ -106,12 +116,46 @@ class DogListFragment : Fragment() {
             binding.textviewIntro.text = getString(R.string.found_dogs_list_intro)
             dogsViewModel.foundDogs.observe(viewLifecycleOwner, Observer { dogs ->
                 dogs?.let {
-                    val orderedDogs = orderByDate(dogs)
-                    dogsAdapter.submitList(orderedDogs)
-                    dogsAdapter.notifyDataSetChanged()
+                    updatePetList(it, petType.value!!)
                 }
             })
         }
+    }
+
+    private fun setupChoiceOfPetFunction() {
+        binding.textviewDogsOnly!!.setOnClickListener {
+            petType.value = TypeOfPet.Dog
+        }
+        binding.textviewCatsOnly!!.setOnClickListener {
+            petType.value = TypeOfPet.Cat
+        }
+        binding.textviewBirdsOnly!!.setOnClickListener {
+            petType.value = TypeOfPet.Bird
+        }
+        binding.textviewOthersOnly!!.setOnClickListener {
+            petType.value = TypeOfPet.Other
+        }
+        binding.textviewAll!!.setOnClickListener {
+            petType.value = TypeOfPet.All
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updatePetList(pets: List<DogRoom>, petType: TypeOfPet) {
+        var oneTypeOfPet = emptyList<DogRoom>()
+        // we filter the pet list here, for showing just 1 type of pet
+        if (petType == TypeOfPet.All) {
+            oneTypeOfPet = pets
+        } else if (petType != TypeOfPet.Other) {
+            oneTypeOfPet = pets.filter { pet -> pet.animalType == PetTypeMap[petType] }
+        } else {
+            oneTypeOfPet = pets.filter { pet -> pet.animalType != PetTypeMap[TypeOfPet.Dog] &&
+                pet.animalType != PetTypeMap[TypeOfPet.Cat] &&
+                pet.animalType != PetTypeMap[TypeOfPet.Bird] }
+        }
+        val orderedDogs = orderByDate(oneTypeOfPet)
+        dogsAdapter.submitList(orderedDogs)
+        dogsAdapter.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {
@@ -134,4 +178,6 @@ class DogListFragment : Fragment() {
             return null
         }
     }
+
+
 }

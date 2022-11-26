@@ -113,5 +113,10 @@
     <string name="email_exists_alert_desc">The email you entered already existed in the database.  Please login using this email, or register a new account using another email.</string>
     <string name="server_error_alert_desc">There is error in the server.  Please try again later.</string>
     <string name="pet_type">Pet type:</string>
+    <string name="dogs">Dogs</string>
+    <string name="cats">Cats</string>
+    <string name="birds">Birds</string>
+    <string name="others">Others</string>
+    <string name="all">All</string>
 
 </resources>

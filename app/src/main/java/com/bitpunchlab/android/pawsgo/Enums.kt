@@ -32,3 +32,11 @@ enum class AppState {
     RESET
 }
 
+enum class TypeOfPet {
+    Dog,
+    Cat,
+    Bird,
+    Other,
+    All
+}
+

@@ -25,56 +25,129 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-            <LinearLayout
-                android:id="@+id/title_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginLeft="40dp"
-                android:gravity="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/art_dog_list"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/track"
-                    tools:srcCompat="@drawable/track" />
-
-                <TextView
-                    android:id="@+id/textview_title"
+                <LinearLayout
+                    android:id="@+id/title_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:text="@string/lost_dogs"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/title_text_size"
-                    android:textAlignment="center"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="60dp"
+                    android:gravity="center"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/art_dog_list" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/art_dog_list"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/track"
+                        tools:srcCompat="@drawable/track" />
+
+                    <TextView
+                        android:id="@+id/textview_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="@string/lost_dogs"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/title_text_size"
+                        android:textAlignment="center"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/art_dog_list" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/choices_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/title_layout">
+
+                    <TextView
+                        android:id="@+id/textview_dogs_only"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="@string/dogs"
+                        android:textColor="@color/clickable_text"
+                        android:textSize="@dimen/content_text_size"
+                        android:textAlignment="center"
+                        android:clickable="true"
+                        />
+
+                    <TextView
+                        android:id="@+id/textview_cats_only"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="@string/cats"
+                        android:textColor="@color/clickable_text"
+                        android:textSize="@dimen/content_text_size"
+                        android:textAlignment="center"
+                        android:clickable="true"
+                        />
+
+                    <TextView
+                        android:id="@+id/textview_birds_only"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="@string/birds"
+                        android:textColor="@color/clickable_text"
+                        android:textSize="@dimen/content_text_size"
+                        android:textAlignment="center"
+                        android:clickable="true"
+                        />
+
+                    <TextView
+                        android:id="@+id/textview_others_only"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="@string/others"
+                        android:textColor="@color/clickable_text"
+                        android:textSize="@dimen/content_text_size"
+                        android:textAlignment="center"
+                        android:clickable="true"
+                        />
+
+                    <TextView
+                        android:id="@+id/textview_all"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="@string/all"
+                        android:textColor="@color/clickable_text"
+                        android:textSize="@dimen/content_text_size"
+                        android:textAlignment="center"
+                        android:clickable="true"
+                        />
+
+                </LinearLayout>
+
             </LinearLayout>
 
             <TextView
                 android:id="@+id/textview_intro"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="40dp"
+                android:layout_marginLeft="60dp"
+                android:layout_marginRight="60dp"
                 android:text="@string/lost_dogs_list_intro"
                 android:textSize="@dimen/content_text_size"
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/title_layout" />
-            </LinearLayout>
+                app:layout_constraintTop_toBottomOf="@id/header_layout" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/dogListRecycler"
@@ -87,7 +160,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/header_layout" />
+                app:layout_constraintTop_toBottomOf="@id/textview_intro" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

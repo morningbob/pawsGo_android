@@ -52,6 +52,79 @@
                     app:layout_constraintTop_toBottomOf="@id/art_dog_list" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/choices_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title_layout">
+
+                <TextView
+                    android:id="@+id/textview_dogs_only"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="@string/dogs"
+                    android:textColor="@color/clickable_text"
+                    android:textSize="@dimen/content_text_size"
+                    android:textAlignment="center"
+                    android:clickable="true"
+                    />
+
+                <TextView
+                    android:id="@+id/textview_cats_only"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="@string/cats"
+                    android:textColor="@color/clickable_text"
+                    android:textSize="@dimen/content_text_size"
+                    android:textAlignment="center"
+                    android:clickable="true"
+                    />
+
+                <TextView
+                    android:id="@+id/textview_birds_only"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="@string/birds"
+                    android:textColor="@color/clickable_text"
+                    android:textSize="@dimen/content_text_size"
+                    android:textAlignment="center"
+                    android:clickable="true"
+                    />
+
+                <TextView
+                    android:id="@+id/textview_others_only"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="@string/others"
+                    android:textColor="@color/clickable_text"
+                    android:textSize="@dimen/content_text_size"
+                    android:textAlignment="center"
+                    android:clickable="true"
+                    />
+
+                <TextView
+                    android:id="@+id/textview_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="@string/all"
+                    android:textColor="@color/clickable_text"
+                    android:textSize="@dimen/content_text_size"
+                    android:textAlignment="center"
+                    android:clickable="true"
+                    />
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/textview_intro"
                 android:layout_width="match_parent"
@@ -64,7 +137,7 @@
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/title_layout" />
+                app:layout_constraintTop_toBottomOf="@id/choices_layout" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/dogListRecycler"

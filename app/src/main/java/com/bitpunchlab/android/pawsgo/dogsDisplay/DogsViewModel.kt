@@ -24,9 +24,6 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
     var lostDogs = localDatabase.pawsDAO.getAllLostDogs()
 
     var foundDogs = localDatabase.pawsDAO.getAllFoundDogs()
-    //val lostDogs get() = _lostDogs
-    var _lostDogBitmaps = MutableLiveData<List<Bitmap>>()
-    val lostDogBitmaps get() = _lostDogBitmaps
 
     var _chosenDog = MutableLiveData<DogRoom?>()
     val chosenDog get() = _chosenDog

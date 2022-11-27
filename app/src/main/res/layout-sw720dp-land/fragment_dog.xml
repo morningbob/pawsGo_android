@@ -8,7 +8,6 @@
         <variable
             name="dog"
             type="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
-
     </data>
 
     <ScrollView
@@ -70,6 +69,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textAlignment="center"
                     tools:text="Dog"
+                    android:textColor="@color/black"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/dog_name"/>
@@ -83,6 +83,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textAlignment="center"
                     tools:text="Male"
+                    android:textColor="@color/black"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/pet_type"/>
@@ -94,7 +95,7 @@
                     android:layout_marginTop="20dp"
                     android:text="@{`Age:  ` + dog.dogAge}"
                     android:textSize="@dimen/content_text_size"
-                    android:textStyle="bold"
+                    android:textColor="@color/black"
                     android:textAlignment="center"
                     tools:text="10"
                     app:layout_constraintEnd_toEndOf="parent"

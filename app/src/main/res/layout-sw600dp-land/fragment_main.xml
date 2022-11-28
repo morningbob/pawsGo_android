@@ -64,9 +64,9 @@
 
             <ImageView
                 android:id="@+id/art_user"
-                android:layout_width="300dp"
-                android:layout_height="300dp"
-                android:layout_marginLeft="50dp"
+                android:layout_width="220dp"
+                android:layout_height="220dp"
+                android:layout_marginLeft="80dp"
                 android:layout_marginTop="30dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textview_profile_title"
@@ -91,10 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="2"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textview_profile_title">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/textview_email_title"
@@ -103,10 +100,7 @@
                         android:layout_gravity="center_vertical"
                         android:text="@string/email"
                         android:textColor="@color/black"
-                        android:textSize="@dimen/content_text_size"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/art_home" />
+                        android:textSize="@dimen/content_text_size" />
 
                 </LinearLayout>
 
@@ -149,10 +143,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="2"
-                    android:orientation="vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textview_profile_title">
+                    android:orientation="vertical">
 
 
                     <TextView
@@ -163,10 +154,7 @@
                         android:layout_marginTop="0dp"
                         android:text="@string/password"
                         android:textColor="@color/black"
-                        android:textSize="@dimen/content_text_size"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/art_home" />
+                        android:textSize="@dimen/content_text_size" />
 
                 </LinearLayout>
 
@@ -186,7 +174,6 @@
                         android:text="@string/change_password"
                         android:textColor="@color/clickable_text"
                         android:textSize="@dimen/content_text_size" />
-
 
                 </LinearLayout>
             </LinearLayout>

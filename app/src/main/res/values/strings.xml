@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name">Paws Go</string>
-    <string name="action_settings">Settings</string>
-
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
     <string name="login">Login</string>
     <string name="name">Name:</string>
     <string name="password">Password:</string>
@@ -31,11 +27,11 @@
     <string name="select_time">Select Time</string>
     <string name="dog_age">Age:</string>
     <string name="missing_data_alert">Invalid Fields</string>
-    <string name="missing_data_alert_desc">Please make sure you entered dog name, date of lost and place of lost</string>
-    <string name="report_lost_dog">Report Lost Dog</string>
+    <string name="missing_data_alert_desc">Please make sure you entered pet\'s name, date of lost and place of lost</string>
+    <string name="report_lost_dog">Report Lost Pet</string>
     <string name="home">Home</string>
     <string name="login_page">Login Page</string>
-    <string name="lost_report_intro">Please fill in the form for your lost dog. We\'ll store the data in the database. If anyone found the dog, we\'ll send an email to you. If the other users want to search for lost dogs, the dog\'s data will be listed to the users.</string>
+    <string name="lost_report_intro">Please fill in the form for your lost pet. We\'ll store the data in the database. If anyone found the pet, we\'ll send an email to you. If the other users want to search for lost pets, the pet\'s data will be listed to the users.</string>
     <string name="select_a_time">Select a time</string>
     <string name="select_a_date">Select a date</string>
 
@@ -51,24 +47,24 @@
         <item>Bird</item>
         <item>Other</item>
     </string-array>
-    <string name="i_lost_a_dog">I lost a dog</string>
-    <string name="i_found_a_dog">I found a dog</string>
-    <string name="found_dog_intro">Please fill in the form. We\'ll match lost dogs\' information with the data here. If we found a match, we\'ll email you and the owner.</string>
-    <string name="lost_dogs_list_intro">Below is a list of the lost dogs reported. If you found the dog or have seen the dog, you can leave the owner a message here.</string>
-    <string name="found_dogs_list_intro">Below is a list of the dogs found.  If you lost a dog, you can check out the list and click send message to contact the user.</string>
+    <string name="i_lost_a_dog">I lost a pet</string>
+    <string name="i_found_a_dog">I found a pet</string>
+    <string name="found_dog_intro">Please fill in the form. We\'ll match lost pet\' information with the data here. If we found a match, we\'ll email you and the owner.</string>
+    <string name="lost_dogs_list_intro">Below is a list of the lost pets reported. If you found the pet or have seen the dog, you can leave the owner a message here.</string>
+    <string name="found_dogs_list_intro">Below is a list of the pets found.  If you lost a pet, you can check out the list and click send message to contact the person.</string>
     <string name="send_message">Send Message</string>
     <string name="message_sent_alert">Message Sent</string>
-    <string name="message_sent_alert_desc">Your message has been sent to the dog owner.</string>
+    <string name="message_sent_alert_desc">Your message has been sent to the pet owner.</string>
     <string name="messages_received">Messages Received</string>
-    <string name="lost_dogs">Lost Dogs</string>
-    <string name="list_of_lost_dogs">List of Lost Dogs</string>
-    <string name="list_of_found_dogs">List of Found Dogs</string>
+    <string name="lost_dogs">Lost Pets</string>
+    <string name="list_of_lost_dogs">List of Lost Pets</string>
+    <string name="list_of_found_dogs">List of Found Pets</string>
     <string name="reply">Reply</string>
     <string name="messages_sent">Messages Sent</string>
     <string name="enter_message_alert">Enter Message</string>
     <string name="message_was_not_sent_alert">Message was not Sent</string>
     <string name="message_not_sent_alert_desc">There is error in sending the message.  Please make sure you have wifi.  If the error persists, there is probably error in the server.</string>
-    <string name="found_dogs">Found Dogs</string>
+    <string name="found_dogs">Found Pets</string>
     <string name="location_in_map">Location in Map</string>
     <string name="the_lost_location">The Lost Location</string>
     <string name="no_location_available_alert">No Location Available</string>
@@ -99,9 +95,9 @@
     <string name="email_invalid_desc">The email you entered was not valid.  Please try again.</string>
     <string name="touch_to_reply">Touch to reply</string>
     <string name="app_introduction">App Introduction</string>
-    <string name="app_introduction_text">The app let the user report their lost dogs or found dogs.  The data will be saved in the database.\n\nThe other users can read the data anytime they like.  So if a user lost a dog, he/she can read the found dogs list to see if anyone found his/her dog.  Vice versa for a user who found a dog.\n\nThe app dedicates to help dog owners to find their lost dogs.  You can also send message to the dog owner directly in the app.</string>
-    <string name="lost_dog_report">Dog Report</string>
-    <string name="lost_report_success_alert_desc">The report was sent to the server successfully.  We\'ll send an email to you if there is anyone found the dog.</string>
+    <string name="app_introduction_text">The app let the user report their lost pets or found pets.  The data will be saved in the database.\n\nThe other users can read the data anytime they like.  So if a user lost a pet, he/she can read the found pets list to see if anyone found his/her pet.  Vice versa for a user who found a pet.\n\nThe app dedicates to help pet owners to find their lost pets.  You can also send message to the pet owner directly in the app.</string>
+    <string name="lost_dog_report">Pet Report</string>
+    <string name="lost_report_success_alert_desc">The report was sent to the server successfully.  We\'ll send an email to you if there is anyone found the pet.</string>
     <string name="lost_report_failure_alert_desc">There is error in the server.  Please try again later.</string>
     <string name="invalid_date_alert_desc">You can only enter a date back to ten years ago till now.</string>
     <string name="location_permissions">Location Permissions</string>

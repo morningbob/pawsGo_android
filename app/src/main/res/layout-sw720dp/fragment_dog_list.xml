@@ -21,7 +21,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="40dp"
                 android:gravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -31,9 +31,6 @@
                     android:id="@+id/art_dog_list"
                     android:layout_width="@dimen/icon_size"
                     android:layout_height="@dimen/icon_size"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/track"
                     tools:srcCompat="@drawable/track" />
 
@@ -46,17 +43,14 @@
                     android:textStyle="bold"
                     android:textColor="@color/black"
                     android:textSize="@dimen/title_text_size"
-                    android:textAlignment="center"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/art_dog_list" />
+                    android:textAlignment="center" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/choices_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="40dp"
                 android:orientation="horizontal"
                 android:gravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -129,7 +123,7 @@
                 android:id="@+id/textview_intro"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="40dp"
                 android:layout_marginLeft="100dp"
                 android:layout_marginRight="100dp"
                 android:text="@string/lost_dogs_list_intro"
@@ -145,7 +139,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginLeft="100dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="40dp"
                 android:layout_marginRight="100dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintBottom_toBottomOf="parent"

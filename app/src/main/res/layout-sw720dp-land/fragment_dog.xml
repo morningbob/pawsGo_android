@@ -26,7 +26,7 @@
                 android:id="@+id/image_dog"
                 android:layout_width="400dp"
                 android:layout_height="0dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="0dp"
                 android:layout_marginLeft="50dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -55,10 +55,7 @@
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     android:textAlignment="center"
-                    tools:text="Bobby"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/image_dog"/>
+                    tools:text="Bobby" />
 
                 <TextView
                     android:id="@+id/pet_type"
@@ -69,10 +66,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textAlignment="center"
                     tools:text="Dog"
-                    android:textColor="@color/black"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/dog_name"/>
+                    android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/pet_gender"
@@ -83,10 +77,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textAlignment="center"
                     tools:text="Male"
-                    android:textColor="@color/black"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/pet_type"/>
+                    android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/pet_age"
@@ -97,10 +88,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textColor="@color/black"
                     android:textAlignment="center"
-                    tools:text="10"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/pet_gender"/>
+                    tools:text="10" />
 
                 <TextView
                     android:id="@+id/dog_owner_name"
@@ -113,10 +101,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textColor="@color/black"
                     android:textAlignment="center"
-                    tools:text="Jessie"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/pet_age"/>
+                    tools:text="Jessie" />
 
                 <TextView
                     android:id="@+id/dog_owner_email"
@@ -129,10 +114,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textColor="@color/black"
                     android:textAlignment="center"
-                    tools:text="jess@abc.com"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/dog_owner_name"/>
+                    tools:text="jess@abc.com" />
 
 
                 <TextView
@@ -147,10 +129,7 @@
                     android:textColor="@color/black"
                     android:textAlignment="center"
                     android:lineSpacingExtra="2dp"
-                    tools:text="Markham, ON"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/dog_owner_email"/>
+                    tools:text="Markham, ON" />
 
                 <Button
                     android:id="@+id/button_show_map"
@@ -162,9 +141,6 @@
                     android:text="@string/location_in_map"
                     android:textSize="@dimen/button_text_size"
                     android:padding="@dimen/button_padding"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/dog_lost_location"
                     tools:ignore="SpUsage" />
 
                 <TextView
@@ -176,10 +152,7 @@
                     android:textSize="@dimen/content_text_size"
                     android:textColor="@color/black"
                     android:textAlignment="center"
-                    tools:text="12.00"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/button_show_map"/>
+                    tools:text="12.00" />
 
                 <TextView
                     android:id="@+id/textview_notes"
@@ -193,10 +166,7 @@
                     android:textColor="@color/black"
                     android:textAlignment="center"
                     android:lineSpacingExtra="2dp"
-                    tools:text="Contact me via email"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/dog_lost_time"/>
+                    tools:text="Contact me via email" />
 
                 <Button
                     android:id="@+id/button_send_message"
@@ -208,9 +178,6 @@
                     android:text="@string/send_message"
                     android:textSize="@dimen/button_text_size"
                     android:padding="@dimen/button_padding"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textview_notes"
                     tools:ignore="SpUsage" />
 
             </LinearLayout>

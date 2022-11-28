@@ -92,10 +92,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="3"
-                    android:layout_gravity="center_vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textview_profile_title">
+                    android:layout_gravity="center_vertical">
 
                     <TextView
                         android:id="@+id/textview_email_title"
@@ -104,10 +101,7 @@
                         android:text="@string/email"
                         android:textSize="@dimen/content_text_size"
                         android:textColor="@color/black"
-                        android:layout_gravity="center_vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/art_home" />
+                        android:layout_gravity="center_vertical" />
 
                 </LinearLayout>
 
@@ -126,10 +120,8 @@
                         android:text="@{user.userEmail}"
                         android:textSize="@dimen/content_text_size"
                         android:textColor="@color/black"
-                        android:layout_gravity="center_vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/art_home" />
+                        tools:text="bobby@abc.com"
+                        android:layout_gravity="center_vertical" />
 
                 </LinearLayout>
 
@@ -152,10 +144,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_weight="3"
-                    android:layout_gravity="center_vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textview_profile_title">
+                    android:layout_gravity="center_vertical">
 
 
                     <TextView
@@ -166,11 +155,7 @@
                         android:text="@string/password"
                         android:textSize="@dimen/content_text_size"
                         android:textColor="@color/black"
-
-                        android:layout_gravity="center_vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/art_home" />
+                        android:layout_gravity="center_vertical" />
 
                 </LinearLayout>
 
@@ -186,12 +171,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="20dp"
-
                         android:text="@string/change_password"
                         android:textColor="@color/clickable_text"
                         android:clickable="true"
                         android:textSize="@dimen/content_text_size"/>
-
 
                 </LinearLayout>
             </LinearLayout>

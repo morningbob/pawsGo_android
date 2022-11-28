@@ -337,7 +337,17 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         datePicker!!.addOnPositiveButtonClickListener { data ->
             if (data < today) {
                 val simpleDate = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
-                lostDate = simpleDate.format(calendar.time)
+
+                val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                utc.timeInMillis = data
+                val dayOfMonth = utc.get(Calendar.DAY_OF_MONTH)
+                val month = utc.get(Calendar.MONTH)
+                val year = utc.get(Calendar.YEAR)
+                // then, we put the day, month and year to calendar
+                val calendarChosen = Calendar.getInstance()
+                calendarChosen.set(year, month, dayOfMonth)
+
+                lostDate = simpleDate.format(calendarChosen.time)
                 //Log.i("got back date", "day: $dayOfMonth, month: $month, year: $year")
                 Log.i("got back date", lostDate.toString())
                 binding.textviewDateLostData.text = lostDate
@@ -437,16 +447,6 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             locationAddress = address)
     }
 
-    private fun convertLatLngHashmapToDouble() {
-
-    }
-
-    private fun saveDogLocalDatabase(dog: DogRoom) {
-        coroutineScope.launch {
-            localDatabase.pawsDAO.insertDogs(dog)
-        }
-    }
-
     private fun getBitmapFromView(view: View): Bitmap {
         val bitmap = Bitmap.createBitmap(
             view.width, view.height, Bitmap.Config.ARGB_8888
@@ -509,8 +509,6 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             setPositiveButton(getString(R.string.ok),
                 DialogInterface.OnClickListener { dialog, button ->
                     dialog.dismiss()
-                    //permissionResultLauncher.launch(permissions)
-
                 })
             show()
         }

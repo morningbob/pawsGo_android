@@ -61,9 +61,6 @@
                         android:id="@+id/art_send_message"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
                         app:srcCompat="@drawable/sendmail"
                         tools:srcCompat="@drawable/sendmail" />
 
@@ -76,10 +73,7 @@
                         android:textStyle="bold"
                         android:textColor="@color/black"
                         android:textSize="@dimen/title_text_size"
-                        android:textAlignment="center"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/art_send_message" />
+                        android:textAlignment="center" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -98,9 +92,6 @@
                     android:id="@+id/thumbnail_dog"
                     android:layout_width="170dp"
                     android:layout_height="170dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/title_layout"
                     app:loadImage="@{dog.dogImagesUri[0]}"
                     app:srcCompat="@drawable/placeholder"
                     tools:srcCompat="@drawable/placeholder" />
@@ -121,10 +112,7 @@
                             android:textColor="@color/black"
                             android:textSize="@dimen/title_text_size"
                             android:textAlignment="center"
-                            tools:text="Dan"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/thumbnail_dog" />
+                            tools:text="Dan" />
 
                         <EditText
                             android:id="@+id/edittext_message"
@@ -133,10 +121,7 @@
                             android:layout_marginTop="20dp"
                             android:layout_marginLeft="50dp"
                             android:layout_marginRight="50dp"
-                            android:textSize="@dimen/content_text_size"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/textview_dog_name" />
+                            android:textSize="@dimen/content_text_size" />
 
                         <Button
                             android:id="@+id/button_send"
@@ -147,10 +132,7 @@
                             android:layout_marginRight="80dp"
                             android:textSize="@dimen/button_text_size"
                             android:padding="@dimen/button_padding"
-                            android:text="@string/send"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/edittext_message" />
+                            android:text="@string/send" />
                     </LinearLayout>
 
                 </LinearLayout>

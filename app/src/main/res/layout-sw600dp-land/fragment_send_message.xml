@@ -90,8 +90,8 @@
 
                     <ImageView
                         android:id="@+id/thumbnail_dog"
-                        android:layout_width="300dp"
-                        android:layout_height="300dp"
+                        android:layout_width="280dp"
+                        android:layout_height="280dp"
                         app:loadImage="@{dog.dogImagesUri[0]}"
                         app:srcCompat="@drawable/placeholder"
                         tools:srcCompat="@drawable/placeholder" />

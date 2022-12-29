@@ -56,7 +56,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            app:formatDate="@{message.date}"
+            android:text="@{message.date}"
             tools:text="Oct 22"
             android:textSize="28sp"
             android:textAlignment="center"/>

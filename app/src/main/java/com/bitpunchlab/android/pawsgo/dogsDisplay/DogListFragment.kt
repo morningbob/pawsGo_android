@@ -168,7 +168,7 @@ class DogListFragment : Fragment() {
     }
 
     private fun convertToDate(dateString: String) : Date? {
-        val dateFormat = SimpleDateFormat("dd MMM yyyy")
+        val dateFormat = SimpleDateFormat("yyyy/MM/dd")
 
         try {
             //val formatterOut = SimpleDateFormat("dd MMM yyyy  HH:mm:ss")

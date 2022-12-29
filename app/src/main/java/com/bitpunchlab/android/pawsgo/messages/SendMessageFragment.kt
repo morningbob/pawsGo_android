@@ -3,6 +3,7 @@ package com.bitpunchlab.android.pawsgo.messages
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -109,11 +111,11 @@ class SendMessageFragment : Fragment() {
     }
 
     private fun createMessageRoom(userEmail: String, userName: String, targetEmail: String,
-                                  targetName: String, message: String) : MessageRoom {
+                                  targetName: String, message: String, date: String) : MessageRoom {
         return MessageRoom(messageID = UUID.randomUUID().toString(),
             senderEmail = userEmail, senderName = userName, targetEmail = targetEmail,
             targetName = targetName, messageContent = message,
-            date = Date().toString(),
+            date = date,
             userCreatorID = firebaseClient.auth.currentUser!!.uid)
     }
 
@@ -128,11 +130,21 @@ class SendMessageFragment : Fragment() {
         // we don't allow that.
         val message = binding.edittextMessage.text.toString()
         if (message != null && message != "") {
+
+            // we create a standard date string here, we need to be consistent
+            // in both ios and android platform
+            // so both sides can parse the same string format
+            val currentDate = Date()
+            val dateFormat = SimpleDateFormat("yyyy/MM/dd hh:mm:ss")
+                //Calendar.DAY_OF_MONTH
+            val dateString = dateFormat.format(currentDate)
+            Log.i("date string", dateString)
+
             val messageRoom = createMessageRoom(
                 userEmail = firebaseClient.currentUserFirebaseLiveData.value!!.userEmail,
                 userName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
                 targetEmail = dog!!.ownerEmail, targetName = dog!!.ownerName,
-                message = message
+                message = message, date = dateString
             )
             coroutineScope.launch {
                 if (firebaseClient.sendMessageToFirestoreMessaging(messageRoom)) {

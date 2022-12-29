@@ -144,7 +144,8 @@ class ReadMessagesFragment : Fragment() {
     }
 
     private fun convertToDate(dateString: String) : Date? {
-        val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy")
+        //val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy")
+        val dateFormat = SimpleDateFormat("yyyy/MM/dd hh:mm:ss")
 
         try {
             //val formatterOut = SimpleDateFormat("dd MMM yyyy  HH:mm:ss")
@@ -156,11 +157,11 @@ class ReadMessagesFragment : Fragment() {
     }
 
     private fun createMessageRoom(userEmail: String, userName: String, targetEmail: String,
-                                  targetName: String, message: String) : MessageRoom {
+                                  targetName: String, message: String, date: String) : MessageRoom {
         return MessageRoom(messageID = UUID.randomUUID().toString(),
             senderEmail = userEmail, senderName = userName, targetEmail = targetEmail,
             targetName = targetName, messageContent = message,
-            date = Date().toString(),
+            date = date,
             userCreatorID = firebaseClient.auth.currentUser!!.uid)
     }
 
@@ -171,9 +172,15 @@ class ReadMessagesFragment : Fragment() {
     }
 
     private fun processMessage(message: String, targetName: String, targetEmail: String) {
+        val currentDate = Date()
+        val dateFormat = SimpleDateFormat("yyyy/MM/dd hh:mm:ss")
+        val dateString = dateFormat.format(currentDate)
+        Log.i("date string", dateString)
+
         val messageRoom = createMessageRoom(userEmail = firebaseClient.auth.currentUser!!.email!!,
             userName = firebaseClient.currentUserRoomLiveData.value!!.userName,
-            targetEmail = targetEmail, targetName = targetName, message = message)
+            targetEmail = targetEmail, targetName = targetName, message = message,
+            date = dateString)
         coroutineScope.launch {
             if (firebaseClient.sendMessageToFirestoreMessaging(messageRoom)) {
                 saveMessageRoom(messageRoom)

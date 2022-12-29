@@ -311,12 +311,18 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                 }
                 AppState.READY_CREATE_USER_FIREBASE -> {
                     Log.i("ready create user firebase", "user id from auth ${auth.currentUser!!.uid}")
+                    // we format the date created here
+                    val currentDate = Date()
+                    val dateFormat = SimpleDateFormat("yyyy/MM/dd hh:mm:ss")
+                    //Calendar.DAY_OF_MONTH
+                    val dateString = dateFormat.format(currentDate)
                     val user = createUserFirebase(
                         id = auth.currentUser!!.uid,
                         name = userName.value!!,
                         email = userEmail.value!!,
                         lost = HashMap<String, DogFirebase>(),
-                        dogs = HashMap<String, DogFirebase>())
+                        dogs = HashMap<String, DogFirebase>(),
+                        dateCreated = dateString)
                     coroutineScope.launch {
                         if (saveUserFirebase(user) && saveEmailFirestore(userEmail.value!!)) {
                             // we also create the user room and save it here
@@ -536,12 +542,12 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
     // when we create user firebase, the messages is for sure empty,
     // so, I can just put an empty list
     private fun createUserFirebase(id: String, name: String, email: String, lost: HashMap<String, DogFirebase>,
-                                   dogs: HashMap<String, DogFirebase>) : UserFirebase {
+                                   dogs: HashMap<String, DogFirebase>, dateCreated: String) : UserFirebase {
         return UserFirebase(id = id, name = name, email = email,
             lost = HashMap<String, DogFirebase>(), dog = HashMap<String, DogFirebase>(),
             allMessagesReceived = HashMap<String, MessageFirebase>(),
             allMessagesSent = HashMap<String, MessageFirebase>(),
-            date = Date().toString() )
+            date = dateCreated)
     }
 
     private suspend fun saveUserFirebase(user: UserFirebase) =

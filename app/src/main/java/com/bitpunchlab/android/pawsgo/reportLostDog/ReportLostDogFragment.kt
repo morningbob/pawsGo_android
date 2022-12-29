@@ -53,7 +53,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var lostDate : String? = null
     private var lostHour : Int? = null
     private var lostMinute : Int? = null
-    private var gender : Boolean? = null
+    private var gender : Int = 0
     private var animalType : String? = null
     //private var allPermissionGranted = MutableLiveData<Boolean>(true)
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -187,6 +187,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         }
 
+
+
         if (verifyLostDogData(binding.edittextDogName.text.toString(),
                 lostDate,
                 binding.edittextPlaceLost.text.toString())) {
@@ -251,11 +253,11 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val choice = parent!!.getItemAtPosition(position)
         when (choice) {
             "Male" -> {
-                gender = true
+                gender = 1
                 Log.i("spinner", "set gender male")
             }
             "Female" -> {
-                gender = false
+                gender = 2
                 Log.i("spinner", "set gender female")
             }
             "Dog" -> {
@@ -336,7 +338,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         datePicker!!.addOnPositiveButtonClickListener { data ->
             if (data < today) {
-                val simpleDate = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+                val simpleDate = SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH)
 
                 val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
                 utc.timeInMillis = data
@@ -433,7 +435,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun createDogRoom(name: String, animal: String?, breed: String?,
-                              gender: Boolean?, age: Int?, date: String,
+                              gender: Int, age: Int?, date: String,
                         hour: Int?, minute: Int?, note: String?, place: String, lost: Boolean, found: Boolean,
                         lat: Double?, lng: Double?, address: String?): DogRoom {
         return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name,
@@ -476,7 +478,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         lostDate = null
         lostHour = null
         lostMinute = null
-        gender = null
+        gender = 0
         setupGenderSpinner()
     }
 

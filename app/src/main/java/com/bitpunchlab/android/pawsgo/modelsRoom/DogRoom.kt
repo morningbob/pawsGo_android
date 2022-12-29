@@ -17,7 +17,7 @@ data class DogRoom (
     var dogName: String? = null,
     var animalType: String? = null, 
     var dogBreed: String? = null,
-    var dogGender: Boolean? = null,
+    var dogGender: Int = 0,
     var dogAge: Int? = null,
     var placeLastSeen: String = "",
     var dateLastSeen: String = "",

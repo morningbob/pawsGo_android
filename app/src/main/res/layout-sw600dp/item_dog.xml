@@ -89,7 +89,7 @@
                 android:id="@+id/textview_dog_gender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{dog.dogGender ? `Male` : `Female`}"
+                android:text="@{dog.dogGender != 0 ? (dog.dogGender == 1 ? `Male` : `Female`) : ``}"
                 tools:text="Male"
                 android:textSize="22dp"/>
 

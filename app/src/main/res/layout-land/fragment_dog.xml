@@ -73,7 +73,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="@{dog.dogGender == true ? `Gender:   Male` : `Gender:   Female`}"
+                    android:text="@{dog.dogGender != 0 ? (dog.dogGender == 1 ? `Gender:  Male` : `Gender:  Female`) : `Gender:  Unknown`}"
                     android:textSize="@dimen/content_text_size"
                     android:textAlignment="center"
                     tools:text="Male"
@@ -133,6 +133,20 @@
                     android:textSize="@dimen/button_text_size"
                     android:padding="@dimen/button_padding"
                     tools:ignore="SpUsage" />
+
+                <TextView
+                    android:id="@+id/dog_lost_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:text="@{`Lost Date:   ` + dog.dateLastSeen}"
+                    android:textSize="@dimen/content_text_size"
+                    android:textColor="@color/black"
+                    android:textAlignment="center"
+                    tools:text="12.00"
+                    />
 
                 <TextView
                     android:id="@+id/dog_lost_time"

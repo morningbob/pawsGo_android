@@ -6,7 +6,7 @@ class DogFirebase {
     var dogName : String? = null
     var animalType : String? = null
     var dogBreed : String? = null
-    var dogGender : Boolean? = null
+    var dogGender : Int = 0
     var dogAge : Int? = null
     var placeLastSeen : String = ""
     var dateLastSeen: String = ""
@@ -25,7 +25,7 @@ class DogFirebase {
     constructor()
 
     constructor(id: String, name: String?, animal: String?,
-                breed: String?, gender: Boolean?, age: Int?,
+                breed: String?, gender: Int, age: Int?,
         place: String, date: String, hr: Int?, min: Int?, note: String?,
                 userID: String, userName: String,
                 userEmail: String,

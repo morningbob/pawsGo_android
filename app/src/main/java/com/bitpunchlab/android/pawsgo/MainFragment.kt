@@ -15,6 +15,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.databinding.FragmentMainBinding
+import com.bitpunchlab.android.pawsgo.dogsDisplay.DogsViewModel
+import com.bitpunchlab.android.pawsgo.dogsDisplay.DogsViewModelFactory
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -36,7 +38,8 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var firebaseClient : FirebaseClientViewModel
     private lateinit var localDatabase : PawsGoDatabase
-    private var coroutineScope = CoroutineScope(Dispatchers.IO)
+    //private var coroutineScope = CoroutineScope(Dispatchers.IO)
+    private lateinit var dogsViewModel: DogsViewModel
 
     @OptIn(InternalCoroutinesApi::class)
     override fun onCreateView(
@@ -47,15 +50,19 @@ class MainFragment : Fragment() {
         firebaseClient = ViewModelProvider(requireActivity(),
             FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
+        dogsViewModel = ViewModelProvider(requireActivity(), DogsViewModelFactory(requireActivity().application))
+            .get(DogsViewModel::class.java)
         binding.firebaseClient = firebaseClient
 
         localDatabase = PawsGoDatabase.getInstance(requireContext())
 
         setupMenu()
-        loadCurrentUserRoom()
+        //loadCurrentUserRoom()
 
         firebaseClient.currentUserRoomLiveData.observe(viewLifecycleOwner, Observer { user ->
             binding.user = user
+            Log.i("main fragment", "observed current local user")
+            prepareUserDogReports()
         })
 
         firebaseClient.appState.observe(viewLifecycleOwner, Observer { state ->
@@ -76,13 +83,6 @@ class MainFragment : Fragment() {
         binding.buttonChangePassword?.setOnClickListener {
             findNavController().navigate(R.id.changePasswordAction)
         }
-
-        // testing
-        //firebaseClient.testingDogImage.observe(viewLifecycleOwner, Observer { bitmap ->
-        //    bitmap?.let {
-        //        binding.dogImage!!.setImageBitmap(it)
-        //    }
-        //})
 
         return binding.root
 
@@ -112,6 +112,11 @@ class MainFragment : Fragment() {
                         // false represent the Found Dog form
                         val action = MainFragmentDirections.reportDogAction(false)
                         findNavController().navigate(action)
+                        true
+                    }
+                    R.id.editReport -> {
+                        //val action = MainFragmentDirections.chooseReportAction()
+                        findNavController().navigate(R.id.chooseReportAction)
                         true
                     }
                     R.id.listLostDogs -> {
@@ -145,10 +150,6 @@ class MainFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-    private fun loadCurrentUserRoom() {
-
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -158,11 +159,17 @@ class MainFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
+/*
     private fun retrieveUserRoom() {
         coroutineScope.launch {
             localDatabase.pawsDAO.getUser(firebaseClient.auth.currentUser!!.uid)
         }
+    }
+  */
+    private fun prepareUserDogReports() {
+        //dogsViewModel
+        dogsViewModel._dogReports.value = firebaseClient.currentUserRoomLiveData.value!!.lostDogs
+        Log.i("main fragment", "prepare dog reports, ${dogsViewModel.dogReports.value?.size}")
     }
 
     private fun appIntroAlert() {

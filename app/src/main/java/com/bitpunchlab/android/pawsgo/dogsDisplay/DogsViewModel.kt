@@ -17,13 +17,16 @@ import kotlinx.coroutines.InternalCoroutinesApi
 // is any change
 class DogsViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val context = getApplication<Application>().applicationContext
+    //private val context = getApplication<Application>().applicationContext
 
     @OptIn(InternalCoroutinesApi::class)
     val localDatabase = PawsGoDatabase.getInstance(application.applicationContext)
     var lostDogs = localDatabase.pawsDAO.getAllLostDogs()
 
     var foundDogs = localDatabase.pawsDAO.getAllFoundDogs()
+
+    var _dogReports = MutableLiveData<List<DogRoom>>()
+    val dogReports get() = _dogReports
 
     var _chosenDog = MutableLiveData<DogRoom?>()
     val chosenDog get() = _chosenDog
@@ -48,6 +51,14 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
     fun finishedDogMessage() {
         _dogMessage.value = null
     }
+
+    // retrieve the current user's profile in local database
+    // check the lostDogs list to get all dogs
+
+    fun prepareDogReports(userID: String) {
+        //dogReports = localDatabase
+    }
+
 }
 
 class DogsViewModelFactory(private val application: Application)

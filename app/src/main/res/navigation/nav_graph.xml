@@ -39,6 +39,9 @@
         <action
             android:id="@+id/changePasswordAction"
             app:destination="@id/changePasswordFragment" />
+        <action
+            android:id="@+id/chooseReportAction"
+            app:destination="@id/chooseReportFragment" />
 
     </fragment>
     <fragment
@@ -140,4 +143,22 @@
         android:id="@+id/changePasswordFragment"
         android:name="com.bitpunchlab.android.pawsgo.userAccount.ChangePasswordFragment"
         android:label="@string/change_password_title" />
+    <fragment
+        android:id="@+id/editReportFragment"
+        android:name="com.bitpunchlab.android.pawsgo.reportLostDog.EditReportFragment"
+        android:label="fragment_edit_report"
+        tools:layout="@layout/fragment_edit_report" >
+        <argument
+            android:name="pet"
+            app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
+    </fragment>
+    <fragment
+        android:id="@+id/chooseReportFragment"
+        android:name="com.bitpunchlab.android.pawsgo.reportLostDog.ChooseReportFragment"
+        android:label="Choose a Report"
+        tools:layout="@layout/fragment_choose_report" >
+        <action
+            android:id="@+id/editReportAction"
+            app:destination="@id/editReportFragment" />
+    </fragment>
 </navigation>

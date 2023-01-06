@@ -15,4 +15,5 @@
     <color name="light_yellow">#f2db9b</color>
     <color name="light_green">#d9faa5</color>
     <color name="clickable_text">#035706</color>
+    <color name="blue_hint">#033587</color>
 </resources>

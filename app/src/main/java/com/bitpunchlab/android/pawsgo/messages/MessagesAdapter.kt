@@ -27,10 +27,13 @@ class MessagesAdapter(var clickListener: MessageOnClickListener,
         ) {
             (binding as ItemMessageBinding).message = item
             binding.clickListener = clickListener
+
             if (messageBoolean == true) {
                 binding.userName.text = item.senderName
+                binding.entitle!!.text = "From"
             } else {
                 binding.userName.text = item.targetName
+                binding.entitle!!.text = "To"
             }
             binding.executePendingBindings()
         }

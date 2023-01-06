@@ -22,6 +22,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/editReport"
+        android:orderInCategory="100"
+        android:title="@string/edit_report"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/listLostDogs"
         android:orderInCategory="100"
         android:title="@string/list_of_lost_dogs"

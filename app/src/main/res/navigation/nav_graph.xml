@@ -42,6 +42,9 @@
         <action
             android:id="@+id/chooseReportAction"
             app:destination="@id/chooseReportFragment" />
+        <action
+            android:id="@+id/action_MainFragment_to_petFormFragment2"
+            app:destination="@id/petFormFragment" />
 
     </fragment>
     <fragment
@@ -146,7 +149,7 @@
     <fragment
         android:id="@+id/editReportFragment"
         android:name="com.bitpunchlab.android.pawsgo.reportLostDog.EditReportFragment"
-        android:label="fragment_edit_report"
+        android:label="@string/edit_report"
         tools:layout="@layout/fragment_edit_report" >
         <argument
             android:name="pet"
@@ -155,10 +158,26 @@
     <fragment
         android:id="@+id/chooseReportFragment"
         android:name="com.bitpunchlab.android.pawsgo.reportLostDog.ChooseReportFragment"
-        android:label="Choose a Report"
+        android:label="@string/choose_a_report"
         tools:layout="@layout/fragment_choose_report" >
         <action
             android:id="@+id/editReportAction"
             app:destination="@id/editReportFragment" />
+        <action
+            android:id="@+id/action_chooseReportFragment_to_petFormFragment"
+            app:destination="@id/petFormFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/petFormFragment"
+        android:name="com.bitpunchlab.android.pawsgo.reportLostDog.PetFormFragment"
+        android:label="fragment_pet_form"
+        tools:layout="@layout/fragment_pet_form" >
+        <argument
+            android:name="pet"
+            app:argType="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_petFormFragment_to_chooseLocationFragment"
+            app:destination="@id/chooseLocationFragment" />
     </fragment>
 </navigation>

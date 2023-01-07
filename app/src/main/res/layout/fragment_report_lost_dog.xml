@@ -49,6 +49,59 @@
                 tools:context=".reportLostDog.ReportLostDogFragment"
                 android:background="@color/green_background">
 
+                <FrameLayout
+                    android:id="@+id/petFormContainerReport"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                </FrameLayout>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+<!--
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress_bar"
+            style="android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:max="100"
+            android:visibility="gone"
+            android:translationZ="3dp"
+            app:indicatorColor="#b58807"
+            app:indicatorSize="90dp"
+            app:trackColor="@color/lighter_brown"
+            app:trackCornerRadius="8dp"
+            app:trackThickness="15dp"
+            tools:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="30dp"
+                tools:context=".reportLostDog.ReportLostDogFragment"
+                android:background="@color/green_background">
+
                 <ImageView
                     android:id="@+id/art_report"
                     android:layout_width="@dimen/icon_size"
@@ -397,7 +450,7 @@
         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
-
+-->
     <!--
                 <DatePicker
                     android:id="@+id/date_picker"

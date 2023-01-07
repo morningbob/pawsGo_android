@@ -43,7 +43,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
-class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
+class ReportLostDogFragment : Fragment() {
 
     private var _binding : FragmentReportLostDogBinding? = null
     private val binding get() = _binding!!
@@ -82,54 +82,13 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationViewModel::class.java)
 
-        if (!checkPermission()) {
-            permissionResultLauncher.launch(permissions)
-        } else {
-            isPermissionGranted = true
-        }
+
 
         lostOrFound = requireArguments().getBoolean("lostOrFound")
-        if (lostOrFound == null) {
-            findNavController().popBackStack()
-        }
 
         binding.locationVM = locationViewModel
 
-        setupLostOrFoundFields()
-        setupGenderSpinner()
-        setupPetSpinner()
 
-        binding.buttonChooseDate.setOnClickListener {
-            showDatePicker()
-        }
-
-        binding.buttonChooseTime.setOnClickListener {
-            showTimePicker()
-        }
-
-        binding.buttonShowMap.setOnClickListener {
-            if (!isPermissionGranted) {
-                permissionsNeededAlert()
-            } else {
-                findNavController().navigate(R.id.showMapAction)
-            }
-        }
-
-        binding.buttonUpload.setOnClickListener {
-            selectImageFromGalleryResult.launch("image/*")
-        }
-
-        binding.buttonSend.setOnClickListener {
-            // display progress bar
-            startProgressBar()
-            processReportInputs()
-        }
-
-        firebaseClient.appState.observe(viewLifecycleOwner, appStateObserver)
-
-        locationViewModel.lostDogLocationAddress.observe(viewLifecycleOwner, androidx.lifecycle.Observer { address ->
-            locationViewModel.displayAddress.value = address?.get(0) ?: ""
-        })
 
         return binding.root
     }
@@ -169,6 +128,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         }
     }
+/*
+
 
     private fun processReportInputs() {
         var processedAge : Int? = null
@@ -186,8 +147,6 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 animalType = type
             }
         }
-
-
 
         if (verifyLostDogData(binding.edittextDogName.text.toString(),
                 lostDate,
@@ -433,7 +392,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
         return nameValidity && dateValidity && placeValidity
     }
-
+*/
     private fun createDogRoom(name: String, animal: String?, breed: String?,
                               gender: Int, age: Int?, date: String,
                         hour: Int?, minute: Int?, note: String?, place: String, lost: Boolean, found: Boolean,
@@ -448,7 +407,7 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
             locationLat = lat, locationLng = lng,
             locationAddress = address)
     }
-
+/*
     private fun getBitmapFromView(view: View): Bitmap {
         val bitmap = Bitmap.createBitmap(
             view.width, view.height, Bitmap.Config.ARGB_8888
@@ -481,6 +440,8 @@ class ReportLostDogFragment : Fragment(), AdapterView.OnItemSelectedListener {
         gender = 0
         setupGenderSpinner()
     }
+
+ */
 
     private fun permissionsRequiredAlert() {
         val permissionAlert = AlertDialog.Builder(context)
@@ -589,4 +550,46 @@ allPermissionGranted.observe(viewLifecycleOwner, androidx.lifecycle.Observer { v
         //        permissionsRequiredAlert()
             }
         })
+
+if (!checkPermission()) {
+            permissionResultLauncher.launch(permissions)
+        } else {
+            isPermissionGranted = true
+        }
+        //setupLostOrFoundFields()
+        //setupGenderSpinner()
+        //setupPetSpinner()
+
+        binding.buttonChooseDate.setOnClickListener {
+            showDatePicker()
+        }
+
+        binding.buttonChooseTime.setOnClickListener {
+            showTimePicker()
+        }
+
+        binding.buttonShowMap.setOnClickListener {
+            if (!isPermissionGranted) {
+                permissionsNeededAlert()
+            } else {
+                findNavController().navigate(R.id.showMapAction)
+            }
+        }
+
+        binding.buttonUpload.setOnClickListener {
+            selectImageFromGalleryResult.launch("image/*")
+        }
+
+        binding.buttonSend.setOnClickListener {
+            // display progress bar
+            startProgressBar()
+            processReportInputs()
+        }
+
+        firebaseClient.appState.observe(viewLifecycleOwner, appStateObserver)
+
+        locationViewModel.lostDogLocationAddress.observe(viewLifecycleOwner, androidx.lifecycle.Observer { address ->
+            locationViewModel.displayAddress.value = address?.get(0) ?: ""
+        })
+
  */

@@ -1,5 +1,6 @@
 package com.bitpunchlab.android.pawsgo.reportLostDog
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,6 +12,8 @@ import com.bitpunchlab.android.pawsgo.databinding.FragmentEditReportBinding
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
 
 
 class EditReportFragment : Fragment() {
@@ -19,11 +22,17 @@ class EditReportFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var firebaseClient : FirebaseClientViewModel
     private var pet : DogRoom? = null
+    private var timePicker : MaterialTimePicker? = null
+    private var datePicker : MaterialDatePicker<Long>? = null
+    private var lostDate : String? = null
+    private var lostHour : Int? = null
+    private var lostMinute : Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,6 +45,12 @@ class EditReportFragment : Fragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.pet = pet
+        if (pet!!.hour != null && pet!!.minute != null) {
+            //binding.textviewTimeLostData.text = pet!!.hour.toString() + ":" + pet!!.minute.toString()
+        } else {
+            //binding.textviewTimeLostData.text = "Not Set"
+        }
+
 
         return binding.root
     }
@@ -45,7 +60,5 @@ class EditReportFragment : Fragment() {
         _binding = null
     }
 
-    private fun fillPreviousData() {
 
-    }
 }

@@ -34,6 +34,11 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
     var _dogMessage = MutableLiveData<DogRoom?>()
     val dogMessage get() = _dogMessage
 
+    // these 2 variables hold the info entered in pet form for the report a pet fragment to use
+    var tempPet = MutableLiveData<DogRoom?>()
+    var tempImage : Bitmap? = null
+    var tempImageByteArray : ByteArray? = null
+
     fun onDogChosen(dog: DogRoom) {
         _chosenDog.value = dog
     }

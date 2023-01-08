@@ -19,12 +19,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import androidx.navigation.fragment.findNavController
 import androidx.room.InvalidationTracker
 import com.bitpunchlab.android.pawsgo.AppState
 import com.bitpunchlab.android.pawsgo.R
 import com.bitpunchlab.android.pawsgo.database.PawsGoDatabase
 import com.bitpunchlab.android.pawsgo.databinding.FragmentReportLostDogBinding
+import com.bitpunchlab.android.pawsgo.dogsDisplay.DogsViewModel
+import com.bitpunchlab.android.pawsgo.dogsDisplay.DogsViewModelFactory
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
 import com.bitpunchlab.android.pawsgo.location.LocationViewModel
@@ -62,6 +65,7 @@ class ReportLostDogFragment : Fragment() {
     private lateinit var locationViewModel : LocationViewModel
     val ONE_DAY_IN_MILLIS = 86400000
     private var isPermissionGranted = false
+    private lateinit var dogsViewModel : DogsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,20 +78,71 @@ class ReportLostDogFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentReportLostDogBinding.inflate(inflater, container, false)
+        lostOrFound = requireArguments().getBoolean("lostOrFound")
         firebaseClient = ViewModelProvider(requireActivity(),
             FirebaseClientViewModelFactory(requireActivity().application))
             .get(FirebaseClientViewModel::class.java)
+        dogsViewModel = ViewModelProvider(requireActivity(), DogsViewModelFactory(requireActivity().application))
+            .get(DogsViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         localDatabase = PawsGoDatabase.getInstance(requireContext())
         locationViewModel = ViewModelProvider(requireActivity())
             .get(LocationViewModel::class.java)
 
-
-
-        lostOrFound = requireArguments().getBoolean("lostOrFound")
+        setupPetFormFragment()
 
         binding.locationVM = locationViewModel
 
+        dogsViewModel.tempPet.observe(viewLifecycleOwner, androidx.lifecycle.Observer { pet ->
+            pet?.let {
+                Log.i("report fragment", "pet ${pet.dogName}")
+            }
+        })
+
+        dogsViewModel.readyProcessReport.observe(viewLifecycleOwner, androidx.lifecycle.Observer { ready ->
+            if (ready) {
+                //Log.i("report fragment", "pet place got : ${dogsViewModel.tempPet.value?.placeLastSeen}")
+                //Log.i("dog object", dogsViewModel.tempPet.value!!.toString())
+                processReportPet()
+                /*
+                coroutineScope.launch {
+                    dogsViewModel.tempPet.value!!.dogID = UUID.randomUUID().toString()
+                    firebaseClient.handleNewDog(
+                        dogsViewModel.tempPet.value!!,
+                        dogsViewModel.tempImageByteArray
+                    )
+                }
+                */
+            }
+        })
+
+        dogsViewModel.petName.observe(viewLifecycleOwner, androidx.lifecycle.Observer { name ->
+            Log.i("name", name)
+        })
+        dogsViewModel.petType.observe(viewLifecycleOwner, androidx.lifecycle.Observer { type ->
+            Log.i("type", type)
+        })
+        dogsViewModel.petBreed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { breed ->
+            Log.i("breed", breed)
+        })
+        dogsViewModel.petAge.observe(viewLifecycleOwner, androidx.lifecycle.Observer { age ->
+            Log.i("age", age.toString())
+        })
+        dogsViewModel.petGender.observe(viewLifecycleOwner, androidx.lifecycle.Observer { gender ->
+            Log.i("gender", gender.toString())
+        })
+        dogsViewModel.dateLastSeen.observe(viewLifecycleOwner, androidx.lifecycle.Observer { date ->
+            Log.i("date", date)
+        })
+        dogsViewModel.lostHour.observe(viewLifecycleOwner, androidx.lifecycle.Observer { hour ->
+            Log.i("time", hour.toString())
+        })
+        dogsViewModel.placeLastSeen.observe(viewLifecycleOwner, androidx.lifecycle.Observer { place ->
+            Log.i("place", place)
+        })
+        dogsViewModel.petNotes.observe(viewLifecycleOwner, androidx.lifecycle.Observer { notes ->
+            Log.i("notes", notes)
+        })
 
 
         return binding.root
@@ -127,6 +182,55 @@ class ReportLostDogFragment : Fragment() {
                 stopProgressBar()
             }
         }
+    }
+
+    private fun setupPetFormFragment() {
+        val petFormFragment = PetFormFragment()
+        val bundle = Bundle()
+        bundle.putParcelable("pet", null)
+        bundle.putBoolean("lostOrFound", lostOrFound!!)
+        petFormFragment.arguments = bundle
+        val fragmentTransaction = childFragmentManager.beginTransaction()
+        fragmentTransaction.add(R.id.petFormContainerReport, petFormFragment)
+        fragmentTransaction.commit()
+    }
+
+    private fun processReportPet() {
+        Log.i("pet name", "name " + dogsViewModel.petName.value)
+        Log.i("pet breed", "breed " + dogsViewModel.petBreed.value)
+        Log.i("pet type", "type " + dogsViewModel.petType.value)
+        Log.i("pet gender", "gender " + dogsViewModel.petGender.value)
+        Log.i("pet age", "age " + dogsViewModel.petAge.value)
+        Log.i("lost date", "date " + dogsViewModel.dateLastSeen)
+        Log.i("lost time", "time " + dogsViewModel.lostHour.value + ":" + dogsViewModel.lostMinute.value)
+        Log.i("lost place", "place " + dogsViewModel.placeLastSeen.value)
+        Log.i("notes", "notes " + dogsViewModel.petNotes.value)
+
+        val dogRoom = createDogRoom(
+            name = dogsViewModel.petName.value!!,
+            animal = dogsViewModel.petType.value,
+            breed = dogsViewModel.petBreed.value,
+            gender = dogsViewModel.petGender.value!!,
+            age = dogsViewModel.petAge.value!!,
+            date = dogsViewModel.dateLastSeen.value!!,
+            hour = dogsViewModel.lostHour.value!!,
+            minute = dogsViewModel.lostMinute.value!!,
+            note = dogsViewModel.petNotes.value!!,
+            place = dogsViewModel.placeLastSeen.value!!,
+            lost = lostOrFound!!,
+            found = false,
+            lat = locationViewModel.lostDogLocationLatLng.value?.latitude,
+            lng = locationViewModel.lostDogLocationLatLng.value?.longitude,
+            address = locationViewModel.lostDogLocationAddress.value?.get(0))
+
+        coroutineScope.launch {
+            //dogsViewModel.tempPet.value!!.dogID = UUID.randomUUID().toString()
+            firebaseClient.handleNewDog(
+                dogRoom,
+                dogsViewModel.tempImageByteArray
+            )
+        }
+
     }
 /*
 

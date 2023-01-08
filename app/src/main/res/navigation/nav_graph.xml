@@ -179,5 +179,8 @@
         <action
             android:id="@+id/action_petFormFragment_to_chooseLocationFragment"
             app:destination="@id/chooseLocationFragment" />
+        <argument
+            android:name="lostOrFound"
+            app:argType="boolean" />
     </fragment>
 </navigation>

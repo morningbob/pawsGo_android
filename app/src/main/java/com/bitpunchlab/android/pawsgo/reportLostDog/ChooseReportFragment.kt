@@ -55,7 +55,7 @@ class ChooseReportFragment : Fragment() {
 
         dogsViewModel.chosenDog.observe(viewLifecycleOwner, Observer { dog ->
             dog?.let {
-                val action = ChooseReportFragmentDirections.actionChooseReportFragmentToPetFormFragment(dog)
+                val action = ChooseReportFragmentDirections.actionChooseReportFragmentToPetFormFragment(dog, true)
                 //val action = ChooseReportFragmentDirections.editReportAction(dog)
                 findNavController().navigate(action)
                 dogsViewModel.finishedDogChosen()

@@ -34,10 +34,46 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
     var _dogMessage = MutableLiveData<DogRoom?>()
     val dogMessage get() = _dogMessage
 
+    // let seperate the variables
+    var petName = MutableLiveData<String>()
+    //val petName get() = _petName
+
+    var petType = MutableLiveData<String>()
+    //val petType get() = _petType
+
+    var petBreed = MutableLiveData<String>()
+    //val petBreed get() = _petBreed
+
+    var petGender = MutableLiveData<Int>()
+    //val petGender get() = _petGender
+
+    var petAgeString = MutableLiveData<String>()
+    //val petAgeString get() = _petAgeString
+
+    var petAge = MutableLiveData<Int>()
+    //val petAge get() = _petAge
+
+    var dateLastSeen = MutableLiveData<String>()
+    //val dateLastSeen get() = _dateLastSeen
+
+    var lostHour = MutableLiveData<Int>()
+    //val lostHour get() = _lostHour
+
+    var lostMinute = MutableLiveData<Int>()
+    //val lostMinute get() = _lostMinute
+
+    var placeLastSeen = MutableLiveData<String>()
+    //val placeLastSeen get() = _placeLastSeen
+
+    var petNotes = MutableLiveData<String>()
+    //val petNotes get() = _petNotes
+
     // these 2 variables hold the info entered in pet form for the report a pet fragment to use
     var tempPet = MutableLiveData<DogRoom?>()
     var tempImage : Bitmap? = null
     var tempImageByteArray : ByteArray? = null
+    var _readyProcessReport = MutableLiveData<Boolean>(false)
+    val readyProcessReport get() = _readyProcessReport
 
     fun onDogChosen(dog: DogRoom) {
         _chosenDog.value = dog

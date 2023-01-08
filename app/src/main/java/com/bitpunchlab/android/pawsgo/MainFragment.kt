@@ -103,9 +103,9 @@ class MainFragment : Fragment() {
                     R.id.reportLostDog -> {
                         // navigate to the lost dog form
                         // true represent the Lost Dog form
-                        //val action = MainFragmentDirections.reportDogAction(true)
-                        //findNavController().navigate(action)
-                        findNavController().navigate(R.id.action_MainFragment_to_petFormFragment2)
+                        val action = MainFragmentDirections.reportDogAction(true)
+                        findNavController().navigate(action)
+                        //findNavController().navigate(R.id.action_MainFragment_to_petFormFragment2)
                         true
                     }
                     R.id.reportFoundDog -> {

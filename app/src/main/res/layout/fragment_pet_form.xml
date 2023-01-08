@@ -9,6 +9,10 @@
         <variable
             name="pet"
             type="com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom" />
+        
+        <variable
+            name="dogsVM"
+            type="com.bitpunchlab.android.pawsgo.dogsDisplay.DogsViewModel" />
 
         <variable
             name="locationVM"
@@ -38,6 +42,17 @@
                 tools:srcCompat="@drawable/edit" />
 
             <TextView
+                android:id="@+id/textview_report_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_left_right_margin"
+                android:layout_marginTop="20dp"
+                android:textSize="24sp"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/art_report" />
+
+            <TextView
                 android:id="@+id/textview_dog_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -47,7 +62,7 @@
                 android:textSize="@dimen/content_text_size"
                 android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/art_report" />
+                app:layout_constraintTop_toBottomOf="@id/textview_report_title" />
 
             <EditText
                 android:id="@+id/edittext_dog_name"
@@ -57,7 +72,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={pet.dogName}"
+                android:text="@={dogsVM.petName}"
                 android:textColor="@color/blue_hint"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +111,7 @@
                 android:layout_marginRight="100dp"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={pet.animalType}"
+                android:text="@={dogsVM.petType}"
                 android:textColor="@color/blue_hint"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -122,7 +137,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={pet.dogBreed}"
+                android:text="@={dogsVM.petBreed}"
                 android:textColor="@color/blue_hint"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -172,7 +187,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text=""
+                android:text="@={dogsVM.petAgeString}"
                 android:textColor="@color/blue_hint"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -196,7 +211,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="@{pet.dateLastSeen != null ? pet.dateLastSeen : `Not Set`}"
+                android:text="@{dogsVM.dateLastSeen != null ? dogsVM.dateLastSeen : `Not Set`}"
                 android:textSize="@dimen/content_text_size"
                 android:textAlignment="center"
                 android:visibility="gone"
@@ -226,7 +241,7 @@
                 android:layout_marginTop="10dp"
                 android:visibility="gone"
                 android:textSize="@dimen/content_text_size"
-                android:text="@{pet.hour != null ? pet.hour + `:` + pet.minute : `Not Set`}"
+                android:text="@{dogsVM.lostHour != null ? pet.hour + `:` + dogsVM.lostMinute : `Not Set`}"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -268,7 +283,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={locationVM.displayAddress}"
+                android:text="@={pet.placeLastSeen}"
                 android:textColor="@color/blue_hint"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -320,7 +335,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={pet.notes}"
+                android:text="@={dogsVM.petNotes}"
                 android:textColor="@color/blue_hint"
                 android:hint="@string/hint_for_notes"
                 app:layout_constraintEnd_toEndOf="parent"

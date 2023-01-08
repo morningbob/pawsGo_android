@@ -46,7 +46,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var lostDate : String? = null
     private var lostHour : Int? = null
     private var lostMinute : Int? = null
-    private var gender : Int = 0
+    //private var gender : Int = 0
     private var animalType = MutableLiveData<String?>()
     private var petPassed : DogRoom? = null
     val ONE_DAY_IN_MILLIS = 86400000
@@ -55,6 +55,8 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var isPermissionGranted : Boolean? = null
     private lateinit var locationViewModel : LocationViewModel
     private lateinit var dogsViewModel : DogsViewModel
+    private var lostOrFound : Boolean? = null
+    private var petAgeString = MutableLiveData<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +69,8 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     ): View? {
         _binding = FragmentPetFormBinding.inflate(inflater, container, false)
         petPassed = requireArguments().getParcelable<DogRoom>("pet")
+        lostOrFound = requireArguments().getBoolean("lostOrFound")
+
         // check if pet == null
         // if we should use it in layout to display pet data, ie the edit mode
         // if it is null, we're in the report mode
@@ -76,6 +80,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
             .get(DogsViewModel::class.java)
         binding.pet = petPassed
         binding.locationVM = locationViewModel
+        binding.dogsVM = dogsViewModel
         if (!checkPermission()) {
             permissionResultLauncher.launch(permissions)
         } else {
@@ -88,9 +93,16 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         if (reportOrEdit == true) {
             dogsViewModel.tempPet.value = DogRoom(
                 ownerID = "", ownerName = "", ownerEmail = "", dateLastSeen = "",
-                placeLastSeen = "", locationAddress = "", locationLng = null, locationLat = null
+                placeLastSeen = "", locationAddress = "", locationLng = null, locationLat = null,
+                isLost = lostOrFound
             )
             binding.pet = dogsViewModel.tempPet.value
+        }
+        // set the title lost or found
+        if (lostOrFound!!) {
+            binding.textviewReportTitle.text = "Lost Report"
+        } else {
+            binding.textviewReportTitle.text = "Found Report"
         }
 
         setupGenderSpinner()
@@ -106,6 +118,8 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         locationViewModel.lostDogLocationAddress.observe(viewLifecycleOwner, androidx.lifecycle.Observer { address ->
             locationViewModel.displayAddress.value = address?.get(0) ?: ""
+            // update tempPet
+            dogsViewModel.placeLastSeen.value = address?.get(0) ?: ""
         })
 
         binding.buttonChooseDate.setOnClickListener {
@@ -128,7 +142,10 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
             selectImageFromGalleryResult.launch("image/*")
         }
 
-        animalType.observe(viewLifecycleOwner, androidx.lifecycle.Observer { type ->
+        // this variable seems extra, because we already have dogsVM.tempPet to hold the data
+        // but I use this variable to detect the change of type user picks at the spinner
+        // this live data variable watch the change for me and show type in textview
+        dogsViewModel.petType.observe(viewLifecycleOwner, androidx.lifecycle.Observer { type ->
             type?.let {
                 if (type != "Other" && type != "Choose" ) {
                     binding.edittextOtherType.hint = type
@@ -137,6 +154,21 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
             }
         })
+
+        dogsViewModel.petAgeString.observe(viewLifecycleOwner, androidx.lifecycle.Observer { ageString ->
+            ageString?.let {
+                try {
+                    dogsViewModel.petAge.value = ageString.toInt()
+                } catch (e: java.lang.NumberFormatException) {
+                    Log.i("processing dog age", "error converting to number")
+                    // can alert user here, or turn edittext to red
+                }
+            }
+        })
+
+        binding.buttonSend.setOnClickListener {
+            processReportInputs()
+        }
 
         return binding.root
     }
@@ -150,27 +182,37 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val choice = parent!!.getItemAtPosition(position)
         when (choice) {
             "Male" -> {
-                gender = 1
+                //gender = 1
+                //dogsViewModel.tempPet.value!!.dogGender = 1
+                dogsViewModel.petGender.value = 1
                 Log.i("spinner", "set gender male")
             }
             "Female" -> {
-                gender = 2
+                //gender = 2
+                //dogsViewModel.tempPet.value!!.dogGender = 2
+                dogsViewModel.petGender.value = 2
                 Log.i("spinner", "set gender female")
             }
             "Dog" -> {
-                animalType.value = "Dog"
+                //animalType.value = "Dog"
+                dogsViewModel.petType.value = "Dog"
+                //dogsViewModel.tempPet.value!!.animalType = "Dog"
                 Log.i("spinner", "set type dog")
             }
             "Cat" -> {
-                animalType.value = "Cat"
+                //animalType.value = "Cat"
+                dogsViewModel.petType.value = "Cat"
+                //dogsViewModel.tempPet.value!!.animalType = "Cat"
                 Log.i("spinner", "set type cat")
             }
             "Bird" -> {
-                animalType.value = "Bird"
+                //animalType.value = "Bird"
+                dogsViewModel.petType.value = "Bird"
+                //dogsViewModel.tempPet.value!!.animalType = "Bird"
                 Log.i("spinner", "set type bird")
             }
             "Other" -> {
-                animalType.value = "Other"
+                //animalType.value = "Other"
                 Log.i("spinner", "set type other")
             }
         }
@@ -194,17 +236,12 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun showGenderAtSpinner() {
-        //val enteredValue = binding.genderSpinner.adapter
-        //if (pet!!.dogGender != 0) {
-        Log.i("show gender", "trying to set gender")
+        //Log.i("show gender", "trying to set gender")
         binding.genderSpinner.setSelection(petPassed!!.dogGender)
-        //}
     }
 
     private fun showTypeAtSpinner() {
         if (petPassed!!.animalType != null && petPassed!!.animalType != "") {
-            //(pet!!.animalType == "Dog" || pet!!.animalType == "Cat" || pet!!.animalType == "Bird")) {
-            //binding
             Log.i("show tyoe", "trying to set type")
             when (petPassed!!.animalType) {
                 "Dog" -> binding.petSpinner.setSelection(1)
@@ -220,7 +257,6 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
             binding.edittextDogAge.hint = petPassed!!.dogAge.toString()
         }
     }
-
 
     private fun showDate() {
         binding.textviewDateLostData.visibility = View.VISIBLE
@@ -288,6 +324,11 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 lostDate = simpleDate.format(calendarChosen.time)
                 //Log.i("got back date", "day: $dayOfMonth, month: $month, year: $year")
                 Log.i("got back date", lostDate.toString())
+
+                // I didn't use two-way binding here, because I need to make sure
+                // the format of the date is correct.
+                // so I need to set the date string in the tempPet manually
+                dogsViewModel.dateLastSeen.value = lostDate!!
                 binding.textviewDateLostData.text = lostDate
                 binding.textviewDateLostData.visibility = View.VISIBLE
             } else {
@@ -296,6 +337,10 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
             }
         }
+
+        dogsViewModel.petName.observe(viewLifecycleOwner, androidx.lifecycle.Observer { name ->
+            Log.i("from pet form: name", name)
+        })
     }
 
     private fun showTimePicker() {
@@ -308,12 +353,108 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         timePicker!!.show(childFragmentManager, "TIME_PICKER")
 
         timePicker!!.addOnPositiveButtonClickListener {
-            lostHour = timePicker!!.hour
-            lostMinute = timePicker!!.minute
-            Log.i("got time back", "hour: ${lostHour.toString()} minute: ${lostMinute.toString()}")
-            binding.textviewTimeLostData.text = "$lostHour hour and $lostMinute minutes"
+            //lostHour = timePicker!!.hour
+            //lostMinute = timePicker!!.minute
+            // there is no two-way binding for hour and minute
+            dogsViewModel.lostHour.value = timePicker!!.hour
+            dogsViewModel.lostMinute.value = timePicker!!.minute
+            //Log.i("got time back", "hour: ${lostHour.toString()} minute: ${lostMinute.toString()}")
+            binding.textviewTimeLostData.text = "${dogsViewModel.lostHour.value} hour and ${dogsViewModel.lostMinute.value} minutes"
             binding.textviewTimeLostData.visibility = View.VISIBLE
         }
+    }
+
+    private fun processReportInputs() {
+        if (verifyLostDogData(dogsViewModel.tempPet.value!!)) {
+            //clearForm()
+            dogsViewModel._readyProcessReport.value = true
+        } else {
+            invalidDogDataAlert()
+        }
+        /*
+        var processedAge : Int? = null
+        if (binding.edittextDogAge.text != null && binding.edittextDogAge.text.toString() != "") {
+            try {
+                processedAge = binding.edittextDogAge.text.toString().toInt()
+            } catch (e: java.lang.NumberFormatException) {
+                Log.i("processing dog age", "error converting to number")
+            }
+        }
+        // we know we need to get the type from the edittext
+
+        if (animalType == "Other") {
+            val type = binding.edittextOtherType.text.toString()
+            if (type != null && type != "") {
+                animalType = type
+            }
+        }
+*/
+        //if (verifyLostDogData(dogsViewModel.tempPet.value!!)) {
+            /*
+            val dogRoom = createDogRoom(
+                name = binding.edittextDogName.text.toString(),
+                animal = animalType,
+                breed = binding.edittextDogBreed.text.toString(),
+                gender = gender,
+                age = processedAge,
+                date = lostDate!!,
+                hour = lostHour,
+                minute = lostMinute,
+                note = binding.edittextNotes.text.toString(),
+                place = binding.edittextPlaceLost.text.toString(),
+                lost = lostOrFound!!,
+                found = !lostOrFound!!,
+                lat = locationViewModel.lostDogLocationLatLng.value?.latitude,
+                lng = locationViewModel.lostDogLocationLatLng.value?.longitude,
+                address = locationViewModel.lostDogLocationAddress.value?.get(0))
+
+            // check if imageview is empty
+            // if it is not, save the image to cloud storage
+            var dataByteArray : ByteArray? = null
+            if (binding.previewUpload.drawable != null) {
+                Log.i("check image", "image is not null")
+                val imageBitmap = getBitmapFromView(binding.previewUpload)
+                dataByteArray = convertImageToBytes(imageBitmap)
+            }
+            coroutineScope.launch {
+                if (firebaseClient.handleNewDog(dogRoom, dataByteArray)) {
+                    firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_SUCCESS)
+                } else {
+                    firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_ERROR) }
+            }
+
+            clearForm()
+        } else {
+            invalidDogDataAlert()
+        }
+        */
+    }
+
+    private fun verifyLostDogData(pet: DogRoom) : Boolean {
+        var nameValidity = true
+        var dateValidity = true
+        var placeValidity = true
+
+        if (dogsViewModel.petName.value == "" && lostOrFound == true) {
+            nameValidity = false
+            binding.textviewDogName.setTextColor(resources.getColor(R.color.error_red))
+        } else {
+            binding.textviewDogName.setTextColor(resources.getColor(R.color.black))
+        }
+        if (dogsViewModel.dateLastSeen.value == "") {
+            binding.textviewDateLost.setTextColor(resources.getColor(R.color.error_red))
+            dateValidity = false
+        } else {
+            binding.textviewDateLost.setTextColor(resources.getColor(R.color.black))
+        }
+        if (dogsViewModel.placeLastSeen.value == "") {
+            binding.textviewPlaceLost.setTextColor(resources.getColor(R.color.error_red))
+            placeValidity = false
+        } else {
+            binding.textviewPlaceLost.setTextColor(resources.getColor(R.color.black))
+        }
+
+        return nameValidity && dateValidity && placeValidity
     }
 
     private val selectImageFromGalleryResult =
@@ -329,7 +470,8 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun getBitmapFromView(view: View): Bitmap {
         val bitmap = Bitmap.createBitmap(
-            view.width, view.height, Bitmap.Config.ARGB_8888
+            //view.width, view.height, Bitmap.Config.ARGB_8888
+            200, 200, Bitmap.Config.ARGB_8888
         )
         val canvas = Canvas(bitmap)
         view.draw(canvas)
@@ -357,8 +499,8 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         lostDate = null
         lostHour = null
         lostMinute = null
-        gender = 0
-        animalType.value = null
+        //gender = 0
+        //animalType.value = null
         setupGenderSpinner()
         setupPetSpinner()
     }

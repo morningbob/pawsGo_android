@@ -31,6 +31,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
@@ -46,8 +47,6 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var lostDate : String? = null
     private var lostHour : Int? = null
     private var lostMinute : Int? = null
-    //private var gender : Int = 0
-    private var animalType = MutableLiveData<String?>()
     private var petPassed : DogRoom? = null
     val ONE_DAY_IN_MILLIS = 86400000
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -56,7 +55,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var locationViewModel : LocationViewModel
     private lateinit var dogsViewModel : DogsViewModel
     private var lostOrFound : Boolean? = null
-    private var petAgeString = MutableLiveData<String>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,6 +103,9 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         } else {
             binding.textviewReportTitle.text = "Found Report"
         }
+        if (petPassed != null) {
+            prefillInfo(petPassed!!)
+        }
 
         setupGenderSpinner()
         setupPetSpinner()
@@ -134,7 +136,9 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
             if (isPermissionGranted != null && !isPermissionGranted!!) {
                 permissionsNeededAlert()
             } else {
-                findNavController().navigate(R.id.action_petFormFragment_to_chooseLocationFragment)
+                //findNavController().navigate(R.id.action_petFormFragment_to_chooseLocationFragment)
+                Log.i("pet form", "set navigation")
+                locationViewModel.shouldNavigateChooseLocation.value = true
             }
         }
 
@@ -220,6 +224,19 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
 
+    }
+
+    private fun prefillInfo(pet: DogRoom) {
+        dogsViewModel.petName.value = pet.dogName
+        dogsViewModel.petType.value = pet.animalType
+        dogsViewModel.petGender.value = pet.dogGender
+        dogsViewModel.petBreed.value = pet.dogBreed
+        dogsViewModel.petAge.value = pet.dogAge
+        dogsViewModel.dateLastSeen.value = pet.dateLastSeen
+        dogsViewModel.placeLastSeen.value = pet.placeLastSeen
+        dogsViewModel.lostHour.value = pet.hour
+        dogsViewModel.lostMinute.value = pet.minute
+        dogsViewModel.petNotes.value = pet.notes
     }
 
     private fun setupGenderSpinner() {
@@ -328,7 +345,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 // I didn't use two-way binding here, because I need to make sure
                 // the format of the date is correct.
                 // so I need to set the date string in the tempPet manually
-                dogsViewModel.dateLastSeen.value = lostDate!!
+                dogsViewModel.dateLastSeen.value = simpleDate.format(calendarChosen.time).toString()
                 binding.textviewDateLostData.text = lostDate
                 binding.textviewDateLostData.visibility = View.VISIBLE
             } else {
@@ -463,15 +480,18 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 // preview
                 binding.previewUpload.setImageURI(uri)
                 binding.previewUpload.visibility = View.VISIBLE
-                dogsViewModel.tempImage = getBitmapFromView(binding.previewUpload)
-                dogsViewModel.tempImageByteArray = convertImageToBytes(dogsViewModel.tempImage!!)
+                coroutineScope.launch(Dispatchers.Main) {
+                    dogsViewModel.tempImage = getBitmapFromView(binding.previewUpload)
+                    dogsViewModel.tempImageByteArray =
+                        convertImageToBytes(dogsViewModel.tempImage!!)
+                }
             }
         }
 
     private fun getBitmapFromView(view: View): Bitmap {
         val bitmap = Bitmap.createBitmap(
-            //view.width, view.height, Bitmap.Config.ARGB_8888
-            200, 200, Bitmap.Config.ARGB_8888
+            view.width, view.height, Bitmap.Config.ARGB_8888
+            //200, 200, Bitmap.Config.ARGB_8888
         )
         val canvas = Canvas(bitmap)
         view.draw(canvas)

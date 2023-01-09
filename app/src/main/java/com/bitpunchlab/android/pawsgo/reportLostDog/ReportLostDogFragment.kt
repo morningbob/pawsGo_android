@@ -101,47 +101,18 @@ class ReportLostDogFragment : Fragment() {
 
         dogsViewModel.readyProcessReport.observe(viewLifecycleOwner, androidx.lifecycle.Observer { ready ->
             if (ready) {
-                //Log.i("report fragment", "pet place got : ${dogsViewModel.tempPet.value?.placeLastSeen}")
-                //Log.i("dog object", dogsViewModel.tempPet.value!!.toString())
                 processReportPet()
-                /*
-                coroutineScope.launch {
-                    dogsViewModel.tempPet.value!!.dogID = UUID.randomUUID().toString()
-                    firebaseClient.handleNewDog(
-                        dogsViewModel.tempPet.value!!,
-                        dogsViewModel.tempImageByteArray
-                    )
-                }
-                */
+                dogsViewModel.readyProcessReport.value = false
             }
         })
 
-        dogsViewModel.petName.observe(viewLifecycleOwner, androidx.lifecycle.Observer { name ->
-            Log.i("name", name)
-        })
-        dogsViewModel.petType.observe(viewLifecycleOwner, androidx.lifecycle.Observer { type ->
-            Log.i("type", type)
-        })
-        dogsViewModel.petBreed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { breed ->
-            Log.i("breed", breed)
-        })
-        dogsViewModel.petAge.observe(viewLifecycleOwner, androidx.lifecycle.Observer { age ->
-            Log.i("age", age.toString())
-        })
-        dogsViewModel.petGender.observe(viewLifecycleOwner, androidx.lifecycle.Observer { gender ->
-            Log.i("gender", gender.toString())
-        })
-        dogsViewModel.dateLastSeen.observe(viewLifecycleOwner, androidx.lifecycle.Observer { date ->
-            Log.i("date", date)
-        })
-        dogsViewModel.lostHour.observe(viewLifecycleOwner, androidx.lifecycle.Observer { hour ->
-            Log.i("time", hour.toString())
-        })
-        dogsViewModel.placeLastSeen.observe(viewLifecycleOwner, androidx.lifecycle.Observer { place ->
-            Log.i("place", place)
-        })
-        dogsViewModel.petNotes.observe(viewLifecycleOwner, androidx.lifecycle.Observer { notes ->
-            Log.i("notes", notes)
+        locationViewModel.shouldNavigateChooseLocation.observe(viewLifecycleOwner, androidx.lifecycle.Observer { should ->
+            should?.let {
+                if (should) {
+                    findNavController().navigate(R.id.showMapAction)
+                    locationViewModel.shouldNavigateChooseLocation.value = false
+                }
+            }
         })
 
 
@@ -206,22 +177,30 @@ class ReportLostDogFragment : Fragment() {
         Log.i("lost place", "place " + dogsViewModel.placeLastSeen.value)
         Log.i("notes", "notes " + dogsViewModel.petNotes.value)
 
+        var gender = 0
+        if (dogsViewModel.petGender.value != null) {
+            gender = dogsViewModel.petGender.value!!
+        }
+
         val dogRoom = createDogRoom(
+            id = UUID.randomUUID().toString(),
             name = dogsViewModel.petName.value!!,
             animal = dogsViewModel.petType.value,
             breed = dogsViewModel.petBreed.value,
-            gender = dogsViewModel.petGender.value!!,
+            gender = gender,
             age = dogsViewModel.petAge.value!!,
             date = dogsViewModel.dateLastSeen.value!!,
-            hour = dogsViewModel.lostHour.value!!,
-            minute = dogsViewModel.lostMinute.value!!,
-            note = dogsViewModel.petNotes.value!!,
+            hour = dogsViewModel.lostHour.value,
+            minute = dogsViewModel.lostMinute.value,
+            note = dogsViewModel.petNotes.value,
             place = dogsViewModel.placeLastSeen.value!!,
             lost = lostOrFound!!,
             found = false,
             lat = locationViewModel.lostDogLocationLatLng.value?.latitude,
             lng = locationViewModel.lostDogLocationLatLng.value?.longitude,
-            address = locationViewModel.lostDogLocationAddress.value?.get(0))
+            address = locationViewModel.lostDogLocationAddress.value?.get(0)
+        )
+
 
         coroutineScope.launch {
             //dogsViewModel.tempPet.value!!.dogID = UUID.randomUUID().toString()
@@ -497,11 +476,11 @@ class ReportLostDogFragment : Fragment() {
         return nameValidity && dateValidity && placeValidity
     }
 */
-    private fun createDogRoom(name: String, animal: String?, breed: String?,
+    private fun createDogRoom(id: String, name: String, animal: String?, breed: String?,
                               gender: Int, age: Int?, date: String,
                         hour: Int?, minute: Int?, note: String?, place: String, lost: Boolean, found: Boolean,
                         lat: Double?, lng: Double?, address: String?): DogRoom {
-        return DogRoom(dogID = UUID.randomUUID().toString(), dogName = name,
+        return DogRoom(dogID = id, dogName = name,
             animalType = animal, dogBreed = breed,
             dogGender = gender, dogAge = age, isLost = lost, isFound = found,
             dateLastSeen = date, hour = hour, minute = minute, notes = note,
@@ -696,4 +675,33 @@ if (!checkPermission()) {
             locationViewModel.displayAddress.value = address?.get(0) ?: ""
         })
 
+/*
+        dogsViewModel.petName.observe(viewLifecycleOwner, androidx.lifecycle.Observer { name ->
+            Log.i("name", name)
+        })
+        dogsViewModel.petType.observe(viewLifecycleOwner, androidx.lifecycle.Observer { type ->
+            Log.i("type", type)
+        })
+        dogsViewModel.petBreed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { breed ->
+            Log.i("breed", breed)
+        })
+        dogsViewModel.petAge.observe(viewLifecycleOwner, androidx.lifecycle.Observer { age ->
+            Log.i("age", age.toString())
+        })
+        dogsViewModel.petGender.observe(viewLifecycleOwner, androidx.lifecycle.Observer { gender ->
+            Log.i("gender", gender.toString())
+        })
+        dogsViewModel.dateLastSeen.observe(viewLifecycleOwner, androidx.lifecycle.Observer { date ->
+            Log.i("date", date)
+        })
+        dogsViewModel.lostHour.observe(viewLifecycleOwner, androidx.lifecycle.Observer { hour ->
+            Log.i("time", hour.toString())
+        })
+        dogsViewModel.placeLastSeen.observe(viewLifecycleOwner, androidx.lifecycle.Observer { place ->
+            Log.i("place", place)
+        })
+        dogsViewModel.petNotes.observe(viewLifecycleOwner, androidx.lifecycle.Observer { notes ->
+            Log.i("notes", notes)
+        })
+*/
  */

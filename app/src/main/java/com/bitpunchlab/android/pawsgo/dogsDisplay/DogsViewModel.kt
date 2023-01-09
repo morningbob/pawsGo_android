@@ -44,7 +44,7 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
     var petBreed = MutableLiveData<String>()
     //val petBreed get() = _petBreed
 
-    var petGender = MutableLiveData<Int>()
+    var petGender = MutableLiveData<Int>(0)
     //val petGender get() = _petGender
 
     var petAgeString = MutableLiveData<String>()
@@ -67,6 +67,9 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
 
     var petNotes = MutableLiveData<String>()
     //val petNotes get() = _petNotes
+
+    var lat = MutableLiveData<Double>()
+    var lng = MutableLiveData<Double>()
 
     // these 2 variables hold the info entered in pet form for the report a pet fragment to use
     var tempPet = MutableLiveData<DogRoom?>()

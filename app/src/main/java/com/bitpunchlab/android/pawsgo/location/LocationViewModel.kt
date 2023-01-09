@@ -23,6 +23,8 @@ class LocationViewModel : ViewModel() {
     var _showLostDogLocation = MutableLiveData<LatLng?>()
     val showLostDogLocation get() = _showLostDogLocation
 
+    var shouldNavigateChooseLocation = MutableLiveData<Boolean>(false)
+
     fun finishNavigation() {
         navigateToPlace.value = null
     }

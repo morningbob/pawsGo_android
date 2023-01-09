@@ -283,7 +283,7 @@
                 android:layout_marginRight="@dimen/content_left_right_margin"
                 android:layout_marginTop="5dp"
                 android:textSize="@dimen/content_text_size"
-                android:text="@={pet.placeLastSeen}"
+                android:text="@={dogsVM.placeLastSeen}"
                 android:textColor="@color/blue_hint"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

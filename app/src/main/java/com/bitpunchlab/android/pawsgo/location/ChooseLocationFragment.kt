@@ -22,6 +22,7 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import kotlinx.coroutines.*
+import java.io.IOException
 import java.util.*
 
 
@@ -75,14 +76,21 @@ class ChooseLocationFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         // dismiss progress bar
                         stopProgressBar()
-                        findNavController().popBackStack()
+                        // reset
+                        locationViewModel.shouldNavigateChooseLocation.value = false
+                        // pop back stack doesn't work
+                        Log.i("pop back stack", findNavController().popBackStack().toString())
+
                     }
                 }
+            } else {
+                findNavController().popBackStack()
             }
         }
 
         binding.buttonCancel.setOnClickListener {
             findNavController().popBackStack()
+            //findNavController().navigate(R.id.action_chooseLocationFragment_to_editReportFragment)
         }
         return binding.root
     }
@@ -154,7 +162,11 @@ class ChooseLocationFragment : Fragment() {
         //val addressList = geoCoder.getFromLocation(placeLatLng.latitude, placeLatLng.longitude, 1)
         return withContext(Dispatchers.IO) {
             val addressListDeferred = coroutineScope.async {
-                geoCoder.getFromLocation(placeLatLng.latitude, placeLatLng.longitude, 1)
+                //try {
+                    geoCoder.getFromLocation(placeLatLng.latitude, placeLatLng.longitude, 1)
+                        //} catch (e: IOException){
+                    //Log.i("choose location", "can't get address from geocoder")
+                //}
             }
             val addressList = addressListDeferred.await()
             if (!addressList.isNullOrEmpty()) {

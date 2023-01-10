@@ -117,5 +117,7 @@
     <string name="edit_report">Edit Report</string>
     <string name="select_a_report">Select A Report</string>
     <string name="choose_a_report">Choose a Report</string>
+    <string name="pet_report_update">Pet Report Update</string>
+    <string name="update_report_success_alert_desc">The pet report was updated successfully.</string>
 
 </resources>

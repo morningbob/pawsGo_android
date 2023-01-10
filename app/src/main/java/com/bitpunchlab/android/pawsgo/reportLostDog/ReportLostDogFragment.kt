@@ -102,6 +102,7 @@ class ReportLostDogFragment : Fragment() {
         dogsViewModel.readyProcessReport.observe(viewLifecycleOwner, androidx.lifecycle.Observer { ready ->
             if (ready) {
                 processReportPet()
+                startProgressBar()
                 dogsViewModel.readyProcessReport.value = false
             }
         })
@@ -115,6 +116,7 @@ class ReportLostDogFragment : Fragment() {
             }
         })
 
+        firebaseClient.appState.observe(viewLifecycleOwner, appStateObserver)
 
         return binding.root
     }
@@ -181,6 +183,10 @@ class ReportLostDogFragment : Fragment() {
         if (dogsViewModel.petGender.value != null) {
             gender = dogsViewModel.petGender.value!!
         }
+        var age : Int? = null
+        if (dogsViewModel.petAge.value != null) {
+            age = dogsViewModel.petAge.value
+        }
 
         val dogRoom = createDogRoom(
             id = UUID.randomUUID().toString(),
@@ -188,7 +194,7 @@ class ReportLostDogFragment : Fragment() {
             animal = dogsViewModel.petType.value,
             breed = dogsViewModel.petBreed.value,
             gender = gender,
-            age = dogsViewModel.petAge.value!!,
+            age = age,
             date = dogsViewModel.dateLastSeen.value!!,
             hour = dogsViewModel.lostHour.value,
             minute = dogsViewModel.lostMinute.value,
@@ -201,15 +207,24 @@ class ReportLostDogFragment : Fragment() {
             address = locationViewModel.lostDogLocationAddress.value?.get(0)
         )
 
+        // reset locationVM, latlng and address,
+        // so next time user clicks in it, won't get the old info
+        locationViewModel.lostDogLocationLatLng.value = null
+        locationViewModel.lostDogLocationAddress.value = null
 
         coroutineScope.launch {
             //dogsViewModel.tempPet.value!!.dogID = UUID.randomUUID().toString()
-            firebaseClient.handleNewDog(
+            if (firebaseClient.processDogReport(
                 dogRoom,
-                dogsViewModel.tempImageByteArray
-            )
-        }
+                dogsViewModel.tempImageByteArray)) {
+                    //sentReportSuccessAlert()
+                    firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_SUCCESS)
 
+                } else {
+                    //sentReportFailureAlert()
+                    firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_ERROR)
+            }
+        }
     }
 /*
 

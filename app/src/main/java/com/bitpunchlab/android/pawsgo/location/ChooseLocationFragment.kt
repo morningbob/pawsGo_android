@@ -89,6 +89,9 @@ class ChooseLocationFragment : Fragment() {
         }
 
         binding.buttonCancel.setOnClickListener {
+            // reset location
+            locationViewModel.lostDogLocationLatLng.value = null
+            locationViewModel.lostDogLocationAddress.value = null
             findNavController().popBackStack()
             //findNavController().navigate(R.id.action_chooseLocationFragment_to_editReportFragment)
         }

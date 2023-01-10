@@ -900,10 +900,16 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
 
     // new dog reported is saved in different folders according the lostOrFound
     // lost is true, dog is saved in lostDogs, lost is false, dog is saved in foundDogs
-    suspend fun handleNewDog(dogRoom: DogRoom, data: ByteArray? = null) : Boolean =
+    suspend fun processDogReport(dogRoom: DogRoom, data: ByteArray? = null) : Boolean =
         // refactor the convert method!!
         suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
         if (currentUserID != null && currentUserID != "") {
+            // I'll see if there is image byte array in dogsVM.
+            // if the user uploaded a photo, the byte array will be there
+            // I'll replace the new byte array in the dogImages
+            // if there is no byte array in dogsVM, I'll just pass the old dogsImages array to the updated
+            // pet object.
+
             // first we upload the dog image
             // we do this first because we need the url string that comes back when we save
             // the image in the storage.
@@ -930,11 +936,10 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
                         dogRoom.dogImages = tempImages
                         // if there is image uploaded, we wait for the above process done
                         // before we send the dog info
-                        //coroutineScope.launch {
                         saveDogFirebase(dogFirebase)
                         saveDogRoom(dogRoom)
                         cancellableContinuation.resume(updateUserLostDogFirebase(dogFirebase)) {}
-                        //}
+
                     }
                 }
             } else {

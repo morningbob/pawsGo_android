@@ -1,6 +1,7 @@
 package com.bitpunchlab.android.pawsgo.reportLostDog
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.pm.PackageManager
@@ -26,6 +27,7 @@ import com.bitpunchlab.android.pawsgo.dogsDisplay.DogsViewModel
 import com.bitpunchlab.android.pawsgo.dogsDisplay.DogsViewModelFactory
 import com.bitpunchlab.android.pawsgo.location.LocationViewModel
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
+import com.bumptech.glide.Glide
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -55,13 +57,19 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var locationViewModel : LocationViewModel
     private lateinit var dogsViewModel : DogsViewModel
     private var lostOrFound : Boolean? = null
-
+    // we keep a variable to identify if the user has uploaded a new photo.
+    // it is to identify if the upload button has been clicked
+    // there is no way to compare if two photos are the same
+    // so, if the upload button has been clicked and the preview upload has an image
+    // we treat it as a new photo.
+    private var 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
     }
 
+    @SuppressLint("CheckResult")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -77,7 +85,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         locationViewModel = ViewModelProvider(requireActivity()).get(LocationViewModel::class.java)
         dogsViewModel = ViewModelProvider(requireActivity(), DogsViewModelFactory(requireActivity().application))
             .get(DogsViewModel::class.java)
-        binding.pet = petPassed
+        //binding.pet = petPassed
         binding.locationVM = locationViewModel
         binding.dogsVM = dogsViewModel
         if (!checkPermission()) {
@@ -116,6 +124,18 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
             showAge()
             showDate()
             showTime()
+            // prepare to show the image of the dog, if it is in the edit mode
+            if (petPassed!!.dogImages!!.isNotEmpty()) {
+                // we don't use the binding, we load it here
+                val bitmap = Glide
+                    .with(requireContext())
+                    .asBitmap()
+                    .load(petPassed!!.dogImages!!.first())
+                    .submit()
+                    .get()
+
+                binding.previewUpload.setImageBitmap(bitmap)
+            }
         }
 
         locationViewModel.lostDogLocationAddress.observe(viewLifecycleOwner, androidx.lifecycle.Observer { address ->
@@ -200,23 +220,30 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
             "Dog" -> {
                 //animalType.value = "Dog"
                 dogsViewModel.petType.value = "Dog"
+                binding.edittextOtherType.text.clear()
+                binding.edittextOtherType.hint = "Dog"
                 //dogsViewModel.tempPet.value!!.animalType = "Dog"
                 Log.i("spinner", "set type dog")
             }
             "Cat" -> {
                 //animalType.value = "Cat"
                 dogsViewModel.petType.value = "Cat"
+                binding.edittextOtherType.text.clear()
+                binding.edittextOtherType.hint = "Cat"
                 //dogsViewModel.tempPet.value!!.animalType = "Cat"
                 Log.i("spinner", "set type cat")
             }
             "Bird" -> {
                 //animalType.value = "Bird"
                 dogsViewModel.petType.value = "Bird"
+                binding.edittextOtherType.text.clear()
+                binding.edittextOtherType.hint = "Bird"
                 //dogsViewModel.tempPet.value!!.animalType = "Bird"
                 Log.i("spinner", "set type bird")
             }
             "Other" -> {
                 //animalType.value = "Other"
+                binding.edittextOtherType.text.clear()
                 Log.i("spinner", "set type other")
             }
         }
@@ -338,7 +365,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 val calendarChosen = Calendar.getInstance()
                 calendarChosen.set(year, month, dayOfMonth)
 
-                lostDate = simpleDate.format(calendarChosen.time)
+                //lostDate = simpleDate.format(calendarChosen.time)
                 //Log.i("got back date", "day: $dayOfMonth, month: $month, year: $year")
                 Log.i("got back date", lostDate.toString())
 
@@ -382,7 +409,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun processReportInputs() {
-        if (verifyLostDogData(dogsViewModel.tempPet.value!!)) {
+        if (verifyLostDogData()) {
             //clearForm()
             dogsViewModel._readyProcessReport.value = true
         } else {
@@ -447,7 +474,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         */
     }
 
-    private fun verifyLostDogData(pet: DogRoom) : Boolean {
+    private fun verifyLostDogData() : Boolean {
         var nameValidity = true
         var dateValidity = true
         var placeValidity = true
@@ -516,11 +543,6 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         binding.edittextPlaceLost.text = null
         binding.previewUpload.visibility = View.GONE
         binding.edittextNotes.text = null
-        lostDate = null
-        lostHour = null
-        lostMinute = null
-        //gender = 0
-        //animalType.value = null
         setupGenderSpinner()
         setupPetSpinner()
     }

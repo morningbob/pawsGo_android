@@ -1,16 +1,20 @@
 package com.bitpunchlab.android.pawsgo.reportLostDog
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.bitpunchlab.android.pawsgo.AppState
 import com.bitpunchlab.android.pawsgo.R
 import com.bitpunchlab.android.pawsgo.databinding.FragmentEditReportBinding
 import com.bitpunchlab.android.pawsgo.dogsDisplay.DogsViewModel
@@ -19,9 +23,15 @@ import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModel
 import com.bitpunchlab.android.pawsgo.firebase.FirebaseClientViewModelFactory
 import com.bitpunchlab.android.pawsgo.location.LocationViewModel
 import com.bitpunchlab.android.pawsgo.modelsRoom.DogRoom
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class EditReportFragment : Fragment() {
@@ -50,10 +60,14 @@ class EditReportFragment : Fragment() {
         dogsViewModel = ViewModelProvider(requireActivity(), DogsViewModelFactory(requireActivity().application))
             .get(DogsViewModel::class.java)
         pet = requireArguments().getParcelable<DogRoom>("pet")
-        //prefillPetInfo(pet!!)
+
         setupPetFormFragment()
         binding.lifecycleOwner = viewLifecycleOwner
-        //binding.pet = pet
+        // prepare the old lat lng info, if it is not renewed, it will be saved again in new update
+        if (pet!!.locationLat != null) {
+            locationViewModel.lostDogLocationLatLng.value =
+                LatLng(pet!!.locationLat!!, pet!!.locationLng!!)
+        }
 
         locationViewModel.shouldNavigateChooseLocation.observe(viewLifecycleOwner, Observer { should ->
             Log.i("should navigate", should.toString())
@@ -71,10 +85,13 @@ class EditReportFragment : Fragment() {
             ready?.let {
                 if (ready) {
                     processUpdateReport()
+                    startProgressBar()
                     dogsViewModel.readyProcessReport.value = false
                 }
             }
         })
+
+        firebaseClient.appState.observe(viewLifecycleOwner, appStateObserver)
 
         return binding.root
     }
@@ -93,21 +110,6 @@ class EditReportFragment : Fragment() {
         val fragmentTransaction = childFragmentManager.beginTransaction()
         fragmentTransaction.add(R.id.editFragmentContainer, petFormFragment)
         fragmentTransaction.commit()
-    }
-
-    // prefill the live data, so the pet form can show it
-    private fun prefillPetInfo(pet: DogRoom) {
-        dogsViewModel.petName.value = pet.dogName
-        dogsViewModel.petType.value = pet.animalType
-        dogsViewModel.petGender.value = pet.dogGender
-        dogsViewModel.petBreed.value = pet.dogBreed
-        dogsViewModel.petAge.value = pet.dogAge
-        dogsViewModel.dateLastSeen.value = pet.dateLastSeen
-        dogsViewModel.placeLastSeen.value = pet.placeLastSeen
-        dogsViewModel.lostHour.value = pet.hour
-        dogsViewModel.lostMinute.value = pet.minute
-        dogsViewModel.petNotes.value = pet.notes
-
     }
 
     private fun processUpdateReport() {
@@ -140,6 +142,59 @@ class EditReportFragment : Fragment() {
 
         // reset locationVM address and latlng
         Log.i("edit report", "update pet ${updatePet}")
+
+        // we need to pass the old image into the new object first
+        // if there is image byte array, the new image url will replace the new one
+        // if there is no image byte array, the old image url will pass to the updated object
+        updatePet.dogImages = pet!!.dogImages
+
+        // reset locationVM, latlng and address,
+        // so next time user clicks in it, won't get the old info
+        locationViewModel.lostDogLocationLatLng.value = null
+        locationViewModel.lostDogLocationAddress.value = null
+
+
+        CoroutineScope(Dispatchers.IO).launch {
+            if (firebaseClient.processDogReport(updatePet, dogsViewModel.tempImageByteArray)) {
+                // alert success
+                firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_SUCCESS)
+            } else {
+                // alert failure
+                firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_ERROR)
+            }
+
+        }
+    }
+
+    private val appStateObserver = androidx.lifecycle.Observer<AppState> { appState ->
+        when (appState) {
+            AppState.LOST_DOG_REPORT_SENT_SUCCESS -> {
+                stopProgressBar()
+                updateReportSuccessAlert()
+                firebaseClient._appState.value = AppState.NORMAL
+            }
+            AppState.LOST_DOG_REPORT_SENT_ERROR -> {
+                stopProgressBar()
+                updateReportFailureAlert()
+                firebaseClient._appState.value = AppState.NORMAL
+            }
+            else -> {
+                stopProgressBar()
+            }
+        }
+    }
+
+    private fun startProgressBar() {
+        binding.progressBar.visibility = View.VISIBLE
+
+        requireActivity().window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    private fun stopProgressBar() {
+        binding.progressBar.visibility = View.GONE
+        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
     private fun createDogRoom(id: String, name: String, animal: String?, breed: String?,
@@ -155,6 +210,34 @@ class EditReportFragment : Fragment() {
             ownerName = firebaseClient.currentUserFirebaseLiveData.value!!.userName,
             locationLat = lat, locationLng = lng,
             locationAddress = address)
+    }
+
+    private fun updateReportSuccessAlert() {
+        val successAlert = AlertDialog.Builder(context)
+
+        with(successAlert) {
+            setTitle(getString(R.string.pet_report_update))
+            setMessage(getString(R.string.update_report_success_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
+                })
+            show()
+        }
+    }
+
+    private fun updateReportFailureAlert() {
+        val failureAlert = AlertDialog.Builder(context)
+
+        with(failureAlert) {
+            setTitle(getString(R.string.pet_report_update))
+            setMessage(getString(R.string.lost_report_failure_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
+                })
+            show()
+        }
     }
 
 }

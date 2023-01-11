@@ -91,6 +91,22 @@ class EditReportFragment : Fragment() {
             }
         })
 
+        dogsViewModel.shouldDeleteReport.observe(viewLifecycleOwner, Observer { should ->
+            should?.let {
+                if (should) {
+                    startProgressBar()
+                    Log.i("edit report", "should delete report detected")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        if (firebaseClient.processDeleteReport(pet!!)) {
+                            firebaseClient._appState.postValue(AppState.DELETE_REPORT_SUCCESS)
+                        } else {
+                            firebaseClient._appState.postValue(AppState.DELETE_REPORT_ERROR)
+                        }
+                    }
+                }
+            }
+        })
+
         firebaseClient.appState.observe(viewLifecycleOwner, appStateObserver)
 
         return binding.root
@@ -155,7 +171,15 @@ class EditReportFragment : Fragment() {
 
 
         CoroutineScope(Dispatchers.IO).launch {
-            if (firebaseClient.processDogReport(updatePet, dogsViewModel.tempImageByteArray)) {
+            // so, here, if we sure the picture is a new picture in tempImageByteArray
+            // (the uploadClicked and choosedpicture are true)
+            // we pass the image to processDogReport, else, we pass null
+            var picturePassed : ByteArray? = null
+            if (dogsViewModel.tempImageByteArray != null && dogsViewModel.uploadClicked &&
+                    dogsViewModel.choosedPicture) {
+                picturePassed = dogsViewModel.tempImageByteArray
+            }
+            if (firebaseClient.processDogReport(updatePet, picturePassed)) {
                 // alert success
                 firebaseClient._appState.postValue(AppState.LOST_DOG_REPORT_SENT_SUCCESS)
             } else {
@@ -177,6 +201,14 @@ class EditReportFragment : Fragment() {
                 stopProgressBar()
                 updateReportFailureAlert()
                 firebaseClient._appState.value = AppState.NORMAL
+            }
+            AppState.DELETE_REPORT_SUCCESS -> {
+                stopProgressBar()
+                deleteReportSuccessAlert()
+            }
+            AppState.DELETE_REPORT_ERROR -> {
+                stopProgressBar()
+                deleteReportFailureAlert()
             }
             else -> {
                 stopProgressBar()
@@ -240,4 +272,31 @@ class EditReportFragment : Fragment() {
         }
     }
 
+    private fun deleteReportSuccessAlert() {
+        val successAlert = AlertDialog.Builder(context)
+
+        with(successAlert) {
+            setTitle(getString(R.string.delete_report_alert))
+            setMessage(getString(R.string.delete_report_success_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
+                })
+            show()
+        }
+    }
+
+    private fun deleteReportFailureAlert() {
+        val failureAlert = AlertDialog.Builder(context)
+
+        with(failureAlert) {
+            setTitle(getString(R.string.delete_report_alert))
+            setMessage(getString(R.string.delete_report_failure_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
+                })
+            show()
+        }
+    }
 }

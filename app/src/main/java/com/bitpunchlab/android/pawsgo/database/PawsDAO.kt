@@ -49,4 +49,8 @@ interface PawsDAO {
 
     @Query("SELECT * FROM user_table WHERE :id == userID")
     fun getUserWithMessages(id: String) : LiveData<UserWithMessages>
+
+    //@Query("DELETE * FROM dog_table WHERE :id == dogID")
+    //fun deletePetByID(id: String)
+
 }

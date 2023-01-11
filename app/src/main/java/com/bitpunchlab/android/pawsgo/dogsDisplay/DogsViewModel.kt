@@ -77,6 +77,9 @@ class DogsViewModel(application: Application) : AndroidViewModel(application) {
     var tempImageByteArray : ByteArray? = null
     var _readyProcessReport = MutableLiveData<Boolean>(false)
     val readyProcessReport get() = _readyProcessReport
+    var uploadClicked = false
+    var choosedPicture = false
+    var shouldDeleteReport = MutableLiveData<Boolean>(false)
 
     fun onDogChosen(dog: DogRoom) {
         _chosenDog.value = dog

@@ -1107,6 +1107,94 @@ class FirebaseClientViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    // to delete a report, need to go to either lost or found collection
+    // also need to update the user's lost dogs array to remove it
+    // also need to update local database
+    suspend fun processDeleteReport(pet: DogRoom) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            coroutineScope.launch {
+                var resultCollectionDeferred = coroutineScope.async { deleteReportInCollection(pet) }
+                var resultUpdateUserDeferred = coroutineScope.async { deletePetUserFirebase(pet) }
+                var resultInCollection = resultCollectionDeferred.await()
+                var resultUpdateUser = resultUpdateUserDeferred.await()
+                deletePetLocalDatabase(pet)
+                deletePetUserLocal(pet)
+                cancellableContinuation.resume(resultInCollection && resultUpdateUser) {}
+            }
+        }
+
+
+
+    private suspend fun deleteReportInCollection(pet: DogRoom) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            var collectionName = ""
+            if (pet.isLost!!) {
+                collectionName = "lostDogs"
+            } else {
+                collectionName = "foundDogs"
+            }
+            firestore
+                .collection(collectionName)
+                .document(pet.dogID)
+                .delete()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.i("delete pet from collection", "success")
+                        cancellableContinuation.resume(true) {}
+                    } else {
+                        Log.i("delete pet from collection", "failed")
+                        cancellableContinuation.resume(false) {}
+                    }
+                }
+        }
+
+    private suspend fun deletePetUserFirebase(pet: DogRoom) : Boolean =
+        suspendCancellableCoroutine<Boolean> { cancellableContinuation ->
+            firestore
+                .collection("users")
+                .document(pet.ownerID)
+                .get()
+                .addOnSuccessListener { docSnapshot ->
+                    if (docSnapshot.exists()) {
+                        Log.i("delete pet from user", "got user object")
+                        var user = docSnapshot.toObject(UserFirebase::class.java)!!
+                        user.lostDogs.remove(pet.dogID)
+                        // save user in firebase
+                        coroutineScope.launch {
+                            if (saveUserFirebase(user)) {
+                                Log.i("delete pet from user", "updated user")
+                                cancellableContinuation.resume(true) {}
+                            } else {
+                                Log.i("delete pet from user", "couldn't save user")
+                                cancellableContinuation.resume(false) {}
+                            }
+                        }
+                        // save user in room
+                    } else {
+                        Log.i("delete pet from user", "failed to get user object")
+                        cancellableContinuation.resume(false) {}
+                    }
+                }
+        }
+
+    private fun deletePetLocalDatabase(pet: DogRoom) {
+        localDatabase.pawsDAO.deleteDogs(pet)
+    }
+
+    private fun deletePetUserLocal(petRoom: DogRoom) {
+        val pet = currentUserRoomLiveData.value?.lostDogs!!.find { pet -> pet.dogID == petRoom.dogID }
+        var petList = ArrayList<DogRoom>()
+        if (pet != null) {
+            petList = currentUserRoomLiveData.value!!.lostDogs as ArrayList
+        }
+        petList.remove(pet)
+        val user = currentUserRoomLiveData.value!!
+        user.lostDogs = petList
+        // save user
+        coroutineScope.launch {
+            localDatabase.pawsDAO.insertUser(user)
+        }
+    }
 }
 
 class FirebaseClientViewModelFactory(private val application: Application)

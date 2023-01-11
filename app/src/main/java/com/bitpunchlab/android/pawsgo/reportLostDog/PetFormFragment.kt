@@ -47,8 +47,8 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var timePicker : MaterialTimePicker? = null
     private var datePicker : MaterialDatePicker<Long>? = null
     private var lostDate : String? = null
-    private var lostHour : Int? = null
-    private var lostMinute : Int? = null
+    //private var lostHour : Int? = null
+    //private var lostMinute : Int? = null
     private var petPassed : DogRoom? = null
     val ONE_DAY_IN_MILLIS = 86400000
     private var coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -62,7 +62,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
     // there is no way to compare if two photos are the same
     // so, if the upload button has been clicked and the preview upload has an image
     // we treat it as a new photo.
-    private var 
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -163,6 +163,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
         binding.buttonUpload.setOnClickListener {
+            dogsViewModel.uploadClicked = true
             selectImageFromGalleryResult.launch("image/*")
         }
 
@@ -192,6 +193,11 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         binding.buttonSend.setOnClickListener {
             processReportInputs()
+        }
+
+        binding.buttonDelete.setOnClickListener {
+            // alert confirm
+            confirmDeleteReportAlert()
         }
 
         return binding.root
@@ -508,6 +514,7 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 binding.previewUpload.setImageURI(uri)
                 binding.previewUpload.visibility = View.VISIBLE
                 coroutineScope.launch(Dispatchers.Main) {
+                    dogsViewModel.choosedPicture = true
                     dogsViewModel.tempImage = getBitmapFromView(binding.previewUpload)
                     dogsViewModel.tempImageByteArray =
                         convertImageToBytes(dogsViewModel.tempImage!!)
@@ -569,6 +576,26 @@ class PetFormFragment : Fragment(), AdapterView.OnItemSelectedListener {
             setMessage(getString(R.string.invalid_date_alert_desc))
             setPositiveButton(getString(R.string.ok),
                 DialogInterface.OnClickListener { dialog, button ->
+                    dialog.dismiss()
+                })
+            show()
+        }
+    }
+
+    private fun confirmDeleteReportAlert() {
+        val deleteAlert = AlertDialog.Builder(context)
+
+        with(deleteAlert) {
+            setTitle(getString(R.string.delete_report_confirmation))
+            setMessage(getString(R.string.delete_report_alert_desc))
+            setPositiveButton(getString(R.string.ok),
+                DialogInterface.OnClickListener { dialog, button ->
+                    dogsViewModel.shouldDeleteReport.value = true
+                    dialog.dismiss()
+                })
+            setNegativeButton(getString(R.string.cancel),
+                DialogInterface.OnClickListener { dialog, button ->
+                    // do nothing
                     dialog.dismiss()
                 })
             show()
